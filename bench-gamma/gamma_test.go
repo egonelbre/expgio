@@ -50,9 +50,9 @@ func gamma2(r, g, b, a uint32) [4]float32 {
 
 func gamma2x(r, g, b, a uint32) [4]float32 {
 	return [4]float32{
-		linearize(float32(r) / 0xffff),
-		linearize(float32(g) / 0xffff),
-		linearize(float32(b) / 0xffff),
+		linearize2(float32(r) / 0xffff),
+		linearize2(float32(g) / 0xffff),
+		linearize2(float32(b) / 0xffff),
 		float32(a) / 0xffff,
 	}
 }
@@ -63,6 +63,10 @@ func linearize(v float32) float32 {
 	} else {
 		return float32(math.Pow(float64((v+0.055)/1.055), 2.4))
 	}
+}
+
+func linearize2(v float32) float32 {
+	return 0.012522878*v + 0.682171111*v*v + 0.305306011*v*v*v
 }
 
 type RGBA struct {
