@@ -1,8 +1,11 @@
 package main
 
 import (
+	"flag"
+	"image/color"
 	"log"
-	"math"
+	"os"
+	"runtime/pprof"
 
 	"gioui.org/app"
 	"gioui.org/f32"
@@ -14,10 +17,26 @@ import (
 )
 
 func main() {
+	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to `file`")
+
+	flag.Parse()
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close()
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
+
 	go func() {
 		w := app.NewWindow()
 		if err := loop(w); err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}()
 	app.Main()
@@ -37,9 +56,13 @@ func loop(w *app.Window) error {
 			const size = 2
 			for y := 0; y < e.Size.Y; y += size {
 				for x := 0; x < e.Size.X; x += size {
-					hue := float32(x*y) * math.Phi / 1024.0
 					paint.ColorOp{
-						Color: HSL(hue, 0.6, 0.6),
+						Color: color.RGBA{
+							R: byte(x),
+							G: byte(y),
+							B: byte(x * y),
+							A: 0xFF,
+						},
 					}.Add(gtx.Ops)
 					paint.PaintOp{Rect: f32.Rectangle{
 						Min: f32.Point{
