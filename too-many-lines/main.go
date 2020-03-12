@@ -72,8 +72,7 @@ func loop(linecount int, w *app.Window) error {
 				},
 			}.Add(gtx.Ops)
 
-			divisor := float32(math.Sin(now.Seconds()*0.001) * 40)
-			step := float32(math.Pi) / (360.0 + divisor)
+			step := float32(math.Pi) / 90
 			radius := float32(e.Size.Y) / 8.0
 			center := f32.Point{
 				X: float32(e.Size.X) / 2,
