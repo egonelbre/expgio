@@ -1,16 +1,8 @@
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
-gioui.org v0.0.0-20200308095208-acfe91ec3e33 h1:6oglI31higZIdCj0uiI5L1C3XiagLn8pQsHdY9FrieQ=
-gioui.org v0.0.0-20200308095208-acfe91ec3e33/go.mod h1:AHI9rFr6AEEHCb8EPVtb/p5M+NMJRKH58IOp8O3Je04=
-gioui.org v0.0.0-20200311164516-7024a0e6914d h1:wCPZaOH3EkLnUyFZT2q+EQExN7XQ1DAPdgbocdSALWc=
-gioui.org v0.0.0-20200311164516-7024a0e6914d/go.mod h1:AHI9rFr6AEEHCb8EPVtb/p5M+NMJRKH58IOp8O3Je04=
 gioui.org v0.0.0-20200312122134-7c1a21ce5677 h1:IC0xUjH1GmQIDOqD2aUIfRlkipJyCZiTQg/4RA5WPbw=
 gioui.org v0.0.0-20200312122134-7c1a21ce5677/go.mod h1:AHI9rFr6AEEHCb8EPVtb/p5M+NMJRKH58IOp8O3Je04=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/go-audio/midi v1.0.1-0.20200310162535-57d78ec22b86 h1:pT2AOA/u3Y6MvC+UUSCiMfpZNjNmgSQTuNwvhTYtzWQ=
-github.com/go-audio/midi v1.0.1-0.20200310162535-57d78ec22b86/go.mod h1:PoFcd6KPFUn++NHd1libpb/WifNIb/qKVvZ71McMVmo=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
-github.com/mattetti/filebuffer v1.0.0 h1:ixTvQ0JjBTwWbdpDZ98lLrydo7KRi8xNRIi5RFszsbY=
-github.com/mattetti/filebuffer v1.0.0/go.mod h1:X6nyAIge2JGVmuJt2MFCqmHrb/5IHiphfHtot0s5cnI=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
