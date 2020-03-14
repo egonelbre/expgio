@@ -58,6 +58,10 @@ func Sqrt(p float32) float32 {
 	return float32(math.Sqrt(float64(p)))
 }
 
+func Pow(a, b float32) float32 {
+	return float32(math.Pow(float64(a), float64(b)))
+}
+
 func Neg(p f32.Point) f32.Point {
 	return f32.Point{X: -p.X, Y: -p.Y}
 }
@@ -68,4 +72,22 @@ func Len(p f32.Point) float32 {
 
 func Dot(a, b f32.Point) float32 {
 	return a.X*b.X + a.Y*b.Y
+}
+
+func Mod(a, b float32) float32 {
+	return float32(math.Mod(float64(a), float64(b)))
+}
+
+func Min(a, b float32) float32 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func Max(a, b float32) float32 {
+	if a > b {
+		return a
+	}
+	return b
 }

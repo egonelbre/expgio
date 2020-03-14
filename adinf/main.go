@@ -58,7 +58,7 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			gtx.Reset(e.Config, e.Size)
 
-			fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A:0xFF})
+			fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 			render(gtx, float32(time.Since(start).Seconds()))
 
 			e.Frame(gtx.Ops)
@@ -80,7 +80,7 @@ func render(gtx *layout.Context, t float32) {
 	const n = 256
 	for i := 0; i < n; i++ {
 		r := float32(i) / n
-		p := curve(t+r*1.2 + Sin(t + r)*3, radius + Sin(r * 1.1) * 30)
+		p := curve(t+r*1.2+Sin(t+r)*3, radius+Sin(r*1.1)*30)
 
 		var stack op.StackOp
 		stack.Push(gtx.Ops)
