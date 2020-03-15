@@ -83,30 +83,37 @@ func loop(w *app.Window) error {
 }
 
 type State struct {
-	Root *Branch
-
 	Camera f32.Point
+
+	Root *Branch
 }
 
 func NewState() *State {
 	state := &State{
 		Root: NewRoot(),
 	}
-	state.Root.Path = []f32.Point{{X: 400, Y: 400}}
 	return state
 }
 
 func (state *State) Update(delta float32) {
 	state.Root.Update(delta)
-	state.Camera = LerpPoint(0.7*delta, state.Camera, state.Root.Head())
+	state.Camera = LerpPoint(0.8*delta, state.Camera, state.Root.Head())
 }
 
 func (state *State) Render(gtx *layout.Context) {
-	fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
+	// fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
+	fill(gtx, color.RGBA{R: 0xFF, G: 0xFF, B: 0xEE, A: 0xFF})
 
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
+
+	screenSize := f32.Point{
+		X: float32(gtx.Constraints.Width.Min),
+		Y: float32(gtx.Constraints.Height.Min),
+	}
+	offset := Neg(state.Camera).Add(screenSize.Mul(0.5))
+	op.TransformOp{}.Offset(offset).Add(gtx.Ops)
 
 	state.Root.Render(gtx)
 }
@@ -128,6 +135,7 @@ type Branch struct {
 	Turn       float32
 	Length     float32
 	Travel     float32
+	Bounce     float32
 
 	IsRoot         bool
 	Life           int
@@ -146,16 +154,15 @@ func random(min, max float32) float32 {
 
 func NewRoot() *Branch {
 	branch := &Branch{}
-	branch.PathLimit = 300
-	branch.Speed = 100.0
+	branch.PathLimit = 200
+	branch.Speed = 150.0
 	branch.Direction = random(0, Tau)
 	branch.IsRoot = true
-	branch.Thickness = 8.0
+	branch.Thickness = 12.0
 	branch.Lightness = 0.8
 
-	hue := random(0, 1)
-	branch.Fill = HSL(hue, branch.Lightness, 0.4)
-	branch.Stroke = HSL(hue, branch.Lightness*0.2, 0.4)
+	branch.Fill = color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}
+	branch.Stroke = HSL(0, branch.Lightness*0.2, 0.4)
 
 	branch.SpawnInterval = 0.3
 	branch.SpawnCountdown = branch.SpawnInterval
@@ -170,9 +177,6 @@ func NewBranch(root *Branch) *Branch {
 	child.Thickness = root.Thickness * 0.3
 	child.IsRoot = false
 	child.Lightness = root.Lightness * 0.8
-	hue := random(0, 1)
-	child.Fill = HSL(hue, child.Lightness, 0.4)
-	child.Stroke = HSL(hue, child.Lightness*0.2, 0.4)
 	child.Life = len(root.Path)
 	child.Path = []f32.Point{root.Head()}
 	child.Direction = root.Direction
@@ -192,6 +196,8 @@ func (branch *Branch) NextSegment() {
 	branch.Turn = randomSnapped(-Tau/2, Tau/2, AngleSnap)
 	branch.Length = randomSnapped(100, 200, 25)
 	branch.Travel = branch.Length
+
+	branch.Bounce = 0
 }
 
 func (branch *Branch) IsDying() bool {
@@ -203,6 +209,12 @@ func (branch *Branch) IsDead() bool {
 
 func (branch *Branch) Update(dt float32) {
 	branch.Life--
+	if branch.Bounce < 1 {
+		branch.Bounce += dt / 2.5
+		if branch.Bounce > 1 {
+			branch.Bounce = 1
+		}
+	}
 
 	alive := branch.Branches[:0]
 	for _, child := range branch.Branches {
@@ -253,19 +265,21 @@ func (branch *Branch) Update(dt float32) {
 }
 
 func (branch *Branch) Render(gtx *layout.Context) {
+	stroke := 8 - Bounce(branch.Bounce, 0, 4, 1)
+	branch.renderPath(gtx, stroke, branch.Stroke)
+
 	for _, child := range branch.Branches {
 		child.Render(gtx)
 	}
 
+	branch.renderPath(gtx, 0, branch.Fill)
+}
+
+func (branch *Branch) renderPath(gtx *layout.Context, radiusAdd float32, color color.RGBA) {
 	if len(branch.Path) == 0 {
 		return
 	}
 
-	branch.renderPath(gtx, 1.3, branch.Stroke)
-	branch.renderPath(gtx, 1, branch.Fill)
-}
-
-func (branch *Branch) renderPath(gtx *layout.Context, radiusScale float32, color color.RGBA) {
 	pred := branch.Path[0]
 	for i, pt := range branch.Path {
 		if i > 0 && Len(pred.Sub(pt)) < 1 {
@@ -286,7 +300,7 @@ func (branch *Branch) renderPath(gtx *layout.Context, radiusScale float32, color
 			}
 		}
 
-		squashcircle(gtx, pt, radius*radiusScale, color)
+		squashcircle(gtx, pt, radius+radiusAdd, color)
 	}
 }
 
@@ -313,13 +327,11 @@ func squashcircle(gtx *layout.Context, p f32.Point, r float32, color color.RGBA)
 	)
 	builder.End().Add(gtx.Ops)
 
+	size := f32.Point{X: r, Y: r}
 	paint.PaintOp{
 		Rect: f32.Rectangle{
-			Min: f32.Point{},
-			Max: f32.Point{
-				X: float32(gtx.Constraints.Width.Max),
-				Y: float32(gtx.Constraints.Height.Max),
-			},
+			Min: p.Sub(size),
+			Max: p.Add(size),
 		}}.Add(gtx.Ops)
 }
 
