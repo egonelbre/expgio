@@ -117,6 +117,9 @@ type Branch struct {
 	PathLimit int
 	Path      []f32.Point
 
+	Fill   color.RGBA
+	Stroke color.RGBA
+
 	Thickness  float32
 	Lightness  float32
 	Accelerate float32
@@ -148,7 +151,11 @@ func NewRoot() *Branch {
 	branch.Direction = random(0, Tau)
 	branch.IsRoot = true
 	branch.Thickness = 8.0
-	branch.Lightness = 0.7
+	branch.Lightness = 0.8
+
+	hue := random(0, 1)
+	branch.Fill = HSL(hue, branch.Lightness, 0.4)
+	branch.Stroke = HSL(hue, branch.Lightness*0.2, 0.4)
 
 	branch.SpawnInterval = 0.3
 	branch.SpawnCountdown = branch.SpawnInterval
@@ -162,7 +169,10 @@ func NewBranch(root *Branch) *Branch {
 	child := NewRoot()
 	child.Thickness = root.Thickness * 0.3
 	child.IsRoot = false
-	child.Lightness = root.Lightness * 0.5
+	child.Lightness = root.Lightness * 0.8
+	hue := random(0, 1)
+	child.Fill = HSL(hue, child.Lightness, 0.4)
+	child.Stroke = HSL(hue, child.Lightness*0.2, 0.4)
 	child.Life = len(root.Path)
 	child.Path = []f32.Point{root.Head()}
 	child.Direction = root.Direction
@@ -251,6 +261,11 @@ func (branch *Branch) Render(gtx *layout.Context) {
 		return
 	}
 
+	branch.renderPath(gtx, 1.3, branch.Stroke)
+	branch.renderPath(gtx, 1, branch.Fill)
+}
+
+func (branch *Branch) renderPath(gtx *layout.Context, radiusScale float32, color color.RGBA) {
 	pred := branch.Path[0]
 	for i, pt := range branch.Path {
 		if i > 0 && Len(pred.Sub(pt)) < 1 {
@@ -271,7 +286,7 @@ func (branch *Branch) Render(gtx *layout.Context) {
 			}
 		}
 
-		squashcircle(gtx, pt, radius, color.RGBA{R: 0xff, G: 0, B: 0, A: 0xFF})
+		squashcircle(gtx, pt, radius*radiusScale, color)
 	}
 }
 
