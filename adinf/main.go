@@ -81,43 +81,42 @@ func render(gtx *layout.Context, t float32) {
 	for i := 0; i < n; i++ {
 		r := float32(i) / n
 		p := curve(t+r*1.2+Sin(t+r)*3, radius+Sin(r*1.1)*30)
-
-		var stack op.StackOp
-		stack.Push(gtx.Ops)
-
-		paint.ColorOp{
-			Color: color.RGBA{R: 0xff, G: 0xd7, B: byte(i), A: 0xFF},
-		}.Add(gtx.Ops)
-
-		var builder clip.Path
-		builder.Begin(gtx.Ops)
-		builder.Move(p.Add(screenSize.Mul(0.5)))
-
 		q := radius * 0.3 * pcurve(float32(i)/(n-1), 1.5, 0.6)
-
-		builder.Cube(
-			f32.Point{X: q, Y: 0},
-			f32.Point{X: q, Y: 2 * q * 0.75},
-			f32.Point{X: 0, Y: 2 * q * 0.75},
-		)
-		builder.Cube(
-			f32.Point{X: -q, Y: 0},
-			f32.Point{X: -q, Y: -2 * q * 0.75},
-			f32.Point{X: 0, Y: -2 * q * 0.75},
-		)
-		builder.End().Add(gtx.Ops)
-
-		paint.PaintOp{
-			Rect: f32.Rectangle{
-				Min: f32.Point{},
-				Max: f32.Point{
-					X: float32(gtx.Constraints.Width.Max),
-					Y: float32(gtx.Constraints.Height.Max),
-				},
-			}}.Add(gtx.Ops)
-
-		stack.Pop()
+		squashcircle(gtx, p.Add(screenSize.Mul(0.5)), q, color.RGBA{R: 0xff, G: 0xd7, B: byte(i), A: 0xFF})
 	}
+}
+
+func squashcircle(gtx *layout.Context, p f32.Point, r float32, color color.RGBA) {
+	var stack op.StackOp
+	stack.Push(gtx.Ops)
+	defer stack.Pop()
+
+	paint.ColorOp{Color: color}.Add(gtx.Ops)
+
+	var builder clip.Path
+	builder.Begin(gtx.Ops)
+	builder.Move(p.Add(f32.Point{X: 0, Y: -r}))
+
+	builder.Cube(
+		f32.Point{X: r, Y: 0},
+		f32.Point{X: r, Y: 2 * r * 0.75},
+		f32.Point{X: 0, Y: 2 * r * 0.75},
+	)
+	builder.Cube(
+		f32.Point{X: -r, Y: 0},
+		f32.Point{X: -r, Y: -2 * r * 0.75},
+		f32.Point{X: 0, Y: -2 * r * 0.75},
+	)
+	builder.End().Add(gtx.Ops)
+
+	paint.PaintOp{
+		Rect: f32.Rectangle{
+			Min: f32.Point{},
+			Max: f32.Point{
+				X: float32(gtx.Constraints.Width.Max),
+				Y: float32(gtx.Constraints.Height.Max),
+			},
+		}}.Add(gtx.Ops)
 }
 
 func curve(t, s float32) f32.Point {

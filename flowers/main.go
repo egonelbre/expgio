@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"image"
 	"image/color"
 	"log"
 	"math/rand"
@@ -9,14 +10,15 @@ import (
 	"runtime/pprof"
 	"time"
 
-	"gioui.org/op"
-
 	"gioui.org/app"
 	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
+	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
+
+	"github.com/loov/hrtime"
 )
 
 const AngleSnap = Tau / 8
@@ -52,7 +54,7 @@ func loop(w *app.Window) error {
 
 	gtx := layout.NewContext(w.Queue())
 
-	now := time.Now()
+	now := hrtime.Now()
 	lastRender := time.Duration(0)
 
 	for {
@@ -62,16 +64,20 @@ func loop(w *app.Window) error {
 			return e.Err
 		case system.FrameEvent:
 			gtx.Reset(e.Config, e.Size)
+			op.InvalidateOp{}.Add(gtx.Ops)
 
-			timeSinceStart := time.Since(now)
+			timeSinceStart := hrtime.Since(now)
 			delta := timeSinceStart - lastRender
 			lastRender = timeSinceStart
 
-			state.Update(float32(delta.Seconds() * 2))
+			dt := float32(delta.Seconds())
+			if dt > 0.016 {
+				dt = 0.016
+			}
+			state.Update(dt)
 			state.Render(gtx)
 
 			e.Frame(gtx.Ops)
-			w.Invalidate()
 		}
 	}
 }
@@ -86,7 +92,7 @@ func NewState() *State {
 	state := &State{
 		Root: NewRoot(),
 	}
-	state.Root.Path = []f32.Point{{X: 100, Y: 100}}
+	state.Root.Path = []f32.Point{{X: 400, Y: 400}}
 	return state
 }
 
@@ -96,44 +102,11 @@ func (state *State) Update(delta float32) {
 }
 
 func (state *State) Render(gtx *layout.Context) {
+	fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
+
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
-
-	screenSize := f32.Point{
-		X: float32(gtx.Constraints.Width.Max),
-		Y: float32(gtx.Constraints.Height.Max),
-	}
-
-	camera := Neg(state.Root.Head()).Add(screenSize.Mul(0.5))
-	op.TransformOp{}.Offset(camera).Add(gtx.Ops)
-
-	func() {
-		var stack op.StackOp
-		stack.Push(gtx.Ops)
-		defer stack.Pop()
-
-		var builder clip.Path
-		builder.Begin(gtx.Ops)
-		//builder.Move(f32.Point{})
-		builder.Move(camera)
-		builder.Line(f32.Point{10, 10})
-		builder.Line(f32.Point{-10, 10})
-		builder.End().Add(gtx.Ops)
-
-		paint.ColorOp{
-			Color: color.RGBA{R: 0xff, G: 0, B: 0, A: 0xFF},
-		}.Add(gtx.Ops)
-
-		paint.PaintOp{
-			Rect: f32.Rectangle{
-				Min: f32.Point{},
-				Max: f32.Point{
-					X: float32(gtx.Constraints.Width.Max),
-					Y: float32(gtx.Constraints.Height.Max),
-				},
-			}}.Add(gtx.Ops)
-	}()
 
 	state.Root.Render(gtx)
 }
@@ -270,16 +243,24 @@ func (branch *Branch) Update(dt float32) {
 }
 
 func (branch *Branch) Render(gtx *layout.Context) {
-	//for _, child := range branch.Branches {
-	//	child.Render(gtx)
-	//}
+	for _, child := range branch.Branches {
+		child.Render(gtx)
+	}
 
-	LineClip(gtx, branch.Path, func(i int) float32 {
-		return 10
+	if len(branch.Path) == 0 {
+		return
+	}
+
+	pred := branch.Path[0]
+	for i, pt := range branch.Path {
+		if i > 0 && Len(pred.Sub(pt)) < 1 {
+			continue
+		}
+		pred = pt
 
 		p := float32(i) / float32(branch.PathLimit)
-		radius := branch.Thickness * (Sin(p*4*Tau+branch.Time*6) + 5) / 5
 
+		radius := branch.Thickness * (Sin(p*4*Tau+branch.Time*6) + 5) / 5
 		pp := float32(i) / float32(len(branch.Path))
 		if pp > 0.85 {
 			radius *= 1 - (pp-0.85)/0.3
@@ -290,114 +271,31 @@ func (branch *Branch) Render(gtx *layout.Context) {
 			}
 		}
 
-		return radius
-	})
+		squashcircle(gtx, pt, radius, color.RGBA{R: 0xff, G: 0, B: 0, A: 0xFF})
+	}
 }
 
-func LineClip(gtx *layout.Context, path []f32.Point, thickness func(int) float32) {
-	if len(path) < 2 {
-		return
-	}
-
-	{
-		var stack op.StackOp
-		stack.Push(gtx.Ops)
-		defer stack.Pop()
-
-		var builder clip.Path
-		builder.Begin(gtx.Ops)
-		pred := path[0]
-		builder.Move(pred)
-		for _, p := range path[1:] {
-			builder.Line(p.Sub(pred))
-			pred = p
-		}
-		for i := len(path) - 1; i >= 0; i-- {
-			p := path[i].Add(f32.Point{-10, -10})
-			builder.Line(p.Sub(pred))
-			pred = p
-		}
-		builder.Line(path[0].Sub(pred))
-		builder.End().Add(gtx.Ops)
-
-		paint.ColorOp{
-			Color: color.RGBA{R: 0xff, G: 0, B: 0, A: 0xFF},
-		}.Add(gtx.Ops)
-
-		paint.PaintOp{
-			Rect: f32.Rectangle{
-				Min: f32.Point{},
-				Max: f32.Point{
-					X: float32(gtx.Constraints.Width.Max),
-					Y: float32(gtx.Constraints.Height.Max),
-				},
-			}}.Add(gtx.Ops)
-	}
-
-	return
-
-	var left []f32.Point
-	var right []f32.Point
-
-	left = append(left, path[0])
-	right = append(right, path[0])
-
-	a := path[0]
-	//var x1, x2, xn f32.Point
-
-	for i, b := range path[1:] {
-		if Len(a.Sub(b)) < 1 {
-			continue
-		}
-		radius := thickness(i)
-
-		abn := ScaleTo(SegmentNormal(a, b), radius)
-		// segment-corners
-		a1, a2 := a.Add(abn), a.Sub(abn)
-		b1, b2 := b.Add(abn), b.Sub(abn)
-
-		/*
-			if i > 0 && radius > 0.5 {
-				d := Dot(Rotate(xn), abn)
-				if d < 0 {
-					left = append(left, a1, b1)
-					m.Push(x1, a1, a)
-				} else {
-					m.Push(x2, a2, a)
-					right = append(right, a2, a)
-				}
-				m.Polygon(0)
-			}
-		*/
-
-		left = append(left, a1, b1)
-		right = append(right, a2, b2)
-
-		a = b
-		//x1, x2, xn = b1, b2, abn
-	}
-
+func squashcircle(gtx *layout.Context, p f32.Point, r float32, color color.RGBA) {
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
 
-	paint.ColorOp{
-		Color: color.RGBA{R: 0xff, G: 0, B: 0, A: 0xFF},
-	}.Add(gtx.Ops)
+	paint.ColorOp{Color: color}.Add(gtx.Ops)
 
 	var builder clip.Path
 	builder.Begin(gtx.Ops)
-	pred := left[0]
-	builder.Move(pred)
-	for _, p := range left[1:] {
-		builder.Line(p.Sub(pred))
-		pred = p
-	}
-	for i := len(right) - 1; i >= 0; i-- {
-		p := right[i]
-		builder.Line(p.Sub(pred))
-		pred = p
-	}
+	builder.Move(p.Add(f32.Point{X: 0, Y: -r}))
+
+	builder.Cube(
+		f32.Point{X: r, Y: 0},
+		f32.Point{X: r, Y: 2 * r * 0.75},
+		f32.Point{X: 0, Y: 2 * r * 0.75},
+	)
+	builder.Cube(
+		f32.Point{X: -r, Y: 0},
+		f32.Point{X: -r, Y: -2 * r * 0.75},
+		f32.Point{X: 0, Y: -2 * r * 0.75},
+	)
 	builder.End().Add(gtx.Ops)
 
 	paint.PaintOp{
@@ -408,4 +306,15 @@ func LineClip(gtx *layout.Context, path []f32.Point, thickness func(int) float32
 				Y: float32(gtx.Constraints.Height.Max),
 			},
 		}}.Add(gtx.Ops)
+}
+
+func fill(gtx *layout.Context, col color.RGBA) {
+	cs := gtx.Constraints
+	d := image.Point{X: cs.Width.Min, Y: cs.Height.Min}
+	dr := f32.Rectangle{
+		Max: f32.Point{X: float32(d.X), Y: float32(d.Y)},
+	}
+	paint.ColorOp{Color: col}.Add(gtx.Ops)
+	paint.PaintOp{Rect: dr}.Add(gtx.Ops)
+	gtx.Dimensions = layout.Dimensions{Size: d}
 }
