@@ -141,6 +141,7 @@ type Branch struct {
 	Life           int
 	SpawnCountdown float32
 	SpawnInterval  float32
+	SpawnSide      bool
 	Branches       []*Branch
 }
 
@@ -180,7 +181,13 @@ func NewBranch(root *Branch) *Branch {
 	child.Life = len(root.Path)
 	child.Path = []f32.Point{root.Head()}
 	child.Direction = root.Direction
-	child.Turn = randomSnapped(-Tau*3/4, Tau*3/4, AngleSnap)
+	if root.SpawnSide {
+		child.Turn = randomSnapped(-Tau*4/4, Tau*1/4, AngleSnap)
+	} else {
+		child.Turn = randomSnapped(-Tau*1/4, Tau*4/4, AngleSnap)
+	}
+	child.Turn += root.Turn
+	root.SpawnSide = !root.SpawnSide
 	return child
 }
 
