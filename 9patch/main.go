@@ -101,7 +101,7 @@ func (im Patch9) Layout(gtx *layout.Context) {
 	cs := gtx.Constraints
 	d := image.Point{X: cs.Width.Max, Y: cs.Height.Max}
 
-	imageScale := float32(72.0 / 160.0)
+	imageScale := float32(0.5)
 
 	wf, hf := float32(d.X), float32(d.Y)
 	_ = hf
