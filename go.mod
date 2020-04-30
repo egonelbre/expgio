@@ -1,4 +1,4 @@
-module github.com/loov/koor
+module github.com/egonelbre/expgio
 
 go 1.14
 
