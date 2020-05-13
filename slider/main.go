@@ -15,6 +15,8 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
+
+	"github.com/egonelbre/expgio/f32color"
 )
 
 func main() {
@@ -111,10 +113,25 @@ func drawTabs(gtx *layout.Context, th *material.Theme) {
 		}),
 		layout.Flexed(1, func() {
 			slider.Layout(gtx, func() {
+				fill(gtx, f32color.HSL(float32(tabs.selected)*1.31, 0.3, 0.8))
 				layout.Center.Layout(gtx, func() {
 					material.H1(th, fmt.Sprintf("Tab content #%d", tabs.selected+1)).Layout(gtx)
 				})
 			})
 		}),
 	)
+}
+
+func bounds(gtx *layout.Context) f32.Rectangle {
+	cs := gtx.Constraints
+	d := image.Point{X: cs.Width.Min, Y: cs.Height.Min}
+	return f32.Rectangle{
+		Max: f32.Point{X: float32(d.X), Y: float32(d.Y)},
+	}
+}
+
+func fill(gtx *layout.Context, col color.RGBA) {
+	dr := bounds(gtx)
+	paint.ColorOp{Color: col}.Add(gtx.Ops)
+	paint.PaintOp{Rect: dr}.Add(gtx.Ops)
 }

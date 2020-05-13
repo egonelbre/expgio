@@ -8,31 +8,36 @@ import (
 	"gioui.org/op"
 )
 
-const defaultDuration = 1000 * time.Millisecond
+const defaultDuration = 250 * time.Millisecond
 
 type Slider struct {
 	Duration time.Duration
 
-	last op.Ops
-	next op.Ops
+	push int
+
+	last *op.Ops
+	next *op.Ops
 
 	t0     time.Time
 	offset float32
 }
 
 func (slider *Slider) PushLeft(gtx *layout.Context) {
-	slider.last = slider.next
-	slider.offset = 1.0
-	slider.t0 = gtx.Now()
+	slider.push = 1
 }
 
 func (slider *Slider) PushRight(gtx *layout.Context) {
-	slider.last = slider.next
-	slider.offset = -1.0
-	slider.t0 = gtx.Now()
+	slider.push = -1
 }
 
 func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
+	if s.push != 0 {
+		slider.last, slider.next = slider.next, new(op.Ops)
+		slider.offset = float32(s.push)
+		slider.t0 = gtx.Now()
+		slider.push = 0
+	}
+
 	var delta time.Duration
 	if !s.t0.IsZero() {
 		now := gtx.Now()
@@ -63,14 +68,17 @@ func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
 
 	{
 		prev := gtx.Ops
+		if s.next == nil {
+			s.next = new(op.Ops)
+		}
 		s.next.Reset()
-		gtx.Ops = &s.next
+		gtx.Ops = s.next
 		w()
 		gtx.Ops = prev
 	}
 
 	if slider.offset == 0 {
-		op.CallOp{Ops: &s.next}.Add(gtx.Ops)
+		op.CallOp{Ops: s.next}.Add(gtx.Ops)
 		return
 	}
 
@@ -82,25 +90,21 @@ func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
 		op.TransformOp{}.Offset(f32.Point{
 			X: float32(gtx.Dimensions.Size.X) * (s.offset - 1),
 		}).Add(gtx.Ops)
-
-		op.CallOp{Ops: &s.last}.Add(gtx.Ops)
+		op.CallOp{Ops: s.last}.Add(gtx.Ops)
 
 		op.TransformOp{}.Offset(f32.Point{
 			X: float32(gtx.Dimensions.Size.X),
 		}).Add(gtx.Ops)
-
-		op.CallOp{Ops: &s.next}.Add(gtx.Ops)
+		op.CallOp{Ops: s.next}.Add(gtx.Ops)
 	} else {
 		op.TransformOp{}.Offset(f32.Point{
 			X: float32(gtx.Dimensions.Size.X) * (s.offset + 1),
 		}).Add(gtx.Ops)
-
-		op.CallOp{Ops: &s.last}.Add(gtx.Ops)
+		op.CallOp{Ops: s.last}.Add(gtx.Ops)
 
 		op.TransformOp{}.Offset(f32.Point{
 			X: float32(-gtx.Dimensions.Size.X),
 		}).Add(gtx.Ops)
-
-		op.CallOp{Ops: &s.next}.Add(gtx.Ops)
+		op.CallOp{Ops: s.next}.Add(gtx.Ops)
 	}
 }
