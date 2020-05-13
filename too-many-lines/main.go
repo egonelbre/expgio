@@ -50,7 +50,7 @@ func loop(linecount int, w *app.Window) error {
 	start := time.Now()
 
 	gofont.Register()
-	gtx := layout.NewContext(w.Queue())
+	gtx := new(layout.Context)
 
 	for {
 		e := <-w.Events()
@@ -58,7 +58,7 @@ func loop(linecount int, w *app.Window) error {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Config, e.Size)
+			gtx.Reset(e.Queue, e.Config, e.Size)
 
 			now := time.Since(start)
 			_ = now

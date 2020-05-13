@@ -29,14 +29,14 @@ func main() {
 
 func loop(w *app.Window) error {
 	gofont.Register()
-	gtx := layout.NewContext(w.Queue())
+	gtx := new(layout.Context)
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Config, e.Size)
+			gtx.Reset(e.Queue, e.Config, e.Size)
 
 			// blue box
 			paint.ColorOp{Color: color.RGBA{B: 0xFF, A: 0xFF}}.Add(gtx.Ops)

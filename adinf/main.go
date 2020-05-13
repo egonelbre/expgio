@@ -47,16 +47,16 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	gtx := layout.NewContext(w.Queue())
-	start := time.Now()
+	gtx := new(layout.Context)
 
+	start := time.Now()
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Config, e.Size)
+			gtx.Reset(e.Queue, e.Config, e.Size)
 
 			fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 			render(gtx, float32(time.Since(start).Seconds()))

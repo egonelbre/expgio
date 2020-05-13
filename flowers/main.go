@@ -52,7 +52,7 @@ func main() {
 func loop(w *app.Window) error {
 	state := NewState()
 
-	gtx := layout.NewContext(w.Queue())
+	gtx := new(layout.Context)
 
 	now := hrtime.Now()
 	lastRender := time.Duration(0)
@@ -63,7 +63,7 @@ func loop(w *app.Window) error {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Config, e.Size)
+			gtx.Reset(e.Queue, e.Config, e.Size)
 			op.InvalidateOp{}.Add(gtx.Ops)
 
 			timeSinceStart := hrtime.Since(now)
