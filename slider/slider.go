@@ -8,7 +8,7 @@ import (
 	"gioui.org/op"
 )
 
-const defaultDuration = 250 * time.Millisecond
+const defaultDuration = 1000 * time.Millisecond
 
 type Slider struct {
 	Duration time.Duration
@@ -16,13 +16,19 @@ type Slider struct {
 	last op.Ops
 	next op.Ops
 
-	t0       time.Time
-	progress float32
+	t0     time.Time
+	offset float32
 }
 
-func (slider *Slider) Push(gtx *layout.Context) {
+func (slider *Slider) PushLeft(gtx *layout.Context) {
 	slider.last = slider.next
-	slider.progress = 1.0
+	slider.offset = 1.0
+	slider.t0 = gtx.Now()
+}
+
+func (slider *Slider) PushRight(gtx *layout.Context) {
+	slider.last = slider.next
+	slider.offset = -1.0
 	slider.t0 = gtx.Now()
 }
 
@@ -34,15 +40,24 @@ func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
 		slider.t0 = now
 	}
 
-	if s.progress > 0 {
+	if s.offset != 0 {
 		duration := s.Duration
 		if duration == 0 {
 			duration = defaultDuration
 		}
-		s.progress -= float32(delta.Seconds()) / float32(duration.Seconds())
-		if s.progress < 0 {
-			s.progress = 0
+		movement := float32(delta.Seconds()) / float32(duration.Seconds())
+		if s.offset < 0 {
+			s.offset += movement
+			if s.offset >= 0 {
+				s.offset = 0
+			}
+		} else {
+			s.offset -= movement
+			if s.offset <= 0 {
+				s.offset = 0
+			}
 		}
+
 		op.InvalidateOp{}.Add(gtx.Ops)
 	}
 
@@ -54,13 +69,20 @@ func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
 		gtx.Ops = prev
 	}
 
+	if slider.offset == 0 {
+		op.CallOp{Ops: &s.next}.Add(gtx.Ops)
+		return
+	}
+
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
+	defer stack.Pop()
 
-	if slider.progress > 0 {
+	if slider.offset > 0 {
 		op.TransformOp{}.Offset(f32.Point{
-			X: float32(gtx.Dimensions.Size.X) * (s.progress - 1),
+			X: float32(gtx.Dimensions.Size.X) * (s.offset - 1),
 		}).Add(gtx.Ops)
+
 		op.CallOp{Ops: &s.last}.Add(gtx.Ops)
 
 		op.TransformOp{}.Offset(f32.Point{
@@ -69,8 +91,16 @@ func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
 
 		op.CallOp{Ops: &s.next}.Add(gtx.Ops)
 	} else {
+		op.TransformOp{}.Offset(f32.Point{
+			X: float32(gtx.Dimensions.Size.X) * (s.offset + 1),
+		}).Add(gtx.Ops)
+
+		op.CallOp{Ops: &s.last}.Add(gtx.Ops)
+
+		op.TransformOp{}.Offset(f32.Point{
+			X: float32(-gtx.Dimensions.Size.X),
+		}).Add(gtx.Ops)
+
 		op.CallOp{Ops: &s.next}.Add(gtx.Ops)
 	}
-
-	stack.Pop()
 }
