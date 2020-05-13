@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"math"
 
 	"gioui.org/app"
 	"gioui.org/f32"
@@ -113,7 +114,7 @@ func drawTabs(gtx *layout.Context, th *material.Theme) {
 		}),
 		layout.Flexed(1, func() {
 			slider.Layout(gtx, func() {
-				fill(gtx, f32color.HSL(float32(tabs.selected)*1.31, 0.3, 0.8))
+				fill(gtx, f32color.HSL(float32(tabs.selected)*math.Phi, 0.8, 0.8))
 				layout.Center.Layout(gtx, func() {
 					material.H1(th, fmt.Sprintf("Tab content #%d", tabs.selected+1)).Layout(gtx)
 				})
