@@ -18,6 +18,7 @@ import (
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 
+	"github.com/egonelbre/expgio/f32color"
 	"github.com/loov/hrtime"
 )
 
@@ -163,7 +164,7 @@ func NewRoot() *Branch {
 	branch.Lightness = 0.8
 
 	branch.Fill = color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}
-	branch.Stroke = HSL(0, branch.Lightness*0.2, 0.4)
+	branch.Stroke = f32color.HSL(0, branch.Lightness*0.2, 0.4)
 
 	branch.SpawnInterval = 0.3
 	branch.SpawnCountdown = branch.SpawnInterval
