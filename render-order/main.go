@@ -39,12 +39,12 @@ func loop(w *app.Window) error {
 			gtx.Reset(e.Queue, e.Config, e.Size)
 
 			// blue box
-			paint.ColorOp{Color: color.RGBA{B: 0xFF, A: 0xFF}}.Add(gtx.Ops)
+			paint.ColorOp{Color: color.RGBA{B: 0xFF, A: 0x90}}.Add(gtx.Ops)
 			paint.PaintOp{Rect: f32.Rectangle{
 				Max: f32.Point{X: 50, Y: 100},
 			}}.Add(gtx.Ops)
 			// red box
-			paint.ColorOp{Color: color.RGBA{R: 0xFF, A: 0xFF}}.Add(gtx.Ops)
+			paint.ColorOp{Color: color.RGBA{R: 0xFF, A: 0x90}}.Add(gtx.Ops)
 			paint.PaintOp{Rect: f32.Rectangle{
 				Max: f32.Point{X: 100, Y: 50},
 			}}.Add(gtx.Ops)
