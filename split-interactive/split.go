@@ -25,7 +25,14 @@ const defaultBarWidth = 10
 
 func (s *Split) Layout(gtx *layout.Context, left, right layout.Widget) {
 	savedConstraints := gtx.Constraints
-	defer func() { gtx.Constraints = savedConstraints }()
+	defer func() {
+		gtx.Constraints = savedConstraints
+		gtx.Dimensions.Size = image.Point{
+			X: savedConstraints.Width.Max,
+			Y: savedConstraints.Height.Max,
+		}
+	}()
+	gtx.Constraints.Height.Min = gtx.Constraints.Height.Max
 
 	bar := s.Bar
 	if bar <= 0 {
@@ -33,10 +40,10 @@ func (s *Split) Layout(gtx *layout.Context, left, right layout.Widget) {
 	}
 
 	proportion := (s.Ratio + 1) / 2
-	leftsize := int(proportion*float32(gtx.Constraints.Width.Min) - float32(bar))
+	leftsize := int(proportion*float32(gtx.Constraints.Width.Max) - float32(bar))
 
 	rightoffset := leftsize + bar
-	rightsize := gtx.Constraints.Width.Min - rightoffset
+	rightsize := gtx.Constraints.Width.Max - rightoffset
 
 	{ // handle input
 		for _, ev := range gtx.Events(s) {
@@ -63,7 +70,7 @@ func (s *Split) Layout(gtx *layout.Context, left, right layout.Widget) {
 				deltaX := e.Position.X - s.dragX
 				s.dragX = e.Position.X
 
-				deltaRatio := deltaX * 2 / float32(gtx.Constraints.Width.Min)
+				deltaRatio := deltaX * 2 / float32(gtx.Constraints.Width.Max)
 				s.Ratio += deltaRatio
 
 			case pointer.Release:

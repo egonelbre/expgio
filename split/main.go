@@ -37,20 +37,63 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			gtx.Reset(e.Queue, e.Config, e.Size)
 
-			split.Layout(gtx, func() {
-				fill(gtx, color.RGBA{R: 0xC0, G: 0x30, B: 0x30, A: 0xFF})
+			layout.Flex{
+				Axis: layout.Horizontal,
+			}.Layout(gtx,
+				layout.Flexed(0.5, func() {
+					//fill(gtx, color.RGBA{R: 0xC0, G: 0x30, B: 0x30, A: 0xFF})
+					split.Layout(gtx, func() {
+						fill(gtx, color.RGBA{R: 0xC0, G: 0x30, B: 0x30, A: 0xFF})
 
-				layout.Center.Layout(gtx, func() {
-					material.H1(th, "Left").Layout(gtx)
+						layout.Center.Layout(gtx, func() {
+							material.H1(th, "Left").Layout(gtx)
+						})
+					}, func() {
+						fill(gtx, color.RGBA{R: 0x30, G: 0x30, B: 0xC0, A: 0xFF})
+
+						layout.Center.Layout(gtx, func() {
+							material.H1(th, "Right").Layout(gtx)
+						})
+					})
+				}),
+				layout.Rigid(func() {
+					gtx.Dimensions.Size.X = 100
+					gtx.Dimensions.Size.Y = 100
+				}),
+				layout.Flexed(0.5, func() {
+					fill(gtx, color.RGBA{R: 0xC0, G: 0x30, B: 0x30, A: 0xFF})
+					/*
+						split.Layout(gtx, func() {
+							fill(gtx, color.RGBA{R: 0xC0, G: 0x30, B: 0x30, A: 0xFF})
+
+							layout.Center.Layout(gtx, func() {
+								material.H1(th, "Left").Layout(gtx)
+							})
+						}, func() {
+							fill(gtx, color.RGBA{R: 0x30, G: 0x30, B: 0xC0, A: 0xFF})
+
+							layout.Center.Layout(gtx, func() {
+								material.H1(th, "Right").Layout(gtx)
+							})
+						})*/
+				}),
+			)
+
+			/*
+				split.Layout(gtx, func() {
+					fill(gtx, color.RGBA{R: 0xC0, G: 0x30, B: 0x30, A: 0xFF})
+
+					layout.Center.Layout(gtx, func() {
+						material.H1(th, "Left").Layout(gtx)
+					})
+				}, func() {
+					fill(gtx, color.RGBA{R: 0x30, G: 0x30, B: 0xC0, A: 0xFF})
+
+					layout.Center.Layout(gtx, func() {
+						material.H1(th, "Right").Layout(gtx)
+					})
 				})
-			}, func() {
-				fill(gtx, color.RGBA{R: 0x30, G: 0x30, B: 0xC0, A: 0xFF})
-
-				layout.Center.Layout(gtx, func() {
-					material.H1(th, "Right").Layout(gtx)
-				})
-			})
-
+			*/
 			e.Frame(gtx.Ops)
 		}
 	}

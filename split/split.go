@@ -1,6 +1,8 @@
 package main
 
 import (
+	"image"
+
 	"gioui.org/f32"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -11,7 +13,14 @@ type Split struct {
 
 func (s *Split) Layout(gtx *layout.Context, left, right layout.Widget) {
 	savedConstraints := gtx.Constraints
-	defer func() { gtx.Constraints = savedConstraints }()
+	defer func() {
+		gtx.Constraints = savedConstraints
+		gtx.Dimensions.Size = image.Point{
+			X: savedConstraints.Width.Max,
+			Y: savedConstraints.Height.Max,
+		}
+	}()
+	gtx.Constraints.Height.Min = gtx.Constraints.Height.Max
 
 	leftsize := gtx.Constraints.Width.Min / 2
 	rightsize := gtx.Constraints.Width.Min - leftsize
