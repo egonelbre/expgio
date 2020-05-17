@@ -24,7 +24,7 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	h := new(int)
+	tag := new(int)
 
 	rect := f32.Rectangle{Max: f32.Point{X: 10, Y: 10}}
 	bounds := image.Rect(0, 0, 10, 10)
@@ -43,7 +43,7 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			ops.Reset()
 
-			for _, ev := range e.Queue.Events(h) {
+			for _, ev := range e.Queue.Events(tag) {
 				if x, ok := ev.(pointer.Event); ok {
 					switch x.Type {
 					case pointer.Press:
@@ -56,7 +56,7 @@ func loop(w *app.Window) error {
 
 			// register for listening events.
 			pointer.Rect(bounds).Add(ops)
-			pointer.InputOp{Key: h}.Add(ops)
+			pointer.InputOp{Tag: tag}.Add(ops)
 
 			// draw the colored rect
 			paint.ColorOp{Color: color}.Add(ops)

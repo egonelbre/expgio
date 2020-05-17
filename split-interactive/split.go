@@ -86,7 +86,7 @@ func (s *Split) Layout(gtx *layout.Context, left, right layout.Widget) {
 		// register for input
 		barRect := image.Rect(leftsize, 0, rightoffset, gtx.Constraints.Width.Max)
 		pointer.Rect(barRect).Add(gtx.Ops)
-		pointer.InputOp{Key: s, Grab: s.drag}.Add(gtx.Ops)
+		pointer.InputOp{Tag: s, Grab: s.drag}.Add(gtx.Ops)
 	}
 
 	{
