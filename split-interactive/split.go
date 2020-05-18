@@ -7,6 +7,7 @@ import (
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/unit"
 )
 
 type Split struct {
@@ -14,14 +15,14 @@ type Split struct {
 	// 0 is center, -1 completely to the left, 1 completely to the right.
 	Ratio float32
 	// Bar is the width for resizing the layout
-	Bar int
+	Bar unit.Value
 
 	drag   bool
 	dragID pointer.ID
 	dragX  float32
 }
 
-const defaultBarWidth = 10
+var defaultBarWidth = unit.Dp(10)
 
 func (s *Split) Layout(gtx *layout.Context, left, right layout.Widget) {
 	savedConstraints := gtx.Constraints
@@ -34,9 +35,9 @@ func (s *Split) Layout(gtx *layout.Context, left, right layout.Widget) {
 	}()
 	gtx.Constraints.Height.Min = gtx.Constraints.Height.Max
 
-	bar := s.Bar
+	bar := gtx.Px(s.Bar)
 	if bar <= 0 {
-		bar = defaultBarWidth
+		bar = gtx.Px(defaultBarWidth)
 	}
 
 	proportion := (s.Ratio + 1) / 2
