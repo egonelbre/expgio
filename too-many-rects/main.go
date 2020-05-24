@@ -11,6 +11,7 @@ import (
 	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
+	"gioui.org/op"
 	"gioui.org/op/paint"
 
 	"gioui.org/font/gofont"
@@ -44,14 +45,14 @@ func main() {
 
 func loop(w *app.Window) error {
 	gofont.Register()
-	gtx := new(layout.Context)
+	var ops op.Ops
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
 
 			const size = 2
 			for y := 0; y < e.Size.Y; y += size {

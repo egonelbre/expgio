@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: Unlicense OR MIT
+
 package main
 
 import (
-	"math"
 	"time"
 
 	"gioui.org/f32"
@@ -11,6 +12,7 @@ import (
 
 const defaultDuration = 300 * time.Millisecond
 
+// Slider implements sliding between old/new widget values.
 type Slider struct {
 	Duration time.Duration
 
@@ -23,15 +25,14 @@ type Slider struct {
 	offset float32
 }
 
-func (s *Slider) PushLeft(gtx *layout.Context) {
-	s.push = 1
-}
+// PushLeft pushes the existing widget to the left.
+func (s *Slider) PushLeft() { s.push = 1 }
 
-func (s *Slider) PushRight(gtx *layout.Context) {
-	s.push = -1
-}
+// PushRight pushes the existing widget to the right.
+func (s *Slider) PushRight() { s.push = -1 }
 
-func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
+// Layout lays out widget that can be pushed.
+func (s *Slider) Layout(gtx layout.Context, w layout.Widget) layout.Dimensions {
 	if s.push != 0 {
 		s.last, s.next = s.next, new(op.Ops)
 		s.offset = float32(s.push)
@@ -67,68 +68,64 @@ func (s *Slider) Layout(gtx *layout.Context, w layout.Widget) {
 		op.InvalidateOp{}.Add(gtx.Ops)
 	}
 
+	var dims layout.Dimensions
 	{
-		prev := gtx.Ops
 		if s.next == nil {
 			s.next = new(op.Ops)
 		}
 		s.next.Reset()
+		gtx := gtx
 		gtx.Ops = s.next
-		w()
-		gtx.Ops = prev
+		dims = w(gtx)
 	}
 
 	if s.offset == 0 {
 		op.CallOp{Ops: s.next}.Add(gtx.Ops)
-		return
+		return dims
 	}
 
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
 
-	offset := absfn(s.offset, easeInOutCubic)
+	offset := smooth(s.offset)
 
 	if s.offset > 0 {
 		op.TransformOp{}.Offset(f32.Point{
-			X: float32(gtx.Dimensions.Size.X) * (offset - 1),
+			X: float32(dims.Size.X) * (offset - 1),
 		}).Add(gtx.Ops)
 		op.CallOp{Ops: s.last}.Add(gtx.Ops)
 
 		op.TransformOp{}.Offset(f32.Point{
-			X: float32(gtx.Dimensions.Size.X),
+			X: float32(dims.Size.X),
 		}).Add(gtx.Ops)
 		op.CallOp{Ops: s.next}.Add(gtx.Ops)
 	} else {
 		op.TransformOp{}.Offset(f32.Point{
-			X: float32(gtx.Dimensions.Size.X) * (offset + 1),
+			X: float32(dims.Size.X) * (offset + 1),
 		}).Add(gtx.Ops)
 		op.CallOp{Ops: s.last}.Add(gtx.Ops)
 
 		op.TransformOp{}.Offset(f32.Point{
-			X: float32(-gtx.Dimensions.Size.X),
+			X: float32(-dims.Size.X),
 		}).Add(gtx.Ops)
 		op.CallOp{Ops: s.next}.Add(gtx.Ops)
 	}
+	return dims
 }
 
-func absfn(t float32, fn func(float32) float32) float32 {
+// smooth handles -1 to 1 with ease-in-out cubic easing func.
+func smooth(t float32) float32 {
 	if t < 0 {
-		return -fn(-t)
+		return -easeInOutCubic(-t)
 	}
-	return fn(t)
+	return easeInOutCubic(t)
 }
 
+// easeInOutCubic maps a linear value to a ease-in-out-cubic easing function.
 func easeInOutCubic(t float32) float32 {
 	if t < 0.5 {
 		return 4 * t * t * t
 	}
 	return (t-1)*(2*t-2)*(2*t-2) + 1
 }
-
-func hesitant(t float32) float32 {
-	s := float32(math.Sin(float64(t * math.Pi * 2)))
-	return t + s*s*s/2
-}
-
-// return 0.0005 * (t - 1) * (t - 1) * t * (44851 - 224256 * t + 224256 * t * t)

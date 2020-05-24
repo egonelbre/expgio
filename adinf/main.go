@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"image"
 	"image/color"
 	"log"
 	"os"
@@ -47,16 +46,15 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	gtx := new(layout.Context)
-
 	start := time.Now()
+	var ops op.Ops
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
 
 			fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 			render(gtx, float32(time.Since(start).Seconds()))
@@ -67,14 +65,10 @@ func loop(w *app.Window) error {
 	}
 }
 
-func render(gtx *layout.Context, t float32) {
+func render(gtx layout.Context, t float32) {
 	t *= 0.3
 
-	screenSize := f32.Point{
-		X: float32(gtx.Constraints.Width.Max),
-		Y: float32(gtx.Constraints.Height.Max),
-	}
-
+	screenSize := layout.FPt(gtx.Constraints.Max)
 	radius := Min(screenSize.X, screenSize.Y) * 0.7 / 3
 
 	const n = 256
@@ -86,37 +80,22 @@ func render(gtx *layout.Context, t float32) {
 	}
 }
 
-func squashcircle(gtx *layout.Context, p f32.Point, r float32, color color.RGBA) {
+func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) {
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
 
+	op.TransformOp{}.Offset(p).Add(gtx.Ops)
+
+	var path clip.Path
+	path.Begin(gtx.Ops)
+	path.Move(f32.Pt(0, -r))
+	path.Cube(f32.Pt(r, 0), f32.Pt(r, 2*r*0.75), f32.Pt(0, 2*r*0.75))
+	path.Cube(f32.Pt(-r, 0), f32.Pt(-r, -2*r*0.75), f32.Pt(0, -2*r*0.75))
+	path.End().Add(gtx.Ops)
+
 	paint.ColorOp{Color: color}.Add(gtx.Ops)
-
-	var builder clip.Path
-	builder.Begin(gtx.Ops)
-	builder.Move(p.Add(f32.Point{X: 0, Y: -r}))
-
-	builder.Cube(
-		f32.Point{X: r, Y: 0},
-		f32.Point{X: r, Y: 2 * r * 0.75},
-		f32.Point{X: 0, Y: 2 * r * 0.75},
-	)
-	builder.Cube(
-		f32.Point{X: -r, Y: 0},
-		f32.Point{X: -r, Y: -2 * r * 0.75},
-		f32.Point{X: 0, Y: -2 * r * 0.75},
-	)
-	builder.End().Add(gtx.Ops)
-
-	paint.PaintOp{
-		Rect: f32.Rectangle{
-			Min: f32.Point{},
-			Max: f32.Point{
-				X: float32(gtx.Constraints.Width.Max),
-				Y: float32(gtx.Constraints.Height.Max),
-			},
-		}}.Add(gtx.Ops)
+	paint.PaintOp{Rect: f32.Rect(-r, -r, r, r)}.Add(gtx.Ops)
 }
 
 func curve(t, s float32) f32.Point {
@@ -135,13 +114,9 @@ func pcurve(p, a, b float32) float32 {
 	return k * Pow(p, a) * Pow(1-p, b)
 }
 
-func fill(gtx *layout.Context, col color.RGBA) {
-	cs := gtx.Constraints
-	d := image.Point{X: cs.Width.Min, Y: cs.Height.Min}
-	dr := f32.Rectangle{
-		Max: f32.Point{X: float32(d.X), Y: float32(d.Y)},
-	}
+func fill(gtx layout.Context, col color.RGBA) layout.Dimensions {
+	dr := f32.Rectangle{Max: layout.FPt(gtx.Constraints.Min)}
 	paint.ColorOp{Color: col}.Add(gtx.Ops)
 	paint.PaintOp{Rect: dr}.Add(gtx.Ops)
-	gtx.Dimensions = layout.Dimensions{Size: d}
+	return layout.Dimensions{Size: gtx.Constraints.Min}
 }

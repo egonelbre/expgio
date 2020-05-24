@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"image"
 	"image/color"
 	"log"
 	"math/rand"
@@ -53,18 +52,17 @@ func main() {
 func loop(w *app.Window) error {
 	state := NewState()
 
-	gtx := new(layout.Context)
-
 	now := hrtime.Now()
 	lastRender := time.Duration(0)
 
+	var ops op.Ops
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
 			op.InvalidateOp{}.Add(gtx.Ops)
 
 			timeSinceStart := hrtime.Since(now)
@@ -101,7 +99,7 @@ func (state *State) Update(delta float32) {
 	state.Camera = LerpPoint(0.8*delta, state.Camera, state.Root.Head())
 }
 
-func (state *State) Render(gtx *layout.Context) {
+func (state *State) Render(gtx layout.Context) {
 	// fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 	fill(gtx, color.RGBA{R: 0xFF, G: 0xFF, B: 0xEE, A: 0xFF})
 
@@ -109,10 +107,7 @@ func (state *State) Render(gtx *layout.Context) {
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
 
-	screenSize := f32.Point{
-		X: float32(gtx.Constraints.Width.Min),
-		Y: float32(gtx.Constraints.Height.Min),
-	}
+	screenSize := layout.FPt(gtx.Constraints.Min)
 	offset := Neg(state.Camera).Add(screenSize.Mul(0.5))
 	op.TransformOp{}.Offset(offset).Add(gtx.Ops)
 
@@ -272,7 +267,7 @@ func (branch *Branch) Update(dt float32) {
 	}
 }
 
-func (branch *Branch) Render(gtx *layout.Context) {
+func (branch *Branch) Render(gtx layout.Context) {
 	stroke := 8 - Bounce(branch.Bounce, 0, 4, 1)
 	branch.renderPath(gtx, stroke, branch.Stroke)
 
@@ -283,7 +278,7 @@ func (branch *Branch) Render(gtx *layout.Context) {
 	branch.renderPath(gtx, 0, branch.Fill)
 }
 
-func (branch *Branch) renderPath(gtx *layout.Context, radiusAdd float32, color color.RGBA) {
+func (branch *Branch) renderPath(gtx layout.Context, radiusAdd float32, color color.RGBA) {
 	if len(branch.Path) == 0 {
 		return
 	}
@@ -312,44 +307,27 @@ func (branch *Branch) renderPath(gtx *layout.Context, radiusAdd float32, color c
 	}
 }
 
-func squashcircle(gtx *layout.Context, p f32.Point, r float32, color color.RGBA) {
+func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) {
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
 
+	op.TransformOp{}.Offset(p).Add(gtx.Ops)
+
+	var path clip.Path
+	path.Begin(gtx.Ops)
+	path.Move(f32.Pt(0, -r))
+	path.Cube(f32.Pt(r, 0), f32.Pt(r, 2*r*0.75), f32.Pt(0, 2*r*0.75))
+	path.Cube(f32.Pt(-r, 0), f32.Pt(-r, -2*r*0.75), f32.Pt(0, -2*r*0.75))
+	path.End().Add(gtx.Ops)
+
 	paint.ColorOp{Color: color}.Add(gtx.Ops)
-
-	var builder clip.Path
-	builder.Begin(gtx.Ops)
-	builder.Move(p.Add(f32.Point{X: 0, Y: -r}))
-
-	builder.Cube(
-		f32.Point{X: r, Y: 0},
-		f32.Point{X: r, Y: 2 * r * 0.75},
-		f32.Point{X: 0, Y: 2 * r * 0.75},
-	)
-	builder.Cube(
-		f32.Point{X: -r, Y: 0},
-		f32.Point{X: -r, Y: -2 * r * 0.75},
-		f32.Point{X: 0, Y: -2 * r * 0.75},
-	)
-	builder.End().Add(gtx.Ops)
-
-	size := f32.Point{X: r, Y: r}
-	paint.PaintOp{
-		Rect: f32.Rectangle{
-			Min: p.Sub(size),
-			Max: p.Add(size),
-		}}.Add(gtx.Ops)
+	paint.PaintOp{Rect: f32.Rect(-r, -r, r, r)}.Add(gtx.Ops)
 }
 
-func fill(gtx *layout.Context, col color.RGBA) {
-	cs := gtx.Constraints
-	d := image.Point{X: cs.Width.Min, Y: cs.Height.Min}
-	dr := f32.Rectangle{
-		Max: f32.Point{X: float32(d.X), Y: float32(d.Y)},
-	}
+func fill(gtx layout.Context, col color.RGBA) layout.Dimensions {
+	dr := f32.Rectangle{Max: layout.FPt(gtx.Constraints.Max)}
 	paint.ColorOp{Color: col}.Add(gtx.Ops)
 	paint.PaintOp{Rect: dr}.Add(gtx.Ops)
-	gtx.Dimensions = layout.Dimensions{Size: d}
+	return layout.Dimensions{Size: gtx.Constraints.Max}
 }

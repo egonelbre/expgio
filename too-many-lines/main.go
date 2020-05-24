@@ -13,6 +13,7 @@ import (
 	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
+	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 
@@ -50,15 +51,14 @@ func loop(linecount int, w *app.Window) error {
 	start := time.Now()
 
 	gofont.Register()
-	gtx := new(layout.Context)
-
+	var ops op.Ops
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
 
 			now := time.Since(start)
 			_ = now

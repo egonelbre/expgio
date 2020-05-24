@@ -61,16 +61,16 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	gtx := new(layout.Context)
+	var ops op.Ops
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx.Reset(e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
 
-			layout.UniformInset(unit.Dp(30)).Layout(gtx, func() {
+			layout.UniformInset(unit.Dp(30)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 				img := Patch9{
 					Src:    patch,
 					Left:   30,
@@ -78,7 +78,7 @@ func loop(w *app.Window) error {
 					Right:  30,
 					Bottom: 30,
 				}
-				img.Layout(gtx)
+				return img.Layout(gtx)
 			})
 
 			e.Frame(gtx.Ops)
@@ -96,9 +96,9 @@ type Patch9 struct {
 	Bottom int
 }
 
-func (im Patch9) Layout(gtx *layout.Context) {
+func (im Patch9) Layout(gtx layout.Context) layout.Dimensions {
 	cs := gtx.Constraints
-	d := image.Point{X: cs.Width.Max, Y: cs.Height.Max}
+	d := cs.Max
 
 	imageScale := float32(0.5)
 
@@ -241,7 +241,8 @@ func (im Patch9) Layout(gtx *layout.Context) {
 	}
 
 	s.Pop()
-	gtx.Dimensions = layout.Dimensions{Size: d}
+
+	return layout.Dimensions{Size: d}
 }
 
 func toPointF(p image.Point) f32.Point {
@@ -249,10 +250,8 @@ func toPointF(p image.Point) f32.Point {
 }
 
 func bounds(gtx *layout.Context) f32.Rectangle {
-	cs := gtx.Constraints
-	d := image.Point{X: cs.Width.Min, Y: cs.Height.Min}
 	return f32.Rectangle{
-		Max: f32.Point{X: float32(d.X), Y: float32(d.Y)},
+		Max: layout.FPt(gtx.Constraints.Min),
 	}
 }
 
