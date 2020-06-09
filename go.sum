@@ -11,6 +11,7 @@ gioui.org v0.0.0-20200517175217-dc7a8fd9ea9c h1:HL/FENudQkHDl0xGUxsajnn2brT34OqV
 gioui.org v0.0.0-20200517175217-dc7a8fd9ea9c/go.mod h1:AHI9rFr6AEEHCb8EPVtb/p5M+NMJRKH58IOp8O3Je04=
 gioui.org v0.0.0-20200523211446-d8000880c3b4 h1:kAPDSiM5U1CrXy6EzCR4cAJrPQmTD2PjMg7dv+jxsts=
 gioui.org v0.0.0-20200523211446-d8000880c3b4/go.mod h1:AHI9rFr6AEEHCb8EPVtb/p5M+NMJRKH58IOp8O3Je04=
+gioui.org v0.0.0-20200524174833-ad93e3212824 h1:vQP8qwWQXun8lXmj707eZcsuem2X6aF3w0z8CnrL8PI=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/loov/hrtime v1.0.1 h1:n6UINiq9nfyTmfNpLvgYN4O8d6Z0tZMoGd4QOolrxyc=
