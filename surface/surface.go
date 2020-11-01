@@ -38,7 +38,6 @@ func (s *SurfaceLayoutStyle) Layout(gtx layout.Context) layout.Dimensions {
 		p := darkBlend(s.Elevation.V)
 		background = f32color.RGBAFromSRGB(background).Lighten(p).SRGB()
 	}
-
 	paint.Fill(gtx.Ops, background)
 
 	return layout.Dimensions{Size: sz}
@@ -69,7 +68,7 @@ func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, r
 		d = 6
 	}
 
-	background := (f32color.RGBA{A: 0.14 / float32(d*d)}).SRGB()
+	background := (f32color.RGBA{A: 0.4 / float32(d*d)}).SRGB()
 	for x := 0; x <= d; x++ {
 		for y := 0; y <= d; y++ {
 			px, py := float32(x)/float32(d)-0.5, float32(y)/float32(d)-0.15

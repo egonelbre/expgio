@@ -38,12 +38,12 @@ func loop(w *app.Window) error {
 			return e.Err
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
-			//paint.Fill(gtx.Ops, f32color.RGBAHex(0xe5e5e5FF))
-			paint.Fill(gtx.Ops, f32color.RGBAHex(0x121212ff))
+			paint.Fill(gtx.Ops, f32color.RGBAHex(0xe5e5e5FF))
+			//paint.Fill(gtx.Ops, f32color.RGBAHex(0x121212ff))
 
 			op.InvalidateOp{}.Add(gtx.Ops)
 
-			for dp := 0; dp < 30; dp++ {
+			for dp := 0; dp < 24; dp++ {
 				ix := dp % 6
 				iy := dp / 6
 				offset := f32.Pt(float32(50+150*ix), float32(50+150*iy))
@@ -71,8 +71,9 @@ func drawSurface(gtx layout.Context, offset f32.Point, elevation unit.Value) {
 	gtx.Constraints.Max = image.Pt(100, 100)
 
 	style := SurfaceLayoutStyle{
-		DarkMode:     true,
-		Background:   f32color.RGBAHex(0x1e1e1eff),
+		//DarkMode:     true,
+		//Background:   f32color.RGBAHex(0x1e1e1eff),
+		Background:   f32color.RGBAHex(0xffffffff),
 		CornerRadius: unit.Dp(5),
 		Elevation:    elevation,
 	}
