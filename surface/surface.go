@@ -30,10 +30,6 @@ func (s *SurfaceLayoutStyle) Layout(gtx layout.Context) layout.Dimensions {
 	clip.UniformRRect(r, rr).Add(gtx.Ops)
 
 	background := s.Background
-	if gtx.Queue == nil {
-		// calculate disabled color
-		background = f32color.MulAlpha(s.Background, 150)
-	}
 	if s.DarkMode {
 		p := darkBlend(s.Elevation.V)
 		background = f32color.RGBAFromSRGB(background).Lighten(p).SRGB()
@@ -64,11 +60,12 @@ func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, r
 	offset := pxf(gtx.Metric, s.Elevation)
 
 	d := int(offset + 1)
-	if d > 6 {
-		d = 6
+	if d > 4 {
+		d = 4
 	}
 
-	background := (f32color.RGBA{A: 0.4 / float32(d*d)}).SRGB()
+	a := float32(s.Background.A) / 0xff
+	background := (f32color.RGBA{A: a * 0.4 / float32(d*d)}).SRGB()
 	for x := 0; x <= d; x++ {
 		for y := 0; y <= d; y++ {
 			px, py := float32(x)/float32(d)-0.5, float32(y)/float32(d)-0.15
