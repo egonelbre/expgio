@@ -1,3 +1,5 @@
+//+build ignore
+
 package main
 
 import (
@@ -18,6 +20,7 @@ import (
 	"github.com/loov/hrtime"
 )
 
+const Tau = 2 * math.Pi
 const AngleSnap = Tau / 8
 
 func main() {
@@ -47,7 +50,6 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	state := NewState()
 
 	now := hrtime.Now()
 	lastRender := time.Duration(0)
@@ -73,8 +75,6 @@ func loop(w *app.Window) error {
 			if dt > 0.016 {
 				dt = 0.016
 			}
-			state.Update(dt)
-			state.Render(gtx)
 
 			e.Frame(gtx.Ops)
 		}
