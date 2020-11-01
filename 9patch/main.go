@@ -68,7 +68,7 @@ func loop(w *app.Window) error {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e)
 
 			layout.UniformInset(unit.Dp(30)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 				img := Patch9{
@@ -104,9 +104,8 @@ func (im Patch9) Layout(gtx layout.Context) layout.Dimensions {
 
 	wf, hf := float32(d.X), float32(d.Y)
 	_ = hf
-	var s op.StackOp
-	s.Push(gtx.Ops)
-	clip.Rect{Rect: f32.Rectangle{Max: toPointF(d)}}.Op(gtx.Ops).Add(gtx.Ops)
+	s := op.Push(gtx.Ops)
+	clip.Rect{Max: d}.Op(gtx.Ops).Add(gtx.Ops)
 
 	orig := im.Src.Rect
 	defer func() { im.Src.Rect = orig }()

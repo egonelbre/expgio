@@ -62,7 +62,7 @@ func loop(w *app.Window) error {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e)
 			op.InvalidateOp{}.Add(gtx.Ops)
 
 			timeSinceStart := hrtime.Since(now)
@@ -103,13 +103,11 @@ func (state *State) Render(gtx layout.Context) {
 	// fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 	fill(gtx, color.RGBA{R: 0xFF, G: 0xFF, B: 0xEE, A: 0xFF})
 
-	var stack op.StackOp
-	stack.Push(gtx.Ops)
-	defer stack.Pop()
+	defer op.Push(gtx.Ops).Pop()
 
 	screenSize := layout.FPt(gtx.Constraints.Min)
 	offset := Neg(state.Camera).Add(screenSize.Mul(0.5))
-	op.TransformOp{}.Offset(offset).Add(gtx.Ops)
+	op.Offset(offset).Add(gtx.Ops)
 
 	state.Root.Render(gtx)
 }
@@ -308,11 +306,9 @@ func (branch *Branch) renderPath(gtx layout.Context, radiusAdd float32, color co
 }
 
 func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) {
-	var stack op.StackOp
-	stack.Push(gtx.Ops)
-	defer stack.Pop()
+	defer op.Push(gtx.Ops).Pop()
 
-	op.TransformOp{}.Offset(p).Add(gtx.Ops)
+	op.Offset(p).Add(gtx.Ops)
 
 	var path clip.Path
 	path.Begin(gtx.Ops)

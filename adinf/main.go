@@ -54,7 +54,7 @@ func loop(w *app.Window) error {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e)
 
 			fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 			render(gtx, float32(time.Since(start).Seconds()))
@@ -81,11 +81,9 @@ func render(gtx layout.Context, t float32) {
 }
 
 func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) {
-	var stack op.StackOp
-	stack.Push(gtx.Ops)
-	defer stack.Pop()
+	defer op.Push(gtx.Ops).Pop()
 
-	op.TransformOp{}.Offset(p).Add(gtx.Ops)
+	op.Offset(p).Add(gtx.Ops)
 
 	var path clip.Path
 	path.Begin(gtx.Ops)

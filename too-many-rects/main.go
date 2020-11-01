@@ -13,8 +13,6 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/paint"
-
-	"gioui.org/font/gofont"
 )
 
 func main() {
@@ -44,7 +42,6 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	gofont.Register()
 	var ops op.Ops
 	for {
 		e := <-w.Events()
@@ -52,7 +49,7 @@ func loop(w *app.Window) error {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e)
 
 			const size = 2
 			for y := 0; y < e.Size.Y; y += size {

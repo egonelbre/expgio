@@ -16,8 +16,6 @@ import (
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
-
-	"gioui.org/font/gofont"
 )
 
 func main() {
@@ -50,7 +48,6 @@ func main() {
 func loop(linecount int, w *app.Window) error {
 	start := time.Now()
 
-	gofont.Register()
 	var ops op.Ops
 	for {
 		e := <-w.Events()
@@ -58,7 +55,7 @@ func loop(linecount int, w *app.Window) error {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e.Queue, e.Config, e.Size)
+			gtx := layout.NewContext(&ops, e)
 
 			now := time.Since(start)
 			_ = now
