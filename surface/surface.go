@@ -24,36 +24,71 @@ func (s *SurfaceLayoutStyle) Layout(gtx layout.Context) layout.Dimensions {
 	sz := gtx.Constraints.Min
 	rr := float32(gtx.Px(s.CornerRadius))
 
-	r := f32.Rect(0, 0, sz.X, sz.Y)
+	r := f32.Rect(0, 0, float32(sz.X), float32(sz.Y))
 	s.layoutShadow(gtx, r, rr)
-
 	clip.UniformRRect(r, rr).Add(gtx.Ops)
 
-	background := b.Background
+	background := s.Background
 	if gtx.Queue == nil {
 		// calculate disabled color
-		background = f32color.MulAlpha(b.Background, 150)
+		background = f32color.MulAlpha(s.Background, 150)
 	}
-
+	_ = background
 	paint.Fill(gtx.Ops, background)
 
 	return layout.Dimensions{Size: sz}
 }
 
-func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rect, rr float32) {
+func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, rr float32) {
 	if s.Elevation.V <= 0 {
 		return
 	}
-	defer op.Push(ops).Pop()
 
-	clip.UniformRRect(r, rr).Add(gtx.Ops)
-	paint.Fill(gtx.Ops, color.RGBA{A: 0x15})
+	offset := pxf(gtx.Metric, s.Elevation)
+
+	d := int(offset + 1)
+	if d > 6 {
+		d = 6
+	}
+
+	background := (f32color.RGBA{A: 0.4 / float32(d*d)}).SRGB()
+	for x := 0; x <= d; x++ {
+		for y := 0; y <= d; y++ {
+			px, py := float32(x)/float32(d)-0.5, float32(y)/float32(d)-0.15
+			stack := op.Push(gtx.Ops)
+			op.Offset(f32.Pt(px*offset, py*offset)).Add(gtx.Ops)
+			clip.UniformRRect(r, rr).Add(gtx.Ops)
+			paint.Fill(gtx.Ops, background)
+			stack.Pop()
+		}
+	}
 }
 
-func outset(r f32.Rect, x, y float32) f32.Rect {
-	r.Min.X -= x
-	r.Min.Y -= y
-	r.Max.X += x
-	r.Max.Y += y
+func outset(r f32.Rectangle, y, s float32) f32.Rectangle {
+	r.Min.X += s
+	r.Min.Y += s + y
+	r.Max.X += -s
+	r.Max.Y += -s + y
 	return r
+}
+
+func pxf(c unit.Metric, v unit.Value) float32 {
+	switch v.U {
+	case unit.UnitPx:
+		return v.V
+	case unit.UnitDp:
+		s := c.PxPerDp
+		if s == 0 {
+			s = 1
+		}
+		return s * v.V
+	case unit.UnitSp:
+		s := c.PxPerSp
+		if s == 0 {
+			s = 1
+		}
+		return s * v.V
+	default:
+		panic("unknown unit")
+	}
 }
