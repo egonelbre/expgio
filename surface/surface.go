@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"math"
 
 	"gioui.org/f32"
 	"gioui.org/layout"
@@ -33,10 +34,27 @@ func (s *SurfaceLayoutStyle) Layout(gtx layout.Context) layout.Dimensions {
 		// calculate disabled color
 		background = f32color.MulAlpha(s.Background, 150)
 	}
-	_ = background
+	if s.DarkMode {
+		p := darkBlend(s.Elevation.V)
+		background = f32color.RGBAFromSRGB(background).Lighten(p).SRGB()
+	}
+
 	paint.Fill(gtx.Ops, background)
 
 	return layout.Dimensions{Size: sz}
+}
+
+func darkBlend(x float32) float32 {
+	if x <= 0 {
+		return 0
+	}
+	p := 15.77125 - 15.77125/float32(math.Pow(2, float64(x)/3.438155))
+	if p <= 0 {
+		return 0
+	} else if p > 16 {
+		return 16 * 0.01
+	}
+	return p * 0.01
 }
 
 func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, rr float32) {
@@ -51,7 +69,7 @@ func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, r
 		d = 6
 	}
 
-	background := (f32color.RGBA{A: 0.4 / float32(d*d)}).SRGB()
+	background := (f32color.RGBA{A: 0.14 / float32(d*d)}).SRGB()
 	for x := 0; x <= d; x++ {
 		for y := 0; y <= d; y++ {
 			px, py := float32(x)/float32(d)-0.5, float32(y)/float32(d)-0.15

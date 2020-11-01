@@ -2,7 +2,6 @@ package main
 
 import (
 	"image"
-	"image/color"
 	"log"
 	"math"
 	"os"
@@ -39,8 +38,8 @@ func loop(w *app.Window) error {
 			return e.Err
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
-			paint.Fill(gtx.Ops, f32color.RGBAHex(0xe5e5e5FF))
-			//paint.Fill(gtx.Ops, f32color.RGBAHex(0xe58080FF))
+			//paint.Fill(gtx.Ops, f32color.RGBAHex(0xe5e5e5FF))
+			paint.Fill(gtx.Ops, f32color.RGBAHex(0x121212ff))
 
 			op.InvalidateOp{}.Add(gtx.Ops)
 
@@ -72,8 +71,8 @@ func drawSurface(gtx layout.Context, offset f32.Point, elevation unit.Value) {
 	gtx.Constraints.Max = image.Pt(100, 100)
 
 	style := SurfaceLayoutStyle{
-		DarkMode:     false,
-		Background:   color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF},
+		DarkMode:     true,
+		Background:   f32color.RGBAHex(0x1e1e1eff),
 		CornerRadius: unit.Dp(5),
 		Elevation:    elevation,
 	}
