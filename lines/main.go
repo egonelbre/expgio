@@ -85,7 +85,7 @@ func Stroke(ops *op.Ops, points []f32.Point, thickness float32) op.CallOp {
 	var path clip.Path
 	path.Begin(ops)
 	if len(points) < 2 {
-		return path.End()
+		return path.Outline()
 	}
 
 	R := abs(thickness / 2)
@@ -123,7 +123,7 @@ func Stroke(ops *op.Ops, points []f32.Point, thickness float32) op.CallOp {
 		}
 	}
 
-	return path.End()
+	return path.Outline()
 }
 
 func abs(v float32) float32 {
@@ -173,7 +173,7 @@ func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) 
 	path.Move(f32.Pt(0, -r))
 	path.Cube(f32.Pt(r, 0), f32.Pt(r, 2*r*0.75), f32.Pt(0, 2*r*0.75))
 	path.Cube(f32.Pt(-r, 0), f32.Pt(-r, -2*r*0.75), f32.Pt(0, -2*r*0.75))
-	path.End().Add(gtx.Ops)
+	path.Outline().Add(gtx.Ops)
 
 	paint.ColorOp{Color: color}.Add(gtx.Ops)
 	paint.PaintOp{Rect: f32.Rect(-r, -r, r, r)}.Add(gtx.Ops)

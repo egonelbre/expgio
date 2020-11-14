@@ -1,3 +1,5 @@
+//+build ignore
+
 package main
 
 import (
@@ -105,7 +107,7 @@ func (im Patch9) Layout(gtx layout.Context) layout.Dimensions {
 	wf, hf := float32(d.X), float32(d.Y)
 	_ = hf
 	s := op.Push(gtx.Ops)
-	clip.Rect{Max: d}.Op(gtx.Ops).Add(gtx.Ops)
+	clip.Rect{Max: d}.Add(gtx.Ops)
 
 	orig := im.Src.Rect
 	defer func() { im.Src.Rect = orig }()

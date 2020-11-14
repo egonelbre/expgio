@@ -12,6 +12,7 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 )
 
@@ -51,9 +52,10 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			const size = 2
+			const size = 10
 			for y := 0; y < e.Size.Y; y += size {
 				for x := 0; x < e.Size.X; x += size {
+					stack := op.Push(gtx.Ops)
 					paint.ColorOp{
 						Color: color.RGBA{
 							R: byte(x),
@@ -62,7 +64,7 @@ func loop(w *app.Window) error {
 							A: 0xFF,
 						},
 					}.Add(gtx.Ops)
-					paint.PaintOp{Rect: f32.Rectangle{
+					clip.RRect{Rect: f32.Rectangle{
 						Min: f32.Point{
 							X: float32(x),
 							Y: float32(y),
@@ -72,6 +74,8 @@ func loop(w *app.Window) error {
 							Y: float32(y + size),
 						},
 					}}.Add(gtx.Ops)
+					paint.PaintOp{}.Add(gtx.Ops)
+					stack.Pop()
 				}
 			}
 

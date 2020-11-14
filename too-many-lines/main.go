@@ -99,12 +99,9 @@ func loop(linecount int, w *app.Window) error {
 				prev = next
 			}
 			builder.Line(start.Sub(prev))
-			builder.End().Add(gtx.Ops)
+			builder.Outline().Add(gtx.Ops)
 
-			paint.PaintOp{Rect: f32.Rectangle{
-				Min: f32.Point{},
-				Max: center.Mul(2),
-			}}.Add(gtx.Ops)
+			paint.PaintOp{}.Add(gtx.Ops)
 
 			e.Frame(gtx.Ops)
 			w.Invalidate()
