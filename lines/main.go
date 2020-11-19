@@ -161,7 +161,7 @@ func rotate90(v f32.Point) f32.Point {
 }
 
 /*
-func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) {
+func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
 	var stack op.StackOp
 	stack.Push(gtx.Ops)
 	defer stack.Pop()
@@ -179,7 +179,7 @@ func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) 
 	paint.PaintOp{Rect: f32.Rect(-r, -r, r, r)}.Add(gtx.Ops)
 }
 
-func fill(gtx layout.Context, col color.RGBA) layout.Dimensions {
+func fill(gtx layout.Context, col color.NRGBA) layout.Dimensions {
 	dr := f32.Rectangle{Max: layout.FPt(gtx.Constraints.Max)}
 	paint.ColorOp{Color: col}.Add(gtx.Ops)
 	paint.PaintOp{Rect: dr}.Add(gtx.Ops)

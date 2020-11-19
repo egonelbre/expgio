@@ -6,18 +6,18 @@ import (
 )
 
 var (
-	White  = color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}
-	Black  = color.RGBA{0x00, 0x00, 0x00, 0xFF}
-	Red    = color.RGBA{0xFF, 0x00, 0x00, 0xFF}
-	Green  = color.RGBA{0x00, 0xFF, 0x00, 0xFF}
-	Blue   = color.RGBA{0x00, 0x00, 0xFF, 0xFF}
-	Yellow = color.RGBA{0xFF, 0xFF, 0x00, 0xFF}
+	White  = color.NRGBA{0xFF, 0xFF, 0xFF, 0xFF}
+	Black  = color.NRGBA{0x00, 0x00, 0x00, 0xFF}
+	Red    = color.NRGBA{0xFF, 0x00, 0x00, 0xFF}
+	Green  = color.NRGBA{0x00, 0xFF, 0x00, 0xFF}
+	Blue   = color.NRGBA{0x00, 0x00, 0xFF, 0xFF}
+	Yellow = color.NRGBA{0xFF, 0xFF, 0x00, 0xFF}
 
-	Transparent = color.RGBA{0xFF, 0xFF, 0xFF, 0x00}
+	Transparent = color.NRGBA{0xFF, 0xFF, 0xFF, 0x00}
 )
 
-func RGBAHex(hex uint32) color.RGBA {
-	return color.RGBA{
+func NRGBAHex(hex uint32) color.NRGBA {
+	return color.NRGBA{
 		R: uint8(hex >> 24),
 		G: uint8(hex >> 16),
 		B: uint8(hex >> 8),
@@ -26,28 +26,28 @@ func RGBAHex(hex uint32) color.RGBA {
 }
 
 // RGB returns color based on RGB in range 0..1
-func RGB(r, g, b float32) color.RGBA {
-	return color.RGBA{R: sat8(r), G: sat8(g), B: sat8(b), A: 0xFF}
+func RGB(r, g, b float32) color.NRGBA {
+	return color.NRGBA{R: sat8(r), G: sat8(g), B: sat8(b), A: 0xFF}
 }
 
 // RGBA returns color based on RGBA in range 0..1
-func RGBA(r, g, b, a float32) color.RGBA {
-	return color.RGBA{R: sat8(r), G: sat8(g), B: sat8(b), A: sat8(a)}
+func RGBA(r, g, b, a float32) color.NRGBA {
+	return color.NRGBA{R: sat8(r), G: sat8(g), B: sat8(b), A: sat8(a)}
 }
 
 // HSLA returns color based on HSLA in range 0..1
-func HSLA(h, s, l, a float32) color.RGBA { return RGBA(hsla(h, s, l, a)) }
+func HSLA(h, s, l, a float32) color.NRGBA { return RGBA(hsla(h, s, l, a)) }
 
 // HSL returns color based on HSL in range 0..1
-func HSL(h, s, l float32) color.RGBA { return HSLA(h, s, l, 1) }
+func HSL(h, s, l float32) color.NRGBA { return HSLA(h, s, l, 1) }
 
 // RGBAFloat returns RGBA scaled to 0..1
-func RGBAFloat(c color.RGBA) (r, g, b, a float32) {
+func RGBAFloat(c color.NRGBA) (r, g, b, a float32) {
 	return float32(c.R) / 0xFF, float32(c.G) / 0xFF, float32(c.B) / 0xFF, float32(c.A) / 0xFF
 }
 
 // Lerp linearly interpolates each RGBA component separately
-func RGBALerp(a, b color.RGBA, p float32) color.RGBA {
+func RGBALerp(a, b color.NRGBA, p float32) color.NRGBA {
 	ar, ag, ab, aa := RGBAFloat(a)
 	br, bg, bb, ba := RGBAFloat(b)
 	return RGBA(

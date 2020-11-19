@@ -58,7 +58,7 @@ func loop(w *app.Window) {
 type box struct{}
 
 func (b *box) Layout(gtx layout.Context) layout.Dimensions {
-	yellow := color.RGBA{R: 0xEE, G: 0xEE, B: 0x9E, A: 0xFF}
+	yellow := color.NRGBA{R: 0xEE, G: 0xEE, B: 0x9E, A: 0xFF}
 	paint.ColorOp{Color: yellow}.Add(gtx.Ops)
 	size := gtx.Constraints.Max
 	bounds := image.Rect(0, 0, size.X, size.Y)
@@ -83,14 +83,14 @@ func (b *bar) Layout(gtx layout.Context) layout.Dimensions {
 	pointer.Rect(bounds).Add(ops)
 	pointer.InputOp{Tag: tag, Types: pointer.Drag}.Add(ops)
 
-	black := color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xFF}
+	black := color.NRGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xFF}
 	paint.ColorOp{Color: black}.Add(ops)
 	paint.PaintOp{Rect: layout.FRect(bounds)}.Add(ops)
 	return layout.Dimensions{Size: size}
 }
 
 // ColorBox creates a widget with the specified dimensions and color.
-func ColorBox(gtx layout.Context, size image.Point, color color.RGBA) layout.Dimensions {
+func ColorBox(gtx layout.Context, size image.Point, color color.NRGBA) layout.Dimensions {
 	bounds := f32.Rect(0, 0, float32(size.X), float32(size.Y))
 	paint.ColorOp{Color: color}.Add(gtx.Ops)
 	paint.PaintOp{Rect: bounds}.Add(gtx.Ops)

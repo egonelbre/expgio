@@ -100,8 +100,8 @@ func (state *State) Update(delta float32) {
 }
 
 func (state *State) Render(gtx layout.Context) {
-	// fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
-	fill(gtx, color.RGBA{R: 0xFF, G: 0xFF, B: 0xEE, A: 0xFF})
+	// fill(gtx, color.NRGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
+	fill(gtx, color.NRGBA{R: 0xFF, G: 0xFF, B: 0xEE, A: 0xFF})
 
 	defer op.Push(gtx.Ops).Pop()
 
@@ -118,8 +118,8 @@ type Branch struct {
 	PathLimit int
 	Path      []f32.Point
 
-	Fill   color.RGBA
-	Stroke color.RGBA
+	Fill   color.NRGBA
+	Stroke color.NRGBA
 
 	Thickness  float32
 	Lightness  float32
@@ -156,7 +156,7 @@ func NewRoot() *Branch {
 	branch.Thickness = 12.0
 	branch.Lightness = 0.8
 
-	branch.Fill = color.RGBA{0xFF, 0xFF, 0xFF, 0xFF}
+	branch.Fill = color.NRGBA{0xFF, 0xFF, 0xFF, 0xFF}
 	branch.Stroke = f32color.HSL(0, branch.Lightness*0.2, 0.4)
 
 	branch.SpawnInterval = 0.3
@@ -276,7 +276,7 @@ func (branch *Branch) Render(gtx layout.Context) {
 	branch.renderPath(gtx, 0, branch.Fill)
 }
 
-func (branch *Branch) renderPath(gtx layout.Context, radiusAdd float32, color color.RGBA) {
+func (branch *Branch) renderPath(gtx layout.Context, radiusAdd float32, color color.NRGBA) {
 	if len(branch.Path) == 0 {
 		return
 	}
@@ -305,7 +305,7 @@ func (branch *Branch) renderPath(gtx layout.Context, radiusAdd float32, color co
 	}
 }
 
-func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) {
+func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
 	defer op.Push(gtx.Ops).Pop()
 
 	op.Offset(p).Add(gtx.Ops)
@@ -321,7 +321,7 @@ func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) 
 	paint.PaintOp{}.Add(gtx.Ops)
 }
 
-func fill(gtx layout.Context, col color.RGBA) layout.Dimensions {
+func fill(gtx layout.Context, col color.NRGBA) layout.Dimensions {
 	paint.ColorOp{Color: col}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 	return layout.Dimensions{Size: gtx.Constraints.Max}

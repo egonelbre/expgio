@@ -16,7 +16,7 @@ import (
 
 type SurfaceLayoutStyle struct {
 	DarkMode     bool
-	Background   color.RGBA
+	Background   color.NRGBA
 	CornerRadius unit.Value
 	Elevation    unit.Value
 }
@@ -32,7 +32,7 @@ func (s *SurfaceLayoutStyle) Layout(gtx layout.Context) layout.Dimensions {
 	background := s.Background
 	if s.DarkMode {
 		p := darkBlend(s.Elevation.V)
-		background = f32color.RGBAFromSRGB(background).Lighten(p).SRGB()
+		background = f32color.LinearFromSRGB(background).Lighten(p).SRGB()
 	}
 	paint.Fill(gtx.Ops, background)
 

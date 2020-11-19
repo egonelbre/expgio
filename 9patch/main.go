@@ -256,7 +256,7 @@ func bounds(gtx *layout.Context) f32.Rectangle {
 	}
 }
 
-func fill(gtx *layout.Context, col color.RGBA) {
+func fill(gtx *layout.Context, col color.NRGBA) {
 	dr := bounds(gtx)
 	paint.ColorOp{Color: col}.Add(gtx.Ops)
 	paint.PaintOp{Rect: dr}.Add(gtx.Ops)

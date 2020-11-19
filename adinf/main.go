@@ -56,7 +56,7 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			fill(gtx, color.RGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
+			fill(gtx, color.NRGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 			render(gtx, float32(time.Since(start).Seconds()))
 
 			e.Frame(gtx.Ops)
@@ -76,11 +76,11 @@ func render(gtx layout.Context, t float32) {
 		r := float32(i) / n
 		p := curve(t+r*1.2+Sin(t+r)*3, radius+Sin(r*1.1)*30)
 		q := radius * 0.3 * pcurve(float32(i)/(n-1), 1.5, 0.6)
-		squashcircle(gtx, p.Add(screenSize.Mul(0.5)), q, color.RGBA{R: 0xff, G: 0xd7, B: byte(i), A: 0xFF})
+		squashcircle(gtx, p.Add(screenSize.Mul(0.5)), q, color.NRGBA{R: 0xff, G: 0xd7, B: byte(i), A: 0xFF})
 	}
 }
 
-func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.RGBA) {
+func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
 	defer op.Push(gtx.Ops).Pop()
 
 	op.Offset(p).Add(gtx.Ops)
@@ -112,7 +112,7 @@ func pcurve(p, a, b float32) float32 {
 	return k * Pow(p, a) * Pow(1-p, b)
 }
 
-func fill(gtx layout.Context, col color.RGBA) layout.Dimensions {
+func fill(gtx layout.Context, col color.NRGBA) layout.Dimensions {
 	paint.ColorOp{Color: col}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 	return layout.Dimensions{Size: gtx.Constraints.Min}

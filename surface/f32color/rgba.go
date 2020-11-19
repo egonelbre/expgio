@@ -23,8 +23,8 @@ func (col RGBA) Float32() (r, g, b, a float32) {
 }
 
 // SRGBA converts from linear to sRGB color space.
-func (col RGBA) SRGB() color.RGBA {
-	return color.RGBA{
+func (col RGBA) SRGB() color.NRGBA {
+	return color.NRGBA{
 		R: uint8(linearTosRGB(col.R)*255 + 0.5),
 		G: uint8(linearTosRGB(col.G)*255 + 0.5),
 		B: uint8(linearTosRGB(col.B)*255 + 0.5),
@@ -38,8 +38,8 @@ func (col RGBA) Opaque() RGBA {
 	return col
 }
 
-// RGBAFromSRGB converts from SRGBA to RGBA.
-func RGBAFromSRGB(col color.RGBA) RGBA {
+// LinearFromSRGB converts from SRGBA to RGBA.
+func LinearFromSRGB(col color.NRGBA) RGBA {
 	r, g, b, a := col.RGBA()
 	return RGBA{
 		R: sRGBToLinear(float32(r) / 0xffff),
@@ -75,10 +75,10 @@ func sRGBToLinear(c float32) float32 {
 }
 
 // MulAlpha scales all color components by alpha/255.
-func MulAlpha(c color.RGBA, alpha uint8) color.RGBA {
+func MulAlpha(c color.NRGBA, alpha uint8) color.NRGBA {
 	// TODO: Optimize. This is pretty slow.
 	a := float32(alpha) / 255.
-	rgba := RGBAFromSRGB(c)
+	rgba := LinearFromSRGB(c)
 	rgba.A *= a
 	rgba.R *= a
 	rgba.G *= a

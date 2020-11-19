@@ -57,7 +57,7 @@ func loop(w *app.Window) error {
 				for x := 0; x < e.Size.X; x += size {
 					stack := op.Push(gtx.Ops)
 					paint.ColorOp{
-						Color: color.RGBA{
+						Color: color.NRGBA{
 							R: byte(x),
 							G: byte(y),
 							B: byte(x * y),

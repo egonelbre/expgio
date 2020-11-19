@@ -61,7 +61,7 @@ func loop(linecount int, w *app.Window) error {
 			_ = now
 
 			paint.ColorOp{
-				Color: color.RGBA{
+				Color: color.NRGBA{
 					R: byte(0xff),
 					G: byte(0),
 					B: byte(0),
