@@ -18,6 +18,8 @@ gioui.org v0.0.0-20201113140651-c15415b0d997 h1:cNKZhhmizA0cTg4jaS6jrhpPE/x6aEv+
 gioui.org v0.0.0-20201113140651-c15415b0d997/go.mod h1:Y+uS7hHMvku1Q+ooaoq6fYD5B2LGoT8JtFgvmYmRzTw=
 gioui.org v0.0.0-20201119103526-2affb6eaa4e3 h1:tYiDzb0JemqsrXHK6caI/ZFkEPyw4jC4jw1Y2PRThiw=
 gioui.org v0.0.0-20201119103526-2affb6eaa4e3/go.mod h1:Y+uS7hHMvku1Q+ooaoq6fYD5B2LGoT8JtFgvmYmRzTw=
+gioui.org v0.0.0-20201206220452-acc3f704e478 h1:BOuNQF8yZHQUGhL1G93akbzJ2+G9EJySzPssDic9acY=
+gioui.org v0.0.0-20201206220452-acc3f704e478/go.mod h1:Y+uS7hHMvku1Q+ooaoq6fYD5B2LGoT8JtFgvmYmRzTw=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/loov/hrtime v1.0.1 h1:n6UINiq9nfyTmfNpLvgYN4O8d6Z0tZMoGd4QOolrxyc=
