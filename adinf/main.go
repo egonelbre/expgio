@@ -41,6 +41,7 @@ func main() {
 		if err := loop(w); err != nil {
 			log.Println(err)
 		}
+		os.Exit(0)
 	}()
 	app.Main()
 }
@@ -90,7 +91,7 @@ func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA)
 	path.Move(f32.Pt(0, -r))
 	path.Cube(f32.Pt(r, 0), f32.Pt(r, 2*r*0.75), f32.Pt(0, 2*r*0.75))
 	path.Cube(f32.Pt(-r, 0), f32.Pt(-r, -2*r*0.75), f32.Pt(0, -2*r*0.75))
-	path.Outline().Add(gtx.Ops)
+	clip.Outline{Path: path.End()}.Op().Add(gtx.Ops)
 
 	paint.ColorOp{Color: color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)

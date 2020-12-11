@@ -3,6 +3,6 @@ module github.com/egonelbre/expgio
 go 1.14
 
 require (
-	gioui.org v0.0.0-20201206220452-acc3f704e478
+	gioui.org v0.0.0-20201211101033-050e7210f2ce
 	github.com/loov/hrtime v1.0.3
 )

@@ -41,6 +41,7 @@ func main() {
 		if err := loop(*lines, w); err != nil {
 			log.Println(err)
 		}
+		os.Exit(0)
 	}()
 	app.Main()
 }
@@ -99,7 +100,7 @@ func loop(linecount int, w *app.Window) error {
 				prev = next
 			}
 			builder.Line(start.Sub(prev))
-			builder.Outline().Add(gtx.Ops)
+			clip.Outline{Path: builder.End()}.Op().Add(gtx.Ops)
 
 			paint.PaintOp{}.Add(gtx.Ops)
 
