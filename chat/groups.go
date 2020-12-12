@@ -54,7 +54,7 @@ type Group struct {
 
 func NewGroup(icon, name string) *Group {
 	g := &Group{Icon: icon, Name: name}
-	g.Hovering.Duration = 100 * time.Millisecond
+	g.Hovering.Duration = 150 * time.Millisecond
 	return g
 }
 
@@ -81,10 +81,10 @@ func (groups *Groups) layoutGroup(th *material.Theme, gtx layout.Context, group 
 
 	inset := layout.UniformInset(unit.Px(maxIconBorderWidthPx))
 	dimensions := inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-		return widget.Border{
+		return BorderSmooth{
 			Color:        ifthen(isActive, iconActiveBorder, iconInactiveBorder),
 			CornerRadius: unit.Px(iconCornerRadiusPx),
-			Width:        unit.Px(easeInOutQuad(progress) * maxIconBorderWidthPx),
+			Width:        easeInOutQuad(progress) * maxIconBorderWidthPx,
 		}.Layout(gtx,
 			btn.Layout,
 		)

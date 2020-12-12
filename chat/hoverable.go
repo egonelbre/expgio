@@ -2,11 +2,16 @@ package main
 
 import (
 	"image"
+	"image/color"
 	"time"
 
+	"gioui.org/f32"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/op/clip"
+	"gioui.org/op/paint"
+	"gioui.org/unit"
 )
 
 type Hoverable struct {
@@ -63,6 +68,10 @@ func (anim *AnimationTimer) Update(gtx layout.Context, active bool) float32 {
 	delta := gtx.Now.Sub(anim.last)
 	anim.last = gtx.Now
 
+	if delta > 15*time.Millisecond {
+		delta = 15 * time.Millisecond
+	}
+
 	if active {
 		if anim.progress < anim.Duration {
 			anim.progress += delta
@@ -82,4 +91,29 @@ func (anim *AnimationTimer) Update(gtx layout.Context, active bool) float32 {
 	}
 
 	return anim.Progress()
+}
+
+// BorderSmooth lays out a widget and draws a border inside it, with non-pixel-perfect border.
+type BorderSmooth struct {
+	Color        color.NRGBA
+	CornerRadius unit.Value
+	Width        float32
+}
+
+func (b BorderSmooth) Layout(gtx layout.Context, w layout.Widget) layout.Dimensions {
+	dims := w(gtx)
+	sz := dims.Size
+	rr := float32(gtx.Px(b.CornerRadius))
+	st := op.Push(gtx.Ops)
+	clip.Border{
+		Rect: f32.Rectangle{
+			Max: layout.FPt(sz),
+		},
+		NE: rr, NW: rr, SE: rr, SW: rr,
+		Width: b.Width,
+	}.Add(gtx.Ops)
+	paint.ColorOp{Color: b.Color}.Add(gtx.Ops)
+	paint.PaintOp{}.Add(gtx.Ops)
+	st.Pop()
+	return dims
 }
