@@ -1,0 +1,9 @@
+Column BG: #3F0E40
+Active Item: #1164A3
+Active Item Text: #FFFFFF
+Hover Item: #350D36
+Text Color: #FFFFFF
+Active Presence: #2BAC76
+Mention Badge: #CD2553
+Top Nav BG: #350d36
+Top Nav Text: #FFFFFF
