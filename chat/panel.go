@@ -39,7 +39,7 @@ func (panel *Panel) Layout(gtx layout.Context, widget layout.Widget) layout.Dime
 }
 
 func (panel *Panel) fill(gtx layout.Context) {
-	defer op.Push(gtx.Ops).Pop()
+	defer op.Save(gtx.Ops).Load()
 
 	var bounds clip.Rect
 	bounds.Max = gtx.Constraints.Max
@@ -50,7 +50,7 @@ func (panel *Panel) fill(gtx layout.Context) {
 }
 
 func (panel *Panel) border(gtx layout.Context) layout.Context {
-	defer op.Push(gtx.Ops).Pop()
+	defer op.Save(gtx.Ops).Load()
 
 	var bounds clip.Rect
 	bounds.Max = gtx.Constraints.Max

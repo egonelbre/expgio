@@ -106,7 +106,8 @@ func (im Patch9) Layout(gtx layout.Context) layout.Dimensions {
 
 	wf, hf := float32(d.X), float32(d.Y)
 	_ = hf
-	s := op.Push(gtx.Ops)
+	defer op.Save(gtx.Ops).Load()
+
 	clip.Rect{Max: d}.Add(gtx.Ops)
 
 	orig := im.Src.Rect
@@ -240,8 +241,6 @@ func (im Patch9) Layout(gtx layout.Context) layout.Dimensions {
 			},
 		}.Add(gtx.Ops)
 	}
-
-	s.Pop()
 
 	return layout.Dimensions{Size: d}
 }

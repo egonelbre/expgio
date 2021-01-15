@@ -21,14 +21,14 @@ type Hoverable struct {
 func (h *Hoverable) Layout(gtx layout.Context) layout.Dimensions {
 	h.update(gtx)
 
-	stack := op.Push(gtx.Ops)
+	defer op.Save(gtx.Ops).Load()
+
 	pointer.PassOp{Pass: true}.Add(gtx.Ops)
 	pointer.Rect(image.Rectangle{Max: gtx.Constraints.Min}).Add(gtx.Ops)
 	pointer.InputOp{
 		Tag:   h,
 		Types: pointer.Enter | pointer.Leave,
 	}.Add(gtx.Ops)
-	stack.Pop()
 
 	return layout.Dimensions{
 		Size: gtx.Constraints.Min,
@@ -104,7 +104,9 @@ func (b BorderSmooth) Layout(gtx layout.Context, w layout.Widget) layout.Dimensi
 	dims := w(gtx)
 	sz := dims.Size
 	rr := float32(gtx.Px(b.CornerRadius))
-	st := op.Push(gtx.Ops)
+
+	defer op.Save(gtx.Ops).Load()
+
 	clip.Border{
 		Rect: f32.Rectangle{
 			Max: layout.FPt(sz),
@@ -114,6 +116,6 @@ func (b BorderSmooth) Layout(gtx layout.Context, w layout.Widget) layout.Dimensi
 	}.Add(gtx.Ops)
 	paint.ColorOp{Color: b.Color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
-	st.Pop()
+
 	return dims
 }

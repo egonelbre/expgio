@@ -143,7 +143,7 @@ func NewOverlay(t string, flood f32.Point) *Overlay {
 }
 
 func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
-	defer op.Push(gtx.Ops).Pop()
+	defer op.Save(gtx.Ops).Load()
 
 	progress := overlay.Show.Update(gtx)
 	if progress < 1 {

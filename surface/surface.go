@@ -69,11 +69,11 @@ func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, r
 	for x := 0; x <= d; x++ {
 		for y := 0; y <= d; y++ {
 			px, py := float32(x)/float32(d)-0.5, float32(y)/float32(d)-0.15
-			stack := op.Push(gtx.Ops)
+			stack := op.Save(gtx.Ops)
 			op.Offset(f32.Pt(px*offset, py*offset)).Add(gtx.Ops)
 			clip.UniformRRect(r, rr).Add(gtx.Ops)
 			paint.Fill(gtx.Ops, background)
-			stack.Pop()
+			stack.Load()
 		}
 	}
 }

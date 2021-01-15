@@ -55,7 +55,7 @@ func loop(w *app.Window) error {
 			const size = 10
 			for y := 0; y < e.Size.Y; y += size {
 				for x := 0; x < e.Size.X; x += size {
-					stack := op.Push(gtx.Ops)
+					stack := op.Save(gtx.Ops)
 					paint.ColorOp{
 						Color: color.NRGBA{
 							R: byte(x),
@@ -75,7 +75,7 @@ func loop(w *app.Window) error {
 						},
 					}}.Add(gtx.Ops)
 					paint.PaintOp{}.Add(gtx.Ops)
-					stack.Pop()
+					stack.Load()
 				}
 			}
 

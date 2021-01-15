@@ -164,7 +164,7 @@ func (panel *Panel) Update(left *Panel, gtx layout.Context) {
 func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
 	gtx.Constraints = layout.Exact(image.Pt(int(panel.WidthPx), int(gtx.Constraints.Max.Y)))
 
-	defer op.Push(gtx.Ops).Pop()
+	defer op.Save(gtx.Ops).Load()
 	op.Offset(f32.Pt(panel.LeftPx, 0)).Add(gtx.Ops)
 	clip.Rect{Max: gtx.Constraints.Max}.Add(gtx.Ops)
 	paint.ColorOp{Color: panel.Color}.Add(gtx.Ops)
