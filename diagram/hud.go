@@ -27,9 +27,9 @@ func NewHudManager(theme *material.Theme) *HudManager {
 	m.Huds = append(m.Huds,
 		&GridDisplay{},
 		&NodeDisplay{},
-		&Selection{},
 		&PortDisplay{},
 		&ConnectionDisplay{},
+		&SelectionDisplay{},
 		// &ConnectionCreator{}
 		// &NodeMover{}
 		// &NodeCreator{}

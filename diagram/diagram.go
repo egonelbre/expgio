@@ -1,13 +1,14 @@
 package main
 
 type Diagram struct {
-	Selection   Set
+	Selection   *Selection
 	Nodes       []*Node
 	Connections []*Connection
 }
 
 func NewDemoDiagram() *Diagram {
 	diagram := &Diagram{}
+	diagram.Selection = NewSelection()
 	diagram.Nodes = []*Node{
 		NewNode(V(1, 1), V(6, 3)),
 		NewNode(V(1, 10), V(6, 3)),
@@ -62,4 +63,23 @@ type Connection struct {
 
 func (p *Port) Position() Vector {
 	return p.Owner.Pos.Add(p.Offset)
+}
+
+type Selection struct {
+	Selected Set
+}
+
+func NewSelection() *Selection {
+	return &Selection{
+		Selected: make(Set),
+	}
+}
+
+func (sel *Selection) Toggle(v interface{}) {
+	sel.Selected.Toggle(v)
+}
+
+func (sel *Selection) Set(v interface{}) {
+	sel.Selected = Set{}
+	sel.Selected.Include(v)
 }
