@@ -24,3 +24,31 @@ func (v Vector) Sub(b Vector) Vector {
 		Y: v.Y - b.Y,
 	}
 }
+
+func (v Vector) Min(b Vector) Vector {
+	return Vector{
+		X: minUnit(v.X, b.X),
+		Y: minUnit(v.Y, b.Y),
+	}
+}
+
+func (v Vector) Max(b Vector) Vector {
+	return Vector{
+		X: maxUnit(v.X, b.X),
+		Y: maxUnit(v.Y, b.Y),
+	}
+}
+
+func minUnit(a, b Unit) Unit {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxUnit(a, b Unit) Unit {
+	if a > b {
+		return a
+	}
+	return b
+}

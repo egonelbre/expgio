@@ -29,10 +29,10 @@ func NewHudManager(theme *material.Theme) *HudManager {
 		&NodeDisplay{},
 		&PortDisplay{},
 		&ConnectionDisplay{},
-		&SelectionDisplay{},
+		&NodeCreationDisplay{},
+		&ManipulationDisplay{},
 		// &ConnectionCreator{}
 		// &NodeMover{}
-		// &NodeCreator{}
 		// &NodeDeleter{}
 		// &NodeOrderer{}
 	)
@@ -97,6 +97,20 @@ func (zoom *Zoom) FPt(v Vector) f32.Point {
 	return f32.Point{
 		X: float32(int(v.X) * zoom.PxPerUnit),
 		Y: float32(int(v.Y) * zoom.PxPerUnit),
+	}
+}
+
+func (zoom *Zoom) Inv(p image.Point) Vector {
+	return Vector{
+		X: Unit(p.X / zoom.PxPerUnit),
+		Y: Unit(p.Y / zoom.PxPerUnit),
+	}
+}
+
+func (zoom *Zoom) FInv(p f32.Point) Vector {
+	return Vector{
+		X: Unit(int(p.X) / zoom.PxPerUnit),
+		Y: Unit(int(p.Y) / zoom.PxPerUnit),
 	}
 }
 

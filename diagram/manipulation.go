@@ -11,9 +11,9 @@ import (
 	"gioui.org/op/paint"
 )
 
-type SelectionDisplay struct{}
+type ManipulationDisplay struct{}
 
-func (d *SelectionDisplay) Layout(gtx *Context) {
+func (d *ManipulationDisplay) Layout(gtx *Context) {
 	for _, node := range gtx.Diagram.Nodes {
 		d.HandleNode(gtx, node)
 	}
@@ -26,11 +26,11 @@ func (d *SelectionDisplay) Layout(gtx *Context) {
 	}
 }
 
-type selectionClickTag *Node
+type manipulationTag *Node
 
-func (d *SelectionDisplay) HandleNode(gtx *Context, node *Node) {
+func (d *ManipulationDisplay) HandleNode(gtx *Context, node *Node) {
 	defer op.Save(gtx.Ops).Load()
-	tag := selectionClickTag(node)
+	tag := manipulationTag(node)
 
 	pointer.Rect(gtx.Bounds(node.Box)).Add(gtx.Ops)
 	pointer.InputOp{
@@ -52,7 +52,7 @@ func (d *SelectionDisplay) HandleNode(gtx *Context, node *Node) {
 	}
 }
 
-func (d *SelectionDisplay) LayoutNode(gtx *Context, node *Node) {
+func (d *ManipulationDisplay) LayoutNode(gtx *Context, node *Node) {
 	defer op.Save(gtx.Ops).Load()
 
 	b := gtx.Bounds(node.Box)
