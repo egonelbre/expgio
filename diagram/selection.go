@@ -45,7 +45,7 @@ func (d *SelectionDisplay) HandleNode(gtx *Context, node *Node) {
 				if x.Modifiers.Contain(key.ModCtrl) {
 					gtx.Diagram.Selection.Toggle(node)
 				} else {
-					gtx.Diagram.Selection.Set(node)
+					gtx.Diagram.Selection.Select(node)
 				}
 			}
 		}

@@ -75,11 +75,21 @@ func NewSelection() *Selection {
 	}
 }
 
+func (sel *Selection) Clear() {
+	sel.Selected = Set{}
+}
+
 func (sel *Selection) Toggle(v interface{}) {
 	sel.Selected.Toggle(v)
 }
 
 func (sel *Selection) Set(v interface{}) {
-	sel.Selected = Set{}
+	sel.Clear()
 	sel.Selected.Include(v)
+}
+
+func (sel *Selection) Select(v interface{}) {
+	if !sel.Selected.Contains(v) {
+		sel.Set(v)
+	}
 }
