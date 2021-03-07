@@ -36,6 +36,8 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 				if hud.pointer == 0 {
 					hud.start = gtx.FInv(ev.Position)
 					hud.pointer = ev.PointerID
+
+					gtx.Diagram.Selection.Clear()
 				}
 			case pointer.Drag:
 				if ev.PointerID == hud.pointer {
@@ -50,7 +52,9 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 					max := hud.start.Max(hud.end)
 					size := max.Sub(min)
 					if size.X > 0 && size.Y > 0 {
-						gtx.Diagram.Nodes = append(gtx.Diagram.Nodes, NewNode(min, size))
+						node := NewNode(min, size)
+						gtx.Diagram.Nodes = append(gtx.Diagram.Nodes, node)
+						gtx.Diagram.Selection.Select(node)
 					}
 				}
 			case pointer.Cancel:
