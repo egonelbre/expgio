@@ -27,7 +27,7 @@ func NewHudManager(theme *material.Theme) *HudManager {
 	m.Huds = append(m.Huds,
 		&GridDisplay{},
 		&NodeDisplay{},
-		&Selecter{},
+		&Selection{},
 		&PortDisplay{},
 		&ConnectionDisplay{},
 		// &ConnectionCreator{}
@@ -41,9 +41,6 @@ func NewHudManager(theme *material.Theme) *HudManager {
 
 func (m *HudManager) Layout(gtx layout.Context) layout.Dimensions {
 	for _, hud := range m.Huds {
-		if !hud.Enabled() {
-			continue
-		}
 		var lgtx layout.Context
 		if m.Exclusive == nil || m.Exclusive == hud {
 			lgtx = gtx
@@ -60,7 +57,6 @@ func (m *HudManager) Layout(gtx layout.Context) layout.Dimensions {
 }
 
 type Hud interface {
-	Enabled() bool
 	Layout(gtx *Context)
 }
 

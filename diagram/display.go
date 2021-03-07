@@ -12,8 +12,6 @@ import (
 
 type NodeDisplay struct{}
 
-func (d *NodeDisplay) Enabled() bool { return true }
-
 func (d *NodeDisplay) Layout(gtx *Context) {
 	for _, node := range gtx.Diagram.Nodes {
 		d.LayoutNode(gtx, node)
@@ -26,8 +24,6 @@ func (d *NodeDisplay) LayoutNode(gtx *Context, n *Node) {
 }
 
 type ConnectionDisplay struct{}
-
-func (d *ConnectionDisplay) Enabled() bool { return true }
 
 func (d *ConnectionDisplay) Layout(gtx *Context) {
 	for _, conn := range gtx.Diagram.Connections {
@@ -61,8 +57,6 @@ func (d *ConnectionDisplay) LayoutConnection(gtx *Context, c *Connection) {
 }
 
 type PortDisplay struct{}
-
-func (d *PortDisplay) Enabled() bool { return true }
 
 func (d *PortDisplay) Layout(gtx *Context) {
 	for _, node := range gtx.Diagram.Nodes {
