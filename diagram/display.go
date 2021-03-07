@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 
+	"gioui.org/f32"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
@@ -39,11 +40,15 @@ func (d *ConnectionDisplay) LayoutConnection(gtx *Context, c *Connection) {
 
 	connectionWidth := gtx.PxPerUnit / 4
 
+	from := gtx.FPt(c.From.Position())
+	to := gtx.FPt(c.To.Position()).Sub(from)
+
+	curveOffset := f32.Point{X: float32(gtx.PxPerUnit)}
+
 	var p clip.Path
 	p.Begin(gtx.Ops)
-	p.MoveTo(gtx.FPt(c.From.Position()))
-	p.LineTo(gtx.FPt(c.To.Position()))
-
+	p.MoveTo(from)
+	p.Cube(curveOffset, to.Sub(curveOffset), to)
 	clip.Stroke{
 		Path: p.End(),
 		Style: clip.StrokeStyle{
