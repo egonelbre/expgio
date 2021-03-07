@@ -1,9 +1,5 @@
 package main
 
-import (
-	"image"
-)
-
 type Diagram struct {
 	Selection   Set
 	Nodes       []*Node
@@ -13,14 +9,14 @@ type Diagram struct {
 func NewDemoDiagram() *Diagram {
 	diagram := &Diagram{}
 	diagram.Nodes = []*Node{
-		NewNode(image.Pt(1, 1), image.Pt(6, 3)),
-		NewNode(image.Pt(1, 10), image.Pt(6, 3)),
-		NewNode(image.Pt(10, 1), image.Pt(6, 3)),
-		NewNode(image.Pt(10, 10), image.Pt(6, 3)),
+		NewNode(V(1, 1), V(6, 3)),
+		NewNode(V(1, 10), V(6, 3)),
+		NewNode(V(10, 1), V(6, 3)),
+		NewNode(V(10, 10), V(6, 3)),
 	}
 	ns := diagram.Nodes
 	diagram.Connections = []*Connection{
-		{From: ns[0].Ports[3], To: ns[2].Ports[2]},
+		{From: ns[0].Ports[3], To: ns[2].Ports[4]},
 		{From: ns[0].Ports[5], To: ns[3].Ports[4]},
 		{From: ns[1].Ports[1], To: ns[3].Ports[6]},
 	}
@@ -28,26 +24,26 @@ func NewDemoDiagram() *Diagram {
 }
 
 type Node struct {
-	Position Vector
-	Size     Vector
-
+	Box
 	Ports []*Port
 }
 
-func NewNode(pos, size image.Point) *Node {
+func NewNode(pos, size Vector) *Node {
 	node := &Node{
-		Position: pos,
-		Size:     size,
+		Box: Box{
+			Pos:  pos,
+			Size: size,
+		},
 	}
-	for y := 0; y <= size.Y; y++ {
+	for y := Unit(0); y <= size.Y; y++ {
 		node.Ports = append(node.Ports,
 			&Port{
 				Owner:  node,
-				Offset: image.Point{X: 0, Y: y},
+				Offset: V(0, y),
 			},
 			&Port{
 				Owner:  node,
-				Offset: image.Point{X: size.X, Y: y},
+				Offset: V(size.X, y),
 			},
 		)
 	}
@@ -65,5 +61,5 @@ type Connection struct {
 }
 
 func (p *Port) Position() Vector {
-	return p.Offset.Add(p.Owner.Position)
+	return p.Owner.Pos.Add(p.Offset)
 }
