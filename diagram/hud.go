@@ -31,7 +31,7 @@ func NewHudManager(theme *material.Theme) *HudManager {
 		&ConnectionHud{},
 		&NodeCreationHud{},
 		&ManipulationHud{},
-		// &ConnectionCreator{}
+		&ConnectionCreationHud{},
 		// &NodeMover{}
 		// &NodeDeleter{}
 		// &NodeOrderer{}
