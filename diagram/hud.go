@@ -21,7 +21,7 @@ type HudManager struct {
 func NewHudManager(theme *material.Theme) *HudManager {
 	m := &HudManager{
 		Theme:   theme,
-		Diagram: NewDemoDiagram(),
+		Diagram: NewDiagram(),
 	}
 
 	m.Huds = append(m.Huds,
@@ -32,7 +32,6 @@ func NewHudManager(theme *material.Theme) *HudManager {
 		&NodeCreationHud{},
 		&ManipulationHud{},
 		&ConnectionCreationHud{},
-		// &NodeMover{}
 		// &NodeDeleter{}
 		// &NodeOrderer{}
 	)

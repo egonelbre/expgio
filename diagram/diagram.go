@@ -6,9 +6,14 @@ type Diagram struct {
 	Connections []*Connection
 }
 
-func NewDemoDiagram() *Diagram {
+func NewDiagram() *Diagram {
 	diagram := &Diagram{}
 	diagram.Selection = NewSelection()
+	return diagram
+}
+
+func NewDemoDiagram() *Diagram {
+	diagram := NewDiagram()
 	diagram.Nodes = []*Node{
 		NewNode(V(1, 1), V(6, 3)),
 		NewNode(V(1, 10), V(6, 3)),

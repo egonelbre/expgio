@@ -22,7 +22,7 @@ func main() {
 		Hud:   NewHudManager(th),
 	}
 	go func() {
-		w := app.NewWindow(app.Title("Image Viewer"))
+		w := app.NewWindow(app.Title("Diagram"))
 		if err := ui.Run(w); err != nil {
 			log.Println(err)
 			os.Exit(1)
