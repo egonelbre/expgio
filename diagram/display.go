@@ -10,28 +10,28 @@ import (
 	"gioui.org/op/paint"
 )
 
-type NodeDisplay struct{}
+type NodeHud struct{}
 
-func (d *NodeDisplay) Layout(gtx *Context) {
+func (hud *NodeHud) Layout(gtx *Context) {
 	for _, node := range gtx.Diagram.Nodes {
-		d.LayoutNode(gtx, node)
+		hud.LayoutNode(gtx, node)
 	}
 }
 
-func (d *NodeDisplay) LayoutNode(gtx *Context, n *Node) {
+func (hud *NodeHud) LayoutNode(gtx *Context, n *Node) {
 	b := gtx.Bounds(n.Box)
 	FillRect(gtx, b, color.NRGBA{R: 0xAA, G: 0xAA, B: 0xAA, A: 0xFF})
 }
 
-type ConnectionDisplay struct{}
+type ConnectionHud struct{}
 
-func (d *ConnectionDisplay) Layout(gtx *Context) {
+func (hud *ConnectionHud) Layout(gtx *Context) {
 	for _, conn := range gtx.Diagram.Connections {
-		d.LayoutConnection(gtx, conn)
+		hud.LayoutConnection(gtx, conn)
 	}
 }
 
-func (d *ConnectionDisplay) LayoutConnection(gtx *Context, c *Connection) {
+func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 	defer op.Save(gtx.Ops).Load()
 
 	connectionWidth := gtx.PxPerUnit / 4
@@ -56,17 +56,17 @@ func (d *ConnectionDisplay) LayoutConnection(gtx *Context, c *Connection) {
 	paint.PaintOp{}.Add(gtx.Ops)
 }
 
-type PortDisplay struct{}
+type PortHud struct{}
 
-func (d *PortDisplay) Layout(gtx *Context) {
+func (hud *PortHud) Layout(gtx *Context) {
 	for _, node := range gtx.Diagram.Nodes {
 		for _, port := range node.Ports {
-			d.LayoutPort(gtx, port)
+			hud.LayoutPort(gtx, port)
 		}
 	}
 }
 
-func (d *PortDisplay) LayoutPort(gtx *Context, p *Port) {
+func (hud *PortHud) LayoutPort(gtx *Context, p *Port) {
 	pos := gtx.Pt(p.Position())
 	r := image.Rectangle{Min: pos, Max: pos}
 	r = r.Inset(-gtx.PxPerUnit / 4)

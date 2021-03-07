@@ -9,9 +9,9 @@ import (
 	"gioui.org/op/paint"
 )
 
-type GridDisplay struct{}
+type GridHud struct{}
 
-func (grid *GridDisplay) Layout(gtx *Context) {
+func (*GridHud) Layout(gtx *Context) {
 	defer op.Save(gtx.Ops).Load()
 	paint.ColorOp{Color: color.NRGBA{R: 0xC0, G: 0xC0, B: 0xC0, A: 0xFF}}.Add(gtx.Ops)
 

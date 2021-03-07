@@ -11,24 +11,24 @@ import (
 	"gioui.org/op/paint"
 )
 
-type ManipulationDisplay struct{}
+type ManipulationHud struct{}
 
-func (d *ManipulationDisplay) Layout(gtx *Context) {
+func (hud *ManipulationHud) Layout(gtx *Context) {
 	for _, node := range gtx.Diagram.Nodes {
-		d.HandleNode(gtx, node)
+		hud.HandleNode(gtx, node)
 	}
 
 	for selected := range gtx.Diagram.Selection.Selected {
 		switch sel := selected.(type) {
 		case *Node:
-			d.LayoutNode(gtx, sel)
+			hud.LayoutNode(gtx, sel)
 		}
 	}
 }
 
 type manipulationTag *Node
 
-func (d *ManipulationDisplay) HandleNode(gtx *Context, node *Node) {
+func (hud *ManipulationHud) HandleNode(gtx *Context, node *Node) {
 	defer op.Save(gtx.Ops).Load()
 	tag := manipulationTag(node)
 
@@ -52,7 +52,7 @@ func (d *ManipulationDisplay) HandleNode(gtx *Context, node *Node) {
 	}
 }
 
-func (d *ManipulationDisplay) LayoutNode(gtx *Context, node *Node) {
+func (hud *ManipulationHud) LayoutNode(gtx *Context, node *Node) {
 	defer op.Save(gtx.Ops).Load()
 
 	b := gtx.Bounds(node.Box)

@@ -9,7 +9,7 @@ import (
 	"gioui.org/op"
 )
 
-type NodeCreationDisplay struct {
+type NodeCreationHud struct {
 	drag gesture.Drag
 
 	start   Vector
@@ -18,53 +18,53 @@ type NodeCreationDisplay struct {
 	drawing bool
 }
 
-func (d *NodeCreationDisplay) Layout(gtx *Context) {
+func (hud *NodeCreationHud) Layout(gtx *Context) {
 	defer op.Save(gtx.Ops).Load()
 
 	pointer.Rect(image.Rectangle{Max: gtx.Constraints.Max}).Add(gtx.Ops)
 	pointer.InputOp{
-		Tag:   d,
-		Grab:  d.drawing,
+		Tag:   hud,
+		Grab:  hud.drawing,
 		Types: pointer.Press | pointer.Drag | pointer.Release,
 	}.Add(gtx.Ops)
 
-	for _, ev := range gtx.Events(d) {
+	for _, ev := range gtx.Events(hud) {
 		switch ev := ev.(type) {
 		case pointer.Event:
 			switch ev.Type {
 			case pointer.Press:
-				if d.pointer == 0 {
-					d.start = gtx.FInv(ev.Position)
-					d.pointer = ev.PointerID
+				if hud.pointer == 0 {
+					hud.start = gtx.FInv(ev.Position)
+					hud.pointer = ev.PointerID
 				}
 			case pointer.Drag:
-				if ev.PointerID == d.pointer {
-					d.drawing = true
-					d.end = gtx.FInv(ev.Position).Add(Vector{X: 1, Y: 1})
+				if ev.PointerID == hud.pointer {
+					hud.drawing = true
+					hud.end = gtx.FInv(ev.Position).Add(Vector{X: 1, Y: 1})
 				}
 			case pointer.Release:
-				if d.drawing && ev.PointerID == d.pointer {
-					d.drawing = false
+				if hud.drawing && ev.PointerID == hud.pointer {
+					hud.drawing = false
 
-					min := d.start.Min(d.end)
-					max := d.start.Max(d.end)
+					min := hud.start.Min(hud.end)
+					max := hud.start.Max(hud.end)
 					size := max.Sub(min)
 					if size.X > 0 && size.Y > 0 {
 						gtx.Diagram.Nodes = append(gtx.Diagram.Nodes, NewNode(min, size))
 					}
 				}
 			case pointer.Cancel:
-				if ev.PointerID == d.pointer {
-					d.drawing = false
-					d.pointer = 0
+				if ev.PointerID == hud.pointer {
+					hud.drawing = false
+					hud.pointer = 0
 				}
 			}
 		}
 	}
 
-	if d.drawing {
-		min := gtx.Pt(d.start.Min(d.end))
-		max := gtx.Pt(d.start.Max(d.end))
+	if hud.drawing {
+		min := gtx.Pt(hud.start.Min(hud.end))
+		max := gtx.Pt(hud.start.Max(hud.end))
 		FillRect(gtx, image.Rectangle{
 			Min: min,
 			Max: max,
