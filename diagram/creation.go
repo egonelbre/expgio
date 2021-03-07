@@ -73,7 +73,7 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 		FillRect(gtx, image.Rectangle{
 			Min: min,
 			Max: max,
-		}, color.NRGBA{G: 0x88, A: 0x88})
+		}, WithAlpha(ActiveColor.Fill, 0xEE))
 	}
 }
 
@@ -103,10 +103,10 @@ func (hud *ConnectionCreationHud) Layout(gtx *Context) {
 
 		if hud.target == nil {
 			to = hud.end
-			col = color.NRGBA{B: 0xA0, A: 0xA0}
+			col = WithAlpha(ActiveColor.Fill, 0xEE)
 		} else {
 			to = gtx.Pt(hud.target.Position())
-			col = color.NRGBA{G: 0xA0, A: 0xA0}
+			col = WithAlpha(DefaultConnection.Fill, 0xEE)
 		}
 
 		FillLine(gtx, from, to, gtx.PxPerUnit/4, col)

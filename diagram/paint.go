@@ -17,10 +17,13 @@ func FillRect(gtx *Context, r image.Rectangle, c color.NRGBA) {
 	paint.PaintOp{}.Add(gtx.Ops)
 }
 
-func FillRectBorder(gtx *Context, r image.Rectangle, c color.NRGBA) {
+func FillRectBorder(gtx *Context, r image.Rectangle, w float32, c color.NRGBA) {
 	defer op.Save(gtx.Ops).Load()
 	paint.ColorOp{Color: c}.Add(gtx.Ops)
-	clip.Rect(r).Add(gtx.Ops)
+	clip.Border{
+		Rect:  layout.FRect(r),
+		Width: w,
+	}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 }
 

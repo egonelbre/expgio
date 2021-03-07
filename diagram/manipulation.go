@@ -1,8 +1,6 @@
 package main
 
 import (
-	"image/color"
-
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
@@ -61,7 +59,8 @@ func (hud *ManipulationHud) LayoutNode(gtx *Context, node *Node) {
 		Rect:  layout.FRect(b),
 		Width: 4,
 	}.Add(gtx.Ops)
+	// TODO: use dashed border
 
-	paint.ColorOp{Color: color.NRGBA{B: 0xFF, A: 0xA0}}.Add(gtx.Ops)
+	paint.ColorOp{Color: FocusColor.Fill}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 }
