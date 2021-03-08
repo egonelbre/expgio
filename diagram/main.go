@@ -2,6 +2,9 @@
 
 package main
 
+// This diagram editor is based on the design described in:
+// Game Programming Gems 5 - "Context-Sensitive HUDs for Editors" by Adam Martin.
+
 import (
 	"log"
 	"os"
