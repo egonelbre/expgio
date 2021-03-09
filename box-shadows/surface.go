@@ -66,9 +66,8 @@ func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, r
 	penumbra := r.Add(f32.Pt(0, offset/2))
 	gradientBox(gtx.Ops, penumbra, rr, offset, color.NRGBA{A: 0x20})
 
-	umbra := outset(penumbra, -offset/4)
-	umbra.Max.Y += offset / 8
-	gradientBox(gtx.Ops, umbra, rr, offset, color.NRGBA{A: 0x20})
+	umbra := outset(penumbra, -offset/2)
+	gradientBox(gtx.Ops, umbra, rr/4, offset/2, color.NRGBA{A: 0x30})
 }
 
 func gradientBox(ops *op.Ops, r f32.Rectangle, rr, spread float32, col color.NRGBA) {
