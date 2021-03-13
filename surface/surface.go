@@ -58,31 +58,32 @@ func (s *SurfaceLayoutStyle) layoutShadow(gtx layout.Context, r f32.Rectangle, r
 	}
 
 	offset := pxf(gtx.Metric, s.Elevation)
-
-	d := int(offset + 1)
-	if d > 4 {
-		d = 4
+	if offset > 1 {
+		offset = float32(math.Sqrt(float64(offset)))
 	}
 
-	a := float32(s.Background.A) / 0xff
-	background := (f32color.RGBA{A: a * 0.4 / float32(d*d)}).SRGB()
-	for x := 0; x <= d; x++ {
-		for y := 0; y <= d; y++ {
-			px, py := float32(x)/float32(d)-0.5, float32(y)/float32(d)-0.15
-			stack := op.Save(gtx.Ops)
-			op.Offset(f32.Pt(px*offset, py*offset)).Add(gtx.Ops)
-			clip.UniformRRect(r, rr).Add(gtx.Ops)
-			paint.Fill(gtx.Ops, background)
-			stack.Load()
-		}
-	}
+	ambient := r
+	gradientBox(gtx.Ops, ambient, rr, offset/2, color.NRGBA{A: 0x05})
+
+	penumbra := r.Add(f32.Pt(0, offset/2))
+	gradientBox(gtx.Ops, penumbra, rr, offset, color.NRGBA{A: 0x15})
+
+	umbra := outset(penumbra, -offset/2)
+	gradientBox(gtx.Ops, umbra, rr/4, offset/2, color.NRGBA{A: 0x20})
 }
 
-func outset(r f32.Rectangle, y, s float32) f32.Rectangle {
-	r.Min.X += s
-	r.Min.Y += s + y
-	r.Max.X += -s
-	r.Max.Y += -s + y
+func gradientBox(ops *op.Ops, r f32.Rectangle, rr, spread float32, col color.NRGBA) {
+	paint.FillShape(ops, col, clip.RRect{
+		Rect: outset(r, spread),
+		SE:   rr + spread, SW: rr + spread, NW: rr + spread, NE: rr + spread,
+	}.Op(ops))
+}
+
+func outset(r f32.Rectangle, rr float32) f32.Rectangle {
+	r.Min.X -= rr
+	r.Min.Y -= rr
+	r.Max.X += rr
+	r.Max.Y += rr
 	return r
 }
 
