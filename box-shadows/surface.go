@@ -112,193 +112,141 @@ func gradientBox(ops *op.Ops, r f32.Rectangle, rr, spread float32, col color.NRG
 		}()
 	}
 
+	// top
 	func() {
-		// top
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: inside.Min.X,
-					Y: center.Min.Y,
-				},
-				Max: image.Point{
-					X: inside.Max.X,
-					Y: inside.Min.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.ColorOp{Color: col}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: inside.Min.X,
-					Y: outside.Min.Y,
-				},
-				Max: image.Point{
-					X: inside.Max.X,
-					Y: center.Min.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.LinearGradientOp{
-				Color1: col, Color2: transparent,
-				Stop1: layout.FPt(image.Point{
-					X: inside.Min.X,
-					Y: center.Min.Y,
-				}),
-				Stop2: layout.FPt(image.Point{
-					X: inside.Min.X,
-					Y: outside.Min.Y,
-				}),
-			}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
+		defer op.Save(ops).Load()
+		clipr := image.Rectangle{
+			Min: image.Point{
+				X: inside.Min.X,
+				Y: outside.Min.Y,
+			},
+			Max: image.Point{
+				X: inside.Max.X,
+				Y: center.Min.Y,
+			},
+		}
+		clip.Rect(clipr).Add(ops)
+		paint.LinearGradientOp{
+			Color1: col, Color2: transparent,
+			Stop1: layout.FPt(image.Point{
+				X: inside.Min.X,
+				Y: center.Min.Y,
+			}),
+			Stop2: layout.FPt(image.Point{
+				X: inside.Min.X,
+				Y: outside.Min.Y,
+			}),
+		}.Add(ops)
+		paint.PaintOp{}.Add(ops)
 	}()
 
+	// right
 	func() {
-		// right
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: inside.Max.X,
-					Y: inside.Min.Y,
-				},
-				Max: image.Point{
-					X: center.Max.X,
-					Y: inside.Max.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.ColorOp{Color: col}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: center.Max.X,
-					Y: inside.Min.Y,
-				},
-				Max: image.Point{
-					X: outside.Max.X,
-					Y: inside.Max.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.LinearGradientOp{
-				Color1: col, Color2: transparent,
-				Stop1: layout.FPt(image.Point{
-					X: center.Max.X,
-					Y: inside.Min.Y,
-				}),
-				Stop2: layout.FPt(image.Point{
-					X: outside.Max.X,
-					Y: inside.Min.Y,
-				}),
-			}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
+		defer op.Save(ops).Load()
+		clipr := image.Rectangle{
+			Min: image.Point{
+				X: center.Max.X,
+				Y: inside.Min.Y,
+			},
+			Max: image.Point{
+				X: outside.Max.X,
+				Y: inside.Max.Y,
+			},
+		}
+		clip.Rect(clipr).Add(ops)
+		paint.LinearGradientOp{
+			Color1: col, Color2: transparent,
+			Stop1: layout.FPt(image.Point{
+				X: center.Max.X,
+				Y: inside.Min.Y,
+			}),
+			Stop2: layout.FPt(image.Point{
+				X: outside.Max.X,
+				Y: inside.Min.Y,
+			}),
+		}.Add(ops)
+		paint.PaintOp{}.Add(ops)
 	}()
 
+	// bottom
 	func() {
-		// bottom
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: inside.Min.X,
-					Y: inside.Max.Y,
-				},
-				Max: image.Point{
-					X: inside.Max.X,
-					Y: center.Max.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.ColorOp{Color: col}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: inside.Min.X,
-					Y: center.Max.Y,
-				},
-				Max: image.Point{
-					X: inside.Max.X,
-					Y: outside.Max.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.LinearGradientOp{
-				Color1: col, Color2: transparent,
-				Stop1: layout.FPt(image.Point{
-					X: inside.Min.X,
-					Y: center.Max.Y,
-				}),
-				Stop2: layout.FPt(image.Point{
-					X: inside.Min.X,
-					Y: outside.Max.Y,
-				}),
-			}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
+		defer op.Save(ops).Load()
+		clipr := image.Rectangle{
+			Min: image.Point{
+				X: inside.Min.X,
+				Y: center.Max.Y,
+			},
+			Max: image.Point{
+				X: inside.Max.X,
+				Y: outside.Max.Y,
+			},
+		}
+		clip.Rect(clipr).Add(ops)
+		paint.LinearGradientOp{
+			Color1: col, Color2: transparent,
+			Stop1: layout.FPt(image.Point{
+				X: inside.Min.X,
+				Y: center.Max.Y,
+			}),
+			Stop2: layout.FPt(image.Point{
+				X: inside.Min.X,
+				Y: outside.Max.Y,
+			}),
+		}.Add(ops)
+		paint.PaintOp{}.Add(ops)
 	}()
 
+	// left
 	func() {
-		// left
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: center.Min.X,
-					Y: inside.Min.Y,
-				},
-				Max: image.Point{
-					X: inside.Min.X,
-					Y: inside.Max.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.ColorOp{Color: col}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
-		func() {
-			defer op.Save(ops).Load()
-			clipr := image.Rectangle{
-				Min: image.Point{
-					X: outside.Min.X,
-					Y: inside.Min.Y,
-				},
-				Max: image.Point{
-					X: center.Min.X,
-					Y: inside.Max.Y,
-				},
-			}
-			clip.Rect(clipr).Add(ops)
-			paint.LinearGradientOp{
-				Color1: col, Color2: transparent,
-				Stop1: layout.FPt(image.Point{
-					X: center.Min.X,
-					Y: inside.Min.Y,
-				}),
-				Stop2: layout.FPt(image.Point{
-					X: outside.Min.X,
-					Y: inside.Min.Y,
-				}),
-			}.Add(ops)
-			paint.PaintOp{}.Add(ops)
-		}()
+		defer op.Save(ops).Load()
+		clipr := image.Rectangle{
+			Min: image.Point{
+				X: outside.Min.X,
+				Y: inside.Min.Y,
+			},
+			Max: image.Point{
+				X: center.Min.X,
+				Y: inside.Max.Y,
+			},
+		}
+		clip.Rect(clipr).Add(ops)
+		paint.LinearGradientOp{
+			Color1: col, Color2: transparent,
+			Stop1: layout.FPt(image.Point{
+				X: center.Min.X,
+				Y: inside.Min.Y,
+			}),
+			Stop2: layout.FPt(image.Point{
+				X: outside.Min.X,
+				Y: inside.Min.Y,
+			}),
+		}.Add(ops)
+		paint.PaintOp{}.Add(ops)
 	}()
 
 	func() {
 		defer op.Save(ops).Load()
-		clip.Rect(inside).Add(ops)
+		var p clip.Path
+		p.Begin(ops)
+
+		inside := layout.FRect(inside)
+		center := layout.FRect(center)
+
+		p.MoveTo(inside.Min)
+		p.LineTo(f32.Point{X: inside.Min.X, Y: center.Min.Y})
+		p.LineTo(f32.Point{X: inside.Max.X, Y: center.Min.Y})
+		p.LineTo(f32.Point{X: inside.Max.X, Y: inside.Min.Y})
+		p.LineTo(f32.Point{X: center.Max.X, Y: inside.Min.Y})
+		p.LineTo(f32.Point{X: center.Max.X, Y: inside.Max.Y})
+		p.LineTo(f32.Point{X: inside.Max.X, Y: inside.Max.Y})
+		p.LineTo(f32.Point{X: inside.Max.X, Y: center.Max.Y})
+		p.LineTo(f32.Point{X: inside.Min.X, Y: center.Max.Y})
+		p.LineTo(f32.Point{X: inside.Min.X, Y: inside.Max.Y})
+		p.LineTo(f32.Point{X: center.Min.X, Y: inside.Max.Y})
+		p.LineTo(f32.Point{X: center.Min.X, Y: inside.Min.Y})
+		p.LineTo(inside.Min)
+
+		clip.Outline{Path: p.End()}.Op().Add(ops)
 		paint.ColorOp{Color: col}.Add(ops)
 		paint.PaintOp{}.Add(ops)
 	}()
