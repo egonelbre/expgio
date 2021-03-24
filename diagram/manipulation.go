@@ -5,10 +5,7 @@ import (
 
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
-	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/op/clip"
-	"gioui.org/op/paint"
 )
 
 type ManipulationHud struct {
@@ -121,16 +118,6 @@ func (hud *ManipulationHud) resetDelta(gtx *Context) {
 }
 
 func (hud *ManipulationHud) LayoutNode(gtx *Context, node *Node) {
-	defer op.Save(gtx.Ops).Load()
-
 	b := gtx.Bounds(node.Box)
-
-	clip.Border{
-		Rect:  layout.FRect(b),
-		Width: 4,
-	}.Add(gtx.Ops)
-	// TODO: use dashed border
-
-	paint.ColorOp{Color: FocusColor.Fill}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	FillRectBorder(gtx, b, 4, FocusColor.Fill)
 }

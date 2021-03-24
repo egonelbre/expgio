@@ -11,20 +11,23 @@ import (
 )
 
 func FillRect(gtx *Context, r image.Rectangle, c color.NRGBA) {
-	defer op.Save(gtx.Ops).Load()
-	paint.ColorOp{Color: c}.Add(gtx.Ops)
-	clip.Rect(r).Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	paint.FillShape(gtx.Ops, c, clip.Rect(r).Op())
 }
 
 func FillRectBorder(gtx *Context, r image.Rectangle, w float32, c color.NRGBA) {
-	defer op.Save(gtx.Ops).Load()
-	paint.ColorOp{Color: c}.Add(gtx.Ops)
-	clip.Border{
-		Rect:  layout.FRect(r),
-		Width: w,
-	}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	rr := layout.FRect(r)
+	rr.Min.X += w / 2
+	rr.Min.Y += w / 2
+	rr.Max.X -= w / 2
+	rr.Max.Y -= w / 2
+
+	paint.FillShape(gtx.Ops, c,
+		clip.Stroke{
+			Path: clip.RRect{Rect: rr}.Path(gtx.Ops),
+			Style: clip.StrokeStyle{
+				Width: w,
+			},
+		}.Op())
 }
 
 func FillLine(gtx *Context, from, to image.Point, width int, c color.NRGBA) {
