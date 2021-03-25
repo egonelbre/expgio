@@ -31,6 +31,7 @@ func NewDemoDiagram() *Diagram {
 
 type Node struct {
 	Box
+	Style *Style
 	Ports []*Port
 }
 
@@ -40,6 +41,7 @@ func NewNode(pos, size Vector) *Node {
 			Pos:  pos,
 			Size: size,
 		},
+		Style: Default,
 	}
 	for y := Unit(0); y <= size.Y; y++ {
 		node.Ports = append(node.Ports,

@@ -19,8 +19,8 @@ func (hud *NodeHud) Layout(gtx *Context) {
 
 func (hud *NodeHud) LayoutNode(gtx *Context, n *Node) {
 	b := gtx.Bounds(n.Box)
-	FillRect(gtx, b, Default.Fill)
-	FillRectBorder(gtx, b, float32(gtx.Dp), Default.Border)
+	FillRect(gtx, b, n.Style.Fill)
+	FillRectBorder(gtx, b, float32(gtx.Dp), n.Style.Border)
 }
 
 type ConnectionHud struct{}

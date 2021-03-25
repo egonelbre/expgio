@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 
+	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -22,8 +23,9 @@ type HudManager struct {
 	Huds      []*HudControl
 	Exclusive Hud
 
-	Control struct {
-		HudControl layout.List
+	View struct {
+		Huds   layout.List
+		Styles layout.List
 	}
 }
 
@@ -43,7 +45,8 @@ func NewHudManager(theme *material.Theme) *HudManager {
 	}
 	m.Zoom.Level = defaultZoom
 
-	m.Control.HudControl.Axis = layout.Vertical
+	m.View.Huds.Axis = layout.Vertical
+	m.View.Styles.Axis = layout.Vertical
 
 	// m.Add(&NavHud{&m.Zoom})
 	m.Add(&GridHud{})
@@ -69,6 +72,62 @@ func (m *HudManager) Layout(gtx layout.Context) layout.Dimensions {
 	return layout.Flex{}.Layout(gtx,
 		layout.Rigid(m.LayoutControl),
 		layout.Flexed(1, m.LayoutHuds),
+		layout.Rigid(m.LayoutPaint),
+	)
+}
+
+func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
+	return layout.Stack{}.Layout(gtx,
+		layout.Expanded(func(gtx layout.Context) layout.Dimensions {
+			r := image.Rectangle{
+				Max: image.Point{
+					X: gtx.Constraints.Min.X,
+					Y: gtx.Constraints.Max.Y,
+				},
+			}
+			paint.FillShape(gtx.Ops, PanelBackground, clip.Rect(r).Op())
+			return layout.Dimensions{Size: r.Max}
+		}),
+		layout.Stacked(func(gtx layout.Context) layout.Dimensions {
+			return m.View.Styles.Layout(gtx, len(Tango),
+				func(gtx layout.Context, index int) layout.Dimensions {
+					defer op.Save(gtx.Ops).Load()
+
+					type paintTag *Style
+					style := Tango[index]
+					tag := paintTag(style)
+
+					size := image.Point{
+						X: gtx.Px(m.Theme.FingerSize),
+						Y: gtx.Px(m.Theme.FingerSize),
+					}
+					paint.FillShape(gtx.Ops, style.Fill, clip.Rect{Max: size}.Op())
+
+					pointer.Rect(image.Rectangle{Max: size}).Add(gtx.Ops)
+					pointer.InputOp{
+						Tag:   tag,
+						Types: pointer.Press,
+					}.Add(gtx.Ops)
+
+					for _, ev := range gtx.Events(tag) {
+						if ev, ok := ev.(pointer.Event); ok {
+							switch ev.Type {
+							case pointer.Press:
+								for selected := range m.Diagram.Selection.Selected {
+									switch sel := selected.(type) {
+									case *Node:
+										sel.Style = style
+									}
+								}
+							}
+						}
+					}
+
+					return layout.Dimensions{
+						Size: size,
+					}
+				})
+		}),
 	)
 }
 
@@ -89,7 +148,7 @@ func (m *HudManager) LayoutControl(gtx layout.Context) layout.Dimensions {
 			return layout.Dimensions{Size: r.Max}
 		}),
 		layout.Stacked(func(gtx layout.Context) layout.Dimensions {
-			return m.Control.HudControl.Layout(gtx, len(m.Huds),
+			return m.View.Huds.Layout(gtx, len(m.Huds),
 				func(gtx layout.Context, index int) layout.Dimensions {
 					hud := m.Huds[index]
 					return material.CheckBox(&th, &hud.Visible, fmt.Sprintf("%T", hud.Hud)).Layout(gtx)
