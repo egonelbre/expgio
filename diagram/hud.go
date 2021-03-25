@@ -17,6 +17,7 @@ import (
 type HudManager struct {
 	Theme *material.Theme
 
+	Zoom    Zoom
 	Diagram *Diagram
 
 	Huds      []*HudControl
@@ -37,9 +38,11 @@ func NewHudManager(theme *material.Theme) *HudManager {
 		Theme:   theme,
 		Diagram: NewDiagram(),
 	}
+	m.Zoom.Level = defaultZoom
 
 	m.Control.HudControl.Axis = layout.Vertical
 
+	m.Add(&NavHud{&m.Zoom})
 	m.Add(&GridHud{})
 	m.Add(&NodeHud{})
 	connectionCreation := &ConnectionCreationHud{}
@@ -48,6 +51,7 @@ func NewHudManager(theme *material.Theme) *HudManager {
 	m.Add(&NodeCreationHud{})
 	m.Add(&ManipulationHud{})
 	m.Add(connectionCreation)
+	m.Add(&ZoomHud{Zoom: &m.Zoom})
 
 	return m
 }
@@ -106,7 +110,7 @@ func (m *HudManager) LayoutHuds(gtx layout.Context) layout.Dimensions {
 		} else {
 			lgtx = gtx.Disabled()
 		}
-		dgtx := NewContext(lgtx, m.Theme, m.Diagram)
+		dgtx := NewContext(lgtx, m.Theme, &m.Zoom, m.Diagram)
 		hud.Hud.Layout(dgtx)
 	}
 
@@ -120,72 +124,77 @@ type Hud interface {
 }
 
 type Context struct {
-	Zoom
+	Transform
 	layout.Context
 	Theme   *material.Theme
 	Diagram *Diagram
 }
 
-func NewContext(gtx layout.Context, th *material.Theme, diagram *Diagram) *Context {
-	px := gtx.Px(unit.Dp(30))
-	px = (px / 24) * 24 // make it divisible by 2,3,4,6,12
+func NewContext(gtx layout.Context, th *material.Theme, zoom *Zoom, diagram *Diagram) *Context {
 	return &Context{
-		Zoom: Zoom{
-			Dp:        gtx.Px(unit.Dp(1)),
-			PxPerUnit: px,
-		},
-		Context: gtx,
-		Theme:   th,
-		Diagram: diagram,
+		Transform: NewTransform(gtx, zoom),
+		Context:   gtx,
+		Theme:     th,
+		Diagram:   diagram,
 	}
 }
 
-type Zoom struct {
+type Transform struct {
 	Dp        int
 	PxPerUnit int
 }
 
-func (zoom *Zoom) Px(v Unit) int {
-	return zoom.PxPerUnit * int(v)
+func NewTransform(gtx layout.Context, zoom *Zoom) Transform {
+	px := gtx.Px(unit.Dp(30))
+	px = (px / 24) * 24 // make it divisible by 2,3,4,6,12
+	px = int(float32(px) * zoom.Multiplier())
+	return Transform{
+		Dp:        gtx.Px(unit.Dp(1)),
+		PxPerUnit: px,
+	}
 }
 
-func (zoom *Zoom) Pt(v Vector) image.Point {
+func (tr *Transform) Px(v Unit) int {
+	return tr.PxPerUnit * int(v)
+}
+
+func (tr *Transform) Pt(v Vector) image.Point {
 	return image.Point{
-		X: int(v.X) * zoom.PxPerUnit,
-		Y: int(v.Y) * zoom.PxPerUnit,
+		X: int(v.X) * tr.PxPerUnit,
+		Y: int(v.Y) * tr.PxPerUnit,
 	}
 }
 
-func (zoom *Zoom) FPt(v Vector) f32.Point {
+func (tr *Transform) FPt(v Vector) f32.Point {
 	return f32.Point{
-		X: float32(int(v.X) * zoom.PxPerUnit),
-		Y: float32(int(v.Y) * zoom.PxPerUnit),
+		X: float32(int(v.X) * tr.PxPerUnit),
+		Y: float32(int(v.Y) * tr.PxPerUnit),
 	}
 }
 
-func (zoom *Zoom) Inv(p image.Point) Vector {
+func (tr *Transform) Inv(p image.Point) Vector {
 	return Vector{
-		X: Unit(p.X / zoom.PxPerUnit),
-		Y: Unit(p.Y / zoom.PxPerUnit),
+		X: Unit(p.X / tr.PxPerUnit),
+		Y: Unit(p.Y / tr.PxPerUnit),
 	}
 }
 
-func (zoom *Zoom) FInv(p f32.Point) Vector {
+func (tr *Transform) FInv(p f32.Point) Vector {
 	return Vector{
-		X: Unit(int(p.X) / zoom.PxPerUnit),
-		Y: Unit(int(p.Y) / zoom.PxPerUnit),
+		X: Unit(int(p.X) / tr.PxPerUnit),
+		Y: Unit(int(p.Y) / tr.PxPerUnit),
 	}
 }
 
-func (zoom *Zoom) Bounds(box Box) image.Rectangle {
+func (tr *Transform) Bounds(box Box) image.Rectangle {
 	return image.Rectangle{
 		Min: image.Point{
-			X: int(box.Pos.X) * zoom.PxPerUnit,
-			Y: int(box.Pos.Y) * zoom.PxPerUnit,
+			X: int(box.Pos.X) * tr.PxPerUnit,
+			Y: int(box.Pos.Y) * tr.PxPerUnit,
 		},
 		Max: image.Point{
-			X: int(box.Pos.X+box.Size.X) * zoom.PxPerUnit,
-			Y: int(box.Pos.Y+box.Size.Y) * zoom.PxPerUnit,
+			X: int(box.Pos.X+box.Size.X) * tr.PxPerUnit,
+			Y: int(box.Pos.Y+box.Size.Y) * tr.PxPerUnit,
 		},
 	}
 }
