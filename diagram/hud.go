@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"image"
 
 	"gioui.org/f32"
 	"gioui.org/layout"
+	"gioui.org/op"
+	"gioui.org/op/clip"
+	"gioui.org/op/paint"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -17,6 +21,10 @@ type HudManager struct {
 
 	Huds      []*HudControl
 	Exclusive Hud
+
+	Control struct {
+		HudControl layout.List
+	}
 }
 
 type HudControl struct {
@@ -29,6 +37,8 @@ func NewHudManager(theme *material.Theme) *HudManager {
 		Theme:   theme,
 		Diagram: NewDiagram(),
 	}
+
+	m.Control.HudControl.Axis = layout.Vertical
 
 	m.Add(&GridHud{})
 	m.Add(&NodeHud{})
@@ -49,10 +59,42 @@ func (m *HudManager) Add(hud Hud) {
 }
 
 func (m *HudManager) Layout(gtx layout.Context) layout.Dimensions {
-	return m.LayoutHuds(gtx)
+	return layout.Flex{}.Layout(gtx,
+		layout.Rigid(m.LayoutControl),
+		layout.Flexed(1, m.LayoutHuds),
+	)
+}
+
+func (m *HudManager) LayoutControl(gtx layout.Context) layout.Dimensions {
+	th := *m.Theme
+	th.TextSize.V *= 0.8
+	th.FingerSize.V *= 0.8
+
+	return layout.Stack{}.Layout(gtx,
+		layout.Expanded(func(gtx layout.Context) layout.Dimensions {
+			r := image.Rectangle{
+				Max: image.Point{
+					X: gtx.Constraints.Min.X + gtx.Px(unit.Dp(4)),
+					Y: gtx.Constraints.Max.Y,
+				},
+			}
+			paint.FillShape(gtx.Ops, PanelBackground, clip.Rect(r).Op())
+			return layout.Dimensions{Size: r.Max}
+		}),
+		layout.Stacked(func(gtx layout.Context) layout.Dimensions {
+			return m.Control.HudControl.Layout(gtx, len(m.Huds),
+				func(gtx layout.Context, index int) layout.Dimensions {
+					hud := m.Huds[index]
+					return material.CheckBox(&th, &hud.Visible, fmt.Sprintf("%T", hud.Hud)).Layout(gtx)
+				})
+		}),
+	)
 }
 
 func (m *HudManager) LayoutHuds(gtx layout.Context) layout.Dimensions {
+	defer op.Save(gtx.Ops).Load()
+	clip.Rect{Max: gtx.Constraints.Max}.Add(gtx.Ops)
+
 	for _, hud := range m.Huds {
 		if !hud.Visible.Value {
 			continue

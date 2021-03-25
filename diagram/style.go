@@ -11,6 +11,8 @@ var DefaultConnection = Tango[3]
 var FocusColor = Tango[4]
 var ActiveColor = Tango[5]
 
+var PanelBackground = hexRGB(0xEEEEEC)
+
 type Style struct {
 	Name string
 
