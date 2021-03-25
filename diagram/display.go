@@ -39,21 +39,22 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 
 	curveOffset := f32.Point{X: float32(to.X) / 2}
 
-	func() {
-		defer op.Save(gtx.Ops).Load()
-
+	path := func(ops *op.Ops) clip.PathSpec {
 		var p clip.Path
-		p.Begin(gtx.Ops)
+		p.Begin(ops)
 		p.MoveTo(from)
-		if to.X-from.X != 0 {
+		if to.X != 0 {
 			p.Cube(curveOffset, to.Sub(curveOffset), to)
 		} else {
 			p.Line(to)
 		}
-		pathOp := p.End()
+		return p.End()
+	}
 
+	func() {
+		defer op.Save(gtx.Ops).Load()
 		clip.Stroke{
-			Path: pathOp,
+			Path: path(gtx.Ops),
 			Style: clip.StrokeStyle{
 				Cap:   clip.RoundCap,
 				Width: float32(connectionWidth + gtx.Dp*2),
@@ -65,15 +66,8 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 
 	func() {
 		defer op.Save(gtx.Ops).Load()
-
-		var p clip.Path
-		p.Begin(gtx.Ops)
-		p.MoveTo(from)
-		p.Cube(curveOffset, to.Sub(curveOffset), to)
-		pathOp := p.End()
-
 		clip.Stroke{
-			Path: pathOp,
+			Path: path(gtx.Ops),
 			Style: clip.StrokeStyle{
 				Cap:   clip.RoundCap,
 				Width: float32(connectionWidth),
