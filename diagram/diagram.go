@@ -84,6 +84,11 @@ func (sel *Selection) Clear() {
 	sel.Selected = Set{}
 }
 
+func (sel *Selection) Contains(v interface{}) bool {
+	_, ok := sel.Selected[v]
+	return ok
+}
+
 func (sel *Selection) Toggle(v interface{}) {
 	sel.Selected.Toggle(v)
 }

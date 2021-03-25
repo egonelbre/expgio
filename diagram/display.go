@@ -80,10 +80,15 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 	}()
 }
 
-type PortHud struct{}
+type PortHud struct {
+	ShowAll *bool
+}
 
 func (hud *PortHud) Layout(gtx *Context) {
 	for _, node := range gtx.Diagram.Nodes {
+		if !(hud.ShowAll != nil && *hud.ShowAll) && !gtx.Diagram.Selection.Contains(node) {
+			continue
+		}
 		for _, port := range node.Ports {
 			hud.LayoutPort(gtx, port)
 		}

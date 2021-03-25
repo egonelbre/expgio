@@ -24,16 +24,17 @@ func NewHudManager(theme *material.Theme) *HudManager {
 		Diagram: NewDiagram(),
 	}
 
+	connectionCreation := &ConnectionCreationHud{}
 	m.Huds = append(m.Huds,
 		&GridHud{},
 		&NodeHud{},
-		&PortHud{},
+		&PortHud{ShowAll: &connectionCreation.drawing},
 		&ConnectionHud{},
 		&NodeCreationHud{},
 		&ManipulationHud{},
-		&ConnectionCreationHud{},
-		// &NodeDeleter{}
-		// &NodeOrderer{}
+		connectionCreation,
+		// &NodeDeleter{},
+		// &NodeOrderer{},
 	)
 	return m
 }
