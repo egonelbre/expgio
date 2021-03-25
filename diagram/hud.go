@@ -42,7 +42,7 @@ func NewHudManager(theme *material.Theme) *HudManager {
 
 	m.Control.HudControl.Axis = layout.Vertical
 
-	m.Add(&NavHud{&m.Zoom})
+	// m.Add(&NavHud{&m.Zoom})
 	m.Add(&GridHud{})
 	m.Add(&NodeHud{})
 	connectionCreation := &ConnectionCreationHud{}
