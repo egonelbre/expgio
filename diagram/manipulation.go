@@ -119,5 +119,5 @@ func (hud *ManipulationHud) resetDelta(gtx *Context) {
 
 func (hud *ManipulationHud) LayoutNode(gtx *Context, node *Node) {
 	b := gtx.Bounds(node.Box)
-	FillRectBorder(gtx, b, 4, FocusColor.Fill)
+	FillRectBorder(gtx, b, float32(gtx.Dp*4), FocusColor.Fill)
 }

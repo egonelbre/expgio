@@ -6,6 +6,7 @@ import (
 	"gioui.org/f32"
 	"gioui.org/layout"
 	"gioui.org/unit"
+	"gioui.org/widget"
 	"gioui.org/widget/material"
 )
 
@@ -14,8 +15,13 @@ type HudManager struct {
 
 	Diagram *Diagram
 
-	Huds      []Hud
+	Huds      []*HudControl
 	Exclusive Hud
+}
+
+type HudControl struct {
+	Visible widget.Bool
+	Hud     Hud
 }
 
 func NewHudManager(theme *material.Theme) *HudManager {
@@ -24,31 +30,42 @@ func NewHudManager(theme *material.Theme) *HudManager {
 		Diagram: NewDiagram(),
 	}
 
+	m.Add(&GridHud{})
+	m.Add(&NodeHud{})
 	connectionCreation := &ConnectionCreationHud{}
-	m.Huds = append(m.Huds,
-		&GridHud{},
-		&NodeHud{},
-		&PortHud{ShowAll: &connectionCreation.drawing},
-		&ConnectionHud{},
-		&NodeCreationHud{},
-		&ManipulationHud{},
-		connectionCreation,
-		// &NodeDeleter{},
-		// &NodeOrderer{},
-	)
+	m.Add(&PortHud{ShowAll: &connectionCreation.drawing})
+	m.Add(&ConnectionHud{})
+	m.Add(&NodeCreationHud{})
+	m.Add(&ManipulationHud{})
+	m.Add(connectionCreation)
+
 	return m
 }
 
+func (m *HudManager) Add(hud Hud) {
+	control := &HudControl{Hud: hud}
+	control.Visible.Value = true
+	m.Huds = append(m.Huds, control)
+}
+
 func (m *HudManager) Layout(gtx layout.Context) layout.Dimensions {
+	return m.LayoutHuds(gtx)
+}
+
+func (m *HudManager) LayoutHuds(gtx layout.Context) layout.Dimensions {
 	for _, hud := range m.Huds {
+		if !hud.Visible.Value {
+			continue
+		}
+
 		var lgtx layout.Context
-		if m.Exclusive == nil || m.Exclusive == hud {
+		if m.Exclusive == nil || m.Exclusive == hud.Hud {
 			lgtx = gtx
 		} else {
 			lgtx = gtx.Disabled()
 		}
 		dgtx := NewContext(lgtx, m.Theme, m.Diagram)
-		hud.Layout(dgtx)
+		hud.Hud.Layout(dgtx)
 	}
 
 	return layout.Dimensions{
@@ -71,7 +88,10 @@ func NewContext(gtx layout.Context, th *material.Theme, diagram *Diagram) *Conte
 	px := gtx.Px(unit.Dp(30))
 	px = (px / 24) * 24 // make it divisible by 2,3,4,6,12
 	return &Context{
-		Zoom:    Zoom{PxPerUnit: px},
+		Zoom: Zoom{
+			Dp:        gtx.Px(unit.Dp(1)),
+			PxPerUnit: px,
+		},
 		Context: gtx,
 		Theme:   th,
 		Diagram: diagram,
@@ -79,6 +99,7 @@ func NewContext(gtx layout.Context, th *material.Theme, diagram *Diagram) *Conte
 }
 
 type Zoom struct {
+	Dp        int
 	PxPerUnit int
 }
 

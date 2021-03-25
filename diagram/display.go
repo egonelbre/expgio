@@ -20,7 +20,7 @@ func (hud *NodeHud) Layout(gtx *Context) {
 func (hud *NodeHud) LayoutNode(gtx *Context, n *Node) {
 	b := gtx.Bounds(n.Box)
 	FillRect(gtx, b, Default.Fill)
-	FillRectBorder(gtx, b, 1, Default.Border)
+	FillRectBorder(gtx, b, float32(gtx.Dp), Default.Border)
 }
 
 type ConnectionHud struct{}
@@ -56,7 +56,7 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 			Path: pathOp,
 			Style: clip.StrokeStyle{
 				Cap:   clip.RoundCap,
-				Width: float32(connectionWidth + 2),
+				Width: float32(connectionWidth + gtx.Dp*2),
 			},
 		}.Op().Add(gtx.Ops)
 		paint.ColorOp{Color: DefaultConnection.Border}.Add(gtx.Ops)
@@ -104,5 +104,5 @@ func (hud *PortHud) LayoutPort(gtx *Context, p *Port) {
 	r := image.Rectangle{Min: pos, Max: pos}
 	b := r.Inset(-gtx.PxPerUnit / 4)
 	FillRect(gtx, b, DefaultPort.Fill)
-	FillRectBorder(gtx, b, 1, DefaultPort.Border)
+	FillRectBorder(gtx, b, float32(gtx.Dp), DefaultPort.Border)
 }
