@@ -45,7 +45,11 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 		var p clip.Path
 		p.Begin(gtx.Ops)
 		p.MoveTo(from)
-		p.Cube(curveOffset, to.Sub(curveOffset), to)
+		if to.X-from.X != 0 {
+			p.Cube(curveOffset, to.Sub(curveOffset), to)
+		} else {
+			p.Line(to)
+		}
 		pathOp := p.End()
 
 		clip.Stroke{
