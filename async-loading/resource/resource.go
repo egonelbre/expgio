@@ -69,7 +69,7 @@ func (loader *Loader) Frame(gtx layout.Context, w layout.Widget) layout.Dimensio
 	return dim
 }
 
-func (loader *Loader) Load(tag Tag, load Load) *Resource {
+func (loader *Loader) Schedule(tag Tag, load Load) *Resource {
 	loader.mu.Lock()
 	defer loader.mu.Unlock()
 

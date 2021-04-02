@@ -124,7 +124,7 @@ func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *resourc
 					gtx.Constraints = layout.Exact(size)
 
 					data := Data{Reel: reel.index, Item: index}
-					r := loader.Load(data, data.Load)
+					r := loader.Schedule(data, data.Load)
 
 					switch r.State() {
 					case resource.Queued:
