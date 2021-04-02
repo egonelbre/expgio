@@ -119,6 +119,7 @@ func (loader *Loader) Run(ctx context.Context) {
 			loader.update()
 
 			loader.mu.Unlock()
+			// TODO: implement concurrent loading
 			value := active.load(ctx)
 			loader.mu.Lock()
 
