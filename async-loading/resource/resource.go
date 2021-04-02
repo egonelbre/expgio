@@ -10,6 +10,13 @@ import (
 	"gioui.org/layout"
 )
 
+// TODO:
+//  * load multiple resources concurrently
+//  * resource limit based on size (e.g. max 10MiB of images)
+//  * cancel loading when unloaded
+//  * ensure purging doesn't block the rendering
+//  * try to improve performance
+
 type Loader struct {
 	refresh sync.Cond
 	mu      sync.Mutex
