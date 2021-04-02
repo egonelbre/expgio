@@ -29,14 +29,14 @@ type Loader struct {
 	atomicFinishedFrame int64
 
 	updated chan struct{}
-	lookup  map[Tag]*Resource
-	queued  []*Resource
+	lookup  map[Tag]*resource
+	queued  []*resource
 }
 
 func NewLoader(maxLoaded int) *Loader {
 	loader := &Loader{
 		updated:   make(chan struct{}, 1),
-		lookup:    make(map[Tag]*Resource),
+		lookup:    make(map[Tag]*resource),
 		maxLoaded: maxLoaded,
 	}
 	loader.refresh.L = &loader.mu
@@ -78,13 +78,13 @@ func (loader *Loader) Frame(gtx layout.Context, w layout.Widget) layout.Dimensio
 	return dim
 }
 
-func (loader *Loader) Schedule(tag Tag, load Load) *Resource {
+func (loader *Loader) Schedule(tag Tag, load Load) Resource {
 	loader.mu.Lock()
 	defer loader.mu.Unlock()
 
 	r, ok := loader.lookup[tag]
 	if !ok {
-		r = &Resource{
+		r = &resource{
 			tag:  tag,
 			load: load,
 		}
@@ -95,7 +95,13 @@ func (loader *Loader) Schedule(tag Tag, load Load) *Resource {
 
 	activeFrame := atomic.LoadInt64(&loader.atomicActiveFrame)
 	atomic.StoreInt64(&r.atomicFrame, activeFrame)
-	return r
+
+	res := Resource{}
+	res.State = State(atomic.LoadInt64(&r.atomicState))
+	if res.State == Loaded {
+		res.Value = r.value
+	}
+	return res
 }
 
 func (loader *Loader) Run(ctx context.Context) {
@@ -124,7 +130,7 @@ func (loader *Loader) Run(ctx context.Context) {
 				continue
 			}
 
-			atomic.StoreInt64(&active.atomicState, Loading)
+			atomic.StoreInt64(&active.atomicState, int64(Loading))
 			loader.update()
 
 			loader.mu.Unlock()
@@ -132,11 +138,8 @@ func (loader *Loader) Run(ctx context.Context) {
 			value := active.load(ctx)
 			loader.mu.Lock()
 
-			active.mu.Lock()
 			active.value = value
-			active.mu.Unlock()
-
-			atomic.StoreInt64(&active.atomicState, Loaded)
+			atomic.StoreInt64(&active.atomicState, int64(Loaded))
 
 			loader.update()
 
@@ -163,22 +166,22 @@ type Tag interface{}
 type Load func(ctx context.Context) interface{}
 
 type Resource struct {
-	atomicFrame int64
-	atomicState State
-	tag         Tag
-	load        Load
-
-	mu    sync.Mutex
-	value interface{}
+	State State
+	Value interface{}
 }
 
-type State = int64
+type resource struct {
+	atomicFrame int64
+	atomicState int64
+	tag         Tag
+	load        Load
+	value       interface{}
+}
+
+type State byte
 
 const (
 	Queued State = iota
 	Loading
 	Loaded
 )
-
-func (r *Resource) State() State       { return atomic.LoadInt64(&r.atomicState) }
-func (r *Resource) Value() interface{} { return r.value }

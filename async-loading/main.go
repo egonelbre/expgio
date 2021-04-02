@@ -126,7 +126,7 @@ func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *async.L
 					data := Data{Reel: reel.index, Item: index}
 					r := loader.Schedule(data, data.Load)
 
-					switch r.State() {
+					switch r.State {
 					case async.Queued:
 						col := color.NRGBA{R: 0xFF, G: 0xC0, B: 0xC0, A: 0xFF}
 						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
@@ -137,7 +137,7 @@ func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *async.L
 						col := color.NRGBA{R: 0xF0, G: 0xF0, B: 0xF0, A: 0xFF}
 						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
 
-						data := r.Value().(Data)
+						data := r.Value.(Data)
 						layout.Center.Layout(gtx, material.Body1(th, data.String()).Layout)
 					}
 
