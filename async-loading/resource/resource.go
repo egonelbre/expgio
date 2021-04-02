@@ -1,0 +1,166 @@
+// SPDX-License-Identifier: Unlicense OR MIT
+
+package resource
+
+import (
+	"context"
+	"sync"
+	"sync/atomic"
+
+	"gioui.org/layout"
+)
+
+type Loader struct {
+	refresh sync.Cond
+	mu      sync.Mutex
+
+	maxLoaded int
+
+	atomicActiveFrame   int64
+	atomicFinishedFrame int64
+
+	updated chan struct{}
+	lookup  map[Tag]*Resource
+	queued  []*Resource
+}
+
+func NewLoader(maxLoaded int) *Loader {
+	loader := &Loader{
+		updated:   make(chan struct{}, 1),
+		lookup:    make(map[Tag]*Resource),
+		maxLoaded: maxLoaded,
+	}
+	loader.refresh.L = &loader.mu
+	return loader
+}
+
+func (loader *Loader) Updated() <-chan struct{} { return loader.updated }
+
+func (loader *Loader) update() {
+	select {
+	case loader.updated <- struct{}{}:
+	default:
+	}
+}
+
+type LoaderStats struct {
+	Lookup int
+	Queued int
+}
+
+func (loader *Loader) Stats() LoaderStats {
+	loader.mu.Lock()
+	defer loader.mu.Unlock()
+	return LoaderStats{
+		Lookup: len(loader.lookup),
+		Queued: len(loader.queued),
+	}
+}
+
+func (loader *Loader) Frame(gtx layout.Context, w layout.Widget) layout.Dimensions {
+	atomic.AddInt64(&loader.atomicActiveFrame, 1)
+	dim := w(gtx)
+	atomic.StoreInt64(&loader.atomicFinishedFrame, atomic.LoadInt64(&loader.atomicActiveFrame))
+	return dim
+}
+
+func (loader *Loader) Load(tag Tag, load Load) *Resource {
+	loader.mu.Lock()
+	defer loader.mu.Unlock()
+
+	r, ok := loader.lookup[tag]
+	if !ok {
+		r = &Resource{
+			tag:  tag,
+			load: load,
+		}
+		loader.lookup[tag] = r
+		loader.queued = append(loader.queued, r)
+		loader.refresh.Signal()
+	}
+
+	activeFrame := atomic.LoadInt64(&loader.atomicActiveFrame)
+	atomic.StoreInt64(&r.atomicFrame, activeFrame)
+	return r
+}
+
+func (loader *Loader) Run(ctx context.Context) {
+	go func() {
+		<-ctx.Done()
+		loader.refresh.Signal()
+	}()
+
+	loader.mu.Lock()
+	defer loader.mu.Unlock()
+
+	for {
+		loader.refresh.Wait()
+		if ctx.Err() != nil {
+			return
+		}
+
+		for len(loader.queued) > 0 {
+			active := loader.queued[0]
+			loader.queued = loader.queued[1:]
+
+			if atomic.LoadInt64(&active.atomicFrame) < atomic.LoadInt64(&loader.atomicFinishedFrame) {
+				delete(loader.lookup, active.tag)
+				continue
+			}
+
+			atomic.StoreInt64(&active.atomicState, Loading)
+			loader.update()
+
+			loader.mu.Unlock()
+			value, err := active.load(ctx)
+			loader.mu.Lock()
+
+			active.mu.Lock()
+			active.value = value
+			active.error = err
+			active.mu.Unlock()
+
+			atomic.StoreInt64(&active.atomicState, Loaded)
+
+			loader.update()
+
+			finishedFrame := atomic.LoadInt64(&loader.atomicFinishedFrame)
+
+			// TODO: this might end up blocking rendering
+			for _, r := range loader.lookup {
+				if len(loader.lookup) < loader.maxLoaded {
+					break
+				}
+				if atomic.LoadInt64(&r.atomicFrame) < finishedFrame {
+					delete(loader.lookup, r.tag)
+				}
+			}
+		}
+	}
+}
+
+type Tag interface{}
+
+type Load func(ctx context.Context) (interface{}, error)
+
+type Resource struct {
+	atomicFrame int64
+	atomicState State
+	tag         Tag
+	load        Load
+
+	mu    sync.Mutex
+	value interface{}
+	error error
+}
+
+type State = int64
+
+const (
+	Queued State = iota
+	Loading
+	Loaded
+)
+
+func (r *Resource) State() State                { return atomic.LoadInt64(&r.atomicState) }
+func (r *Resource) Value() (interface{}, error) { return r.value, r.error }
