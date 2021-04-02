@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Unlicense OR MIT
 
-package resource
+package async
 
 import (
 	"context"
@@ -12,6 +12,8 @@ import (
 
 // TODO:
 //  * load multiple resources concurrently
+//  * gradual loading
+//  * loading progress
 //  * resource limit based on size (e.g. max 10MiB of images)
 //  * cancel loading when unloaded
 //  * ensure purging doesn't block the rendering

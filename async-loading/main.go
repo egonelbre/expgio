@@ -21,7 +21,7 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget/material"
 
-	"github.com/egonelbre/expgio/async-loading/resource"
+	"github.com/egonelbre/expgio/async-loading/async"
 )
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 
 type UI struct {
 	theme  *material.Theme
-	loader *resource.Loader
+	loader *async.Loader
 
 	reels *Reels
 }
@@ -50,7 +50,7 @@ type UI struct {
 func NewUI() *UI {
 	return &UI{
 		theme:  material.NewTheme(gofont.Collection()),
-		loader: resource.NewLoader(5),
+		loader: async.NewLoader(5),
 		reels:  NewReels(),
 	}
 }
@@ -100,7 +100,7 @@ func NewReels() *Reels {
 	return reels
 }
 
-func (reels *Reels) Layout(gtx layout.Context, th *material.Theme, loader *resource.Loader) layout.Dimensions {
+func (reels *Reels) Layout(gtx layout.Context, th *material.Theme, loader *async.Loader) layout.Dimensions {
 	return reels.list.Layout(gtx, len(reels.items),
 		func(gtx layout.Context, index int) layout.Dimensions {
 			reel := reels.items[index]
@@ -114,7 +114,7 @@ type Reel struct {
 	list  layout.List
 }
 
-func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *resource.Loader) layout.Dimensions {
+func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *async.Loader) layout.Dimensions {
 	return reel.list.Layout(gtx, reel.count,
 		func(gtx layout.Context, index int) layout.Dimensions {
 			return defaultInset.Layout(gtx,
@@ -127,13 +127,13 @@ func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *resourc
 					r := loader.Schedule(data, data.Load)
 
 					switch r.State() {
-					case resource.Queued:
+					case async.Queued:
 						col := color.NRGBA{R: 0xFF, G: 0xC0, B: 0xC0, A: 0xFF}
 						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
-					case resource.Loading:
+					case async.Loading:
 						col := color.NRGBA{R: 0xC0, G: 0xFF, B: 0xC0, A: 0xFF}
 						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
-					case resource.Loaded:
+					case async.Loaded:
 						col := color.NRGBA{R: 0xF0, G: 0xF0, B: 0xF0, A: 0xFF}
 						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
 
