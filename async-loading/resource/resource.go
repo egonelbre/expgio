@@ -119,12 +119,11 @@ func (loader *Loader) Run(ctx context.Context) {
 			loader.update()
 
 			loader.mu.Unlock()
-			value, err := active.load(ctx)
+			value := active.load(ctx)
 			loader.mu.Lock()
 
 			active.mu.Lock()
 			active.value = value
-			active.error = err
 			active.mu.Unlock()
 
 			atomic.StoreInt64(&active.atomicState, Loaded)
@@ -151,7 +150,7 @@ func (loader *Loader) purgeOld() {
 
 type Tag interface{}
 
-type Load func(ctx context.Context) (interface{}, error)
+type Load func(ctx context.Context) interface{}
 
 type Resource struct {
 	atomicFrame int64
@@ -161,7 +160,6 @@ type Resource struct {
 
 	mu    sync.Mutex
 	value interface{}
-	error error
 }
 
 type State = int64
@@ -172,5 +170,5 @@ const (
 	Loaded
 )
 
-func (r *Resource) State() State                { return atomic.LoadInt64(&r.atomicState) }
-func (r *Resource) Value() (interface{}, error) { return r.value, r.error }
+func (r *Resource) State() State       { return atomic.LoadInt64(&r.atomicState) }
+func (r *Resource) Value() interface{} { return r.value }

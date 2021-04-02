@@ -137,8 +137,7 @@ func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *resourc
 						col := color.NRGBA{R: 0xF0, G: 0xF0, B: 0xF0, A: 0xFF}
 						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
 
-						value, _ := r.Value()
-						data := value.(Data)
+						data := r.Value().(Data)
 						layout.Center.Layout(gtx, material.Body1(th, data.String()).Layout)
 					}
 
@@ -154,9 +153,9 @@ type Data struct {
 	Item int
 }
 
-func (data *Data) Load(ctx context.Context) (interface{}, error) {
+func (data *Data) Load(ctx context.Context) interface{} {
 	time.Sleep(5 * time.Millisecond)
-	return *data, nil
+	return *data
 }
 
 func (data *Data) String() string {
