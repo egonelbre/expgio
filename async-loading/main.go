@@ -155,7 +155,7 @@ type Data struct {
 }
 
 func (data *Data) Load(ctx context.Context) (interface{}, error) {
-	time.Sleep(16 * time.Millisecond)
+	time.Sleep(5 * time.Millisecond)
 	return *data, nil
 }
 

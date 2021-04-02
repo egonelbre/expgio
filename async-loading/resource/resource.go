@@ -51,6 +51,7 @@ type LoaderStats struct {
 func (loader *Loader) Stats() LoaderStats {
 	loader.mu.Lock()
 	defer loader.mu.Unlock()
+
 	return LoaderStats{
 		Lookup: len(loader.lookup),
 		Queued: len(loader.queued),
@@ -61,6 +62,10 @@ func (loader *Loader) Frame(gtx layout.Context, w layout.Widget) layout.Dimensio
 	atomic.AddInt64(&loader.atomicActiveFrame, 1)
 	dim := w(gtx)
 	atomic.StoreInt64(&loader.atomicFinishedFrame, atomic.LoadInt64(&loader.atomicActiveFrame))
+
+	// signal to maybe purge old entries
+	loader.refresh.Signal()
+
 	return dim
 }
 
@@ -99,6 +104,8 @@ func (loader *Loader) Run(ctx context.Context) {
 			return
 		}
 
+		loader.purgeOld()
+
 		for len(loader.queued) > 0 {
 			active := loader.queued[0]
 			loader.queued = loader.queued[1:]
@@ -124,17 +131,20 @@ func (loader *Loader) Run(ctx context.Context) {
 
 			loader.update()
 
-			finishedFrame := atomic.LoadInt64(&loader.atomicFinishedFrame)
+			loader.purgeOld()
+		}
+	}
+}
 
-			// TODO: this might end up blocking rendering
-			for _, r := range loader.lookup {
-				if len(loader.lookup) < loader.maxLoaded {
-					break
-				}
-				if atomic.LoadInt64(&r.atomicFrame) < finishedFrame {
-					delete(loader.lookup, r.tag)
-				}
-			}
+// TODO: this might end up blocking rendering
+func (loader *Loader) purgeOld() {
+	finishedFrame := atomic.LoadInt64(&loader.atomicFinishedFrame)
+	for _, r := range loader.lookup {
+		if len(loader.lookup) < loader.maxLoaded {
+			break
+		}
+		if atomic.LoadInt64(&r.atomicFrame) < finishedFrame {
+			delete(loader.lookup, r.tag)
 		}
 	}
 }
