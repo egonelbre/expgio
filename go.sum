@@ -1,8 +1,8 @@
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20201218220906-28db891af037/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 gioui.org v0.0.0-20210225120118-f6fba7388544/go.mod h1:Y+uS7hHMvku1Q+ooaoq6fYD5B2LGoT8JtFgvmYmRzTw=
-gioui.org v0.0.0-20210323222646-238dd1aa863e h1:AjmghdzxPUziZDpuxuiTF0oBY5TyY/o9XhofD/zPXco=
-gioui.org v0.0.0-20210323222646-238dd1aa863e/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zumjgTw83q2ge/PI+yyw8=
+gioui.org v0.0.0-20210427144906-23a839a29d27 h1:gnju9OjD+N3C4bUrQj2rEaWSimlpuzBcnp8r5J07Bgc=
+gioui.org v0.0.0-20210427144906-23a839a29d27/go.mod h1:RSH6KIUZ0p2xy5zHDxgAM4zumjgTw83q2ge/PI+yyw8=
 gioui.org/x v0.0.0-20210328140711-369cb959fb56 h1:Oj8ggP5cirjl6ny99NpJxjdCg2uwoNxIETje+/BZjv4=
 gioui.org/x v0.0.0-20210328140711-369cb959fb56/go.mod h1:y7BpIia0O/1wgqVHlfTBaoOCcR1Xm/psmu/1M9AfX9E=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=

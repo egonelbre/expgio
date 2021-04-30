@@ -46,7 +46,8 @@ func loop(w *app.Window) error {
 					return Wrap{Gap: theme.TextSize}.Layout(gtx, 'Z'-'A',
 						func(gtx layout.Context, index int) layout.Dimensions {
 							rec := op.Record(gtx.Ops)
-							dims := material.H1(theme, string('A'+index)).Layout(gtx)
+							dims := layout.UniformInset(unit.Dp(2)).Layout(gtx,
+								material.H1(theme, string('A'+index)).Layout)
 							call := rec.Stop()
 
 							clip.Rect{Max: dims.Size}.Add(gtx.Ops)
