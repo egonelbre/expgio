@@ -3,10 +3,13 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20201218220906-28db891af037/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 gioui.org v0.0.0-20210225120118-f6fba7388544/go.mod h1:Y+uS7hHMvku1Q+ooaoq6fYD5B2LGoT8JtFgvmYmRzTw=
-gioui.org v0.0.0-20210727125650-ea38195e2ef3 h1:0nxHwqBSlqhBQH2miHZGx3Bg1kBUj/wSwnnssqb1+D0=
-gioui.org v0.0.0-20210727125650-ea38195e2ef3/go.mod h1:N4QK6T0gTQc7ogB7rniAyYQb8/klqI6hQkqV+HAh5Mw=
-gioui.org/cpu v0.0.0-20210727122813-41509bcd3462 h1:JZyB+d8tPExZHNZwMiGKeeAVd0mkFTc3Zsmegdn178M=
-gioui.org/cpu v0.0.0-20210727122813-41509bcd3462/go.mod h1:DkhBDuHokSMOUxX5LZQ7IcxyJJzs3OON8Z5ojaXUXxo=
+gioui.org v0.0.0-20210822073417-0d009bd5344e h1:nJZkHKgOXWHQclhXfY81OmFsky8JmZelnzMcz7+Uuv8=
+gioui.org v0.0.0-20210822073417-0d009bd5344e/go.mod h1:jmZ349gZNGWyc5FIv/VWLBQ32Ki/FOvTgEz64kh9lnk=
+gioui.org/cpu v0.0.0-20210808092351-bfe733dd3334/go.mod h1:A8M0Cn5o+vY5LTMlnRoK3O5kG+rH0kWfJjeKd9QpBmQ=
+gioui.org/cpu v0.0.0-20210817075930-8d6a761490d2 h1:AGDDxsJE1RpcXTAxPG2B4jrwVUJGFDjINIPi1jtO6pc=
+gioui.org/cpu v0.0.0-20210817075930-8d6a761490d2/go.mod h1:A8M0Cn5o+vY5LTMlnRoK3O5kG+rH0kWfJjeKd9QpBmQ=
+gioui.org/shader v1.0.0 h1:nrcMavMhFE6Z8E25+7bI9nUZ2hFRP7/npSf6j53SlD0=
+gioui.org/shader v1.0.0/go.mod h1:mWdiME581d/kV7/iEhLmUgUK5iZ09XR5XpduXzbePVM=
 gioui.org/x v0.0.0-20210328140711-369cb959fb56 h1:Oj8ggP5cirjl6ny99NpJxjdCg2uwoNxIETje+/BZjv4=
 gioui.org/x v0.0.0-20210328140711-369cb959fb56/go.mod h1:y7BpIia0O/1wgqVHlfTBaoOCcR1Xm/psmu/1M9AfX9E=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
