@@ -107,13 +107,13 @@ func (b BorderSmooth) Layout(gtx layout.Context, w layout.Widget) layout.Dimensi
 
 	defer op.Save(gtx.Ops).Load()
 
-	clip.Border{
-		Rect: f32.Rectangle{
+	clip.Stroke{
+		Path: clip.UniformRRect(f32.Rectangle{
 			Max: layout.FPt(sz),
-		},
-		NE: rr, NW: rr, SE: rr, SW: rr,
-		Width: b.Width,
-	}.Add(gtx.Ops)
+		}, rr).Path(gtx.Ops),
+		Style: clip.StrokeStyle{Width: b.Width},
+	}.Op().Add(gtx.Ops)
+
 	paint.ColorOp{Color: b.Color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
