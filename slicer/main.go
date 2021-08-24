@@ -18,6 +18,7 @@ import (
 	"gioui.org/op/paint"
 	"gioui.org/widget/material"
 
+	"github.com/egonelbre/expgio/f32color"
 	"github.com/fogleman/ln/ln"
 )
 
@@ -77,11 +78,13 @@ func (ui *UI) Run(w *app.Window) error {
 }
 
 func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
-	return Scene{
+	return Slice{
 		Mesh: ui.Mesh,
 		RotY: float64(gtx.Now.UnixNano()/1e6) * 0.001,
 		Eye:  ln.Vector{-0.5, 0.5, 2},
 		Up:   ln.Vector{0, 1, 0},
+
+		Slices: 128,
 	}.Layout(gtx)
 }
 
@@ -118,8 +121,8 @@ func (scene Scene) Layout(gtx layout.Context) layout.Dimensions {
 		for _, v := range path[1:] {
 			p.LineTo(f64pt(v, h))
 		}
-
 	}
+
 	clip.Stroke{
 		Path: p.End(),
 		Style: clip.StrokeStyle{
@@ -129,6 +132,76 @@ func (scene Scene) Layout(gtx layout.Context) layout.Dimensions {
 
 	paint.ColorOp{Color: color.NRGBA{A: 0xFF}}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
+
+	return layout.Dimensions{
+		Size: size,
+	}
+}
+
+type Slice struct {
+	Mesh *ln.Mesh
+
+	Slices int
+
+	RotY   float64
+	Eye    ln.Vector
+	Up     ln.Vector
+	Center ln.Vector
+}
+
+func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
+	op.InvalidateOp{}.Add(gtx.Ops)
+
+	size := gtx.Constraints.Max
+
+	aspect := float64(size.X) / float64(size.Y)
+	rotation := ln.Rotate(ln.Vector{0, 1, 0}, scene.RotY).Scale(ln.Vector{0.5, 0.5, 0.5})
+	matrix := ln.LookAt(scene.Eye, scene.Center, scene.Up)
+	matrix = matrix.Perspective(35, aspect, 0.1, 100)
+
+	for i := 0; i < scene.Slices; i++ {
+		func() {
+			slice := float64(i)/float64(scene.Slices)*2 - 1
+
+			point := ln.Vector{0, slice, 0}
+			plane := ln.Plane{point, ln.Vector{0, 1, 0}}
+			paths := plane.IntersectMesh(scene.Mesh)
+			paths = paths.Simplify(1e-6)
+
+			// rendering
+			paths = paths.Transform(rotation)
+			paths = paths.Transform(matrix)
+			paths = paths.Transform(
+				ln.Translate(ln.Vector{1, 1, 0}).
+					Scale(ln.Vector{X: float64(size.X) / 2, Y: float64(size.Y) / 2, Z: 0}),
+			)
+
+			defer op.Save(gtx.Ops).Load()
+
+			p := clip.Path{}
+			p.Begin(gtx.Ops)
+
+			h := float32(size.Y)
+			for _, path := range paths {
+				p.MoveTo(f64pt(path[0], h))
+				for _, v := range path[1:] {
+					p.LineTo(f64pt(v, h))
+				}
+			}
+
+			clip.Stroke{
+				Path: p.End(),
+				Style: clip.StrokeStyle{
+					Width: 3,
+				},
+			}.Op().Add(gtx.Ops)
+
+			paint.ColorOp{
+				Color: f32color.HSL(float32(slice), 0.6, 0.6),
+			}.Add(gtx.Ops)
+			paint.PaintOp{}.Add(gtx.Ops)
+		}()
+	}
 
 	return layout.Dimensions{
 		Size: size,
