@@ -4,19 +4,19 @@ func NewDemoDiagram() *Diagram {
 	diagram := NewDiagram()
 
 	issue := diagram.NewNode(Label("issue"), V(1, 1), V(8, 1),
-		[]*Port{{Name: "start"}},
+		nil,
 		[]*Port{{Name: "done"}},
 	)
 	schedule := diagram.NewNode(Label("schedule"), V(1, 3), V(8, 1),
-		[]*Port{{Name: "start"}},
+		nil,
 		[]*Port{{Name: "done"}},
 	)
 	issueComment := diagram.NewNode(Label("issue-comment"), V(1, 5), V(8, 1),
-		[]*Port{{Name: "start"}},
+		nil,
 		[]*Port{{Name: "done"}},
 	)
 	_ = diagram.NewNode(Label("noop"), V(1, 7), V(8, 1),
-		[]*Port{{Name: "start"}},
+		nil,
 		[]*Port{{Name: "done"}},
 	)
 
@@ -41,13 +41,13 @@ func NewDemoDiagram() *Diagram {
 		[]*Port{{Name: "start"}},
 		[]*Port{{Name: "done"}},
 	)
-	createComment := diagram.NewNode(Label("create-comment"), V(22, 7), V(8, 1),
+	createComment := diagram.NewNode(Label("create-comment"), V(22, 4), V(8, 1),
 		[]*Port{{Name: "start"}},
 		[]*Port{{Name: "done"}},
 	)
-	stale := diagram.NewNode(Label("stale"), V(22, 7), V(8, 1),
-		[]*Port{{Name: "start"}},
-		[]*Port{{Name: "done"}},
+	stale := diagram.NewNode(Label("stale"), V(22, 6), V(8, 2),
+		[]*Port{{Name: "start"}, {Name: "interval"}},
+		[]*Port{{Name: "done"}, {Name: "fail"}},
 	)
 
 	diagram.Conns = []*Conn{
