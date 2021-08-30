@@ -8,6 +8,15 @@ import (
 	"gioui.org/op/paint"
 )
 
+type BackgroundLayer struct{}
+
+func (*BackgroundLayer) Layout(gtx *Context) {
+	defer op.Save(gtx.Ops).Load()
+	clip.Rect(image.Rectangle{Max: gtx.Constraints.Max}).Add(gtx.Ops)
+	paint.ColorOp{Color: gtx.Theme.Background}.Add(gtx.Ops)
+	paint.PaintOp{}.Add(gtx.Ops)
+}
+
 type GridLayer struct{}
 
 func (*GridLayer) Layout(gtx *Context) {

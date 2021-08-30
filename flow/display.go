@@ -20,14 +20,15 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 	b := gtx.Bounds(n.Box)
 
 	pxPerUnit := float32(gtx.PxPerUnit)
-	const (
-		tabX  = 0.3
-		tabY  = 0.25
-		portR = 0.15
-	)
+
+	const p = 0.6
+	const c = 0.2
+
+	tabR2 := pxPerUnit * p
+	tabP := pxPerUnit * (1.0 - p) / 2.0
+	portR := pxPerUnit * 0.15
 
 	path := func(ops *op.Ops) clip.PathSpec {
-
 		b := layout.FRect(b)
 
 		var p clip.Path
@@ -36,27 +37,38 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 
 		p.LineTo(f32.Point{X: b.Max.X, Y: b.Min.Y})
 		for range n.Out {
-			p.Line(f32.Pt(pxPerUnit*tabX, pxPerUnit*tabY))
-			p.Line(f32.Pt(0, pxPerUnit*(1-tabY*2)))
-			p.Line(f32.Pt(-pxPerUnit*tabX, pxPerUnit*tabY))
+			p.Line(f32.Pt(0, tabP))
+			p.Cube(
+				f32.Pt(1.4*tabR2/2, 0),
+				f32.Pt(1.4*tabR2/2, tabR2),
+				f32.Pt(0, tabR2),
+			)
+			p.Line(f32.Pt(0, tabP))
 		}
 		p.LineTo(b.Max)
 		p.LineTo(f32.Point{X: b.Min.X, Y: b.Max.Y})
 
 		p.LineTo(f32.Point{X: b.Min.X, Y: b.Min.Y + pxPerUnit*float32(len(n.In))})
 		for range n.In {
-			p.Line(f32.Pt(-pxPerUnit*tabX, -pxPerUnit*tabY))
-			p.Line(f32.Pt(0, -pxPerUnit*(1-tabY*2)))
-			p.Line(f32.Pt(pxPerUnit*tabX, -pxPerUnit*tabY))
+			p.Line(f32.Pt(0, -tabP))
+			p.Cube(
+				f32.Pt(-1.4*tabR2/2, 0),
+				f32.Pt(-1.4*tabR2/2, -tabR2),
+				f32.Pt(0, -tabR2),
+			)
+			p.Line(f32.Pt(0, -tabP))
 		}
 		p.Close()
 
 		return p.End()
 	}
 
+	pixelAlignLine := f32.Pt(-gtx.Metric.PxPerDp/2, -gtx.Metric.PxPerDp/2)
+
 	//  background
 	func() {
 		defer op.Save(gtx.Ops).Load()
+		op.Offset(pixelAlignLine).Add(gtx.Ops)
 		clip.Outline{Path: path(gtx.Ops)}.Op().Add(gtx.Ops)
 		paint.ColorOp{Color: gtx.Theme.Node.Fill}.Add(gtx.Ops)
 		paint.PaintOp{}.Add(gtx.Ops)
@@ -65,6 +77,7 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 	// border
 	func() {
 		defer op.Save(gtx.Ops).Load()
+		op.Offset(pixelAlignLine).Add(gtx.Ops)
 		clip.Stroke{
 			Path: path(gtx.Ops),
 			Style: clip.StrokeStyle{
@@ -77,9 +90,11 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 
 	// ports
 	for _, p := range n.Ports {
+		center := gtx.FPt(p.Position())
+		center = center.Add(pixelAlignLine)
 		paint.FillShape(gtx.Ops, gtx.Theme.Node.Border, clip.Circle{
-			Center: gtx.FPt(p.Position()),
-			Radius: pxPerUnit * portR,
+			Center: center,
+			Radius: portR,
 		}.Op(gtx.Ops))
 	}
 

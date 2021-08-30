@@ -25,6 +25,7 @@ func NewEditor(diagram *Diagram) *Editor {
 
 	editor.Zoom.Level = defaultZoom
 
+	editor.AddLayer(&BackgroundLayer{})
 	editor.AddLayer(&GridLayer{})
 	editor.AddLayer(&ConnLayer{})
 	editor.AddLayer(&NodeLayer{})

@@ -14,7 +14,8 @@ type Theme struct {
 	Selected Style
 	Active   Style
 
-	Grid color.NRGBA
+	Background color.NRGBA
+	Grid       color.NRGBA
 
 	*material.Theme
 }
@@ -34,7 +35,8 @@ func NewTheme(th *material.Theme) *Theme {
 		Selected: Tango[4],
 		Active:   Tango[5],
 
-		Grid: color.NRGBA{R: 0xC0, G: 0xC0, B: 0xC0, A: 0xFF},
+		Background: hexRGB(0xf6f8fa),
+		Grid:       hexRGB(0xC0C0C0),
 
 		Theme: th,
 	}
