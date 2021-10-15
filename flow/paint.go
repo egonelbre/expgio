@@ -23,10 +23,8 @@ func FillRectBorder(gtx *Context, r image.Rectangle, w float32, c color.NRGBA) {
 
 	paint.FillShape(gtx.Ops, c,
 		clip.Stroke{
-			Path: clip.RRect{Rect: rr}.Path(gtx.Ops),
-			Style: clip.StrokeStyle{
-				Width: w,
-			},
+			Path:  clip.RRect{Rect: rr}.Path(gtx.Ops),
+			Width: w,
 		}.Op())
 }
 
@@ -38,10 +36,8 @@ func FillLine(gtx *Context, from, to image.Point, width int, c color.NRGBA) {
 	p.MoveTo(layout.FPt(from))
 	p.LineTo(layout.FPt(to))
 	clip.Stroke{
-		Path: p.End(),
-		Style: clip.StrokeStyle{
-			Width: float32(width),
-		},
+		Path:  p.End(),
+		Width: float32(width),
 	}.Op().Add(gtx.Ops)
 
 	paint.ColorOp{Color: c}.Add(gtx.Ops)

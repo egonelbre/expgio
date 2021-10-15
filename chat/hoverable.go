@@ -23,8 +23,9 @@ func (h *Hoverable) Layout(gtx layout.Context) layout.Dimensions {
 
 	defer op.Save(gtx.Ops).Load()
 
-	pointer.PassOp{Pass: true}.Add(gtx.Ops)
-	pointer.Rect(image.Rectangle{Max: gtx.Constraints.Min}).Add(gtx.Ops)
+	defer pointer.PassOp{}.Push(gtx.Ops).Pop()
+	defer pointer.Rect(image.Rectangle{Max: gtx.Constraints.Min}).Push(gtx.Ops).Pop()
+
 	pointer.InputOp{
 		Tag:   h,
 		Types: pointer.Enter | pointer.Leave,
@@ -111,7 +112,7 @@ func (b BorderSmooth) Layout(gtx layout.Context, w layout.Widget) layout.Dimensi
 		Path: clip.UniformRRect(f32.Rectangle{
 			Max: layout.FPt(sz),
 		}, rr).Path(gtx.Ops),
-		Style: clip.StrokeStyle{Width: b.Width},
+		Width: b.Width,
 	}.Op().Add(gtx.Ops)
 
 	paint.ColorOp{Color: b.Color}.Add(gtx.Ops)

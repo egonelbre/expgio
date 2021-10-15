@@ -79,10 +79,8 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 		defer op.Save(gtx.Ops).Load()
 		op.Offset(pixelAlignLine).Add(gtx.Ops)
 		clip.Stroke{
-			Path: path(gtx.Ops),
-			Style: clip.StrokeStyle{
-				Width: gtx.Metric.PxPerDp,
-			},
+			Path:  path(gtx.Ops),
+			Width: gtx.Metric.PxPerDp,
 		}.Op().Add(gtx.Ops)
 		paint.ColorOp{Color: gtx.Theme.Node.Border}.Add(gtx.Ops)
 		paint.PaintOp{}.Add(gtx.Ops)
@@ -141,11 +139,8 @@ func (layer *ConnLayer) LayoutConn(gtx *Context, conn *Conn) {
 
 	defer op.Save(gtx.Ops).Load()
 	clip.Stroke{
-		Path: path(gtx.Ops),
-		Style: clip.StrokeStyle{
-			Cap:   clip.RoundCap,
-			Width: float32(connectionWidth),
-		},
+		Path:  path(gtx.Ops),
+		Width: float32(connectionWidth),
 	}.Op().Add(gtx.Ops)
 	paint.ColorOp{Color: gtx.Theme.Conn.Border}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)

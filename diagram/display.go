@@ -54,11 +54,8 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 	func() {
 		defer op.Save(gtx.Ops).Load()
 		clip.Stroke{
-			Path: path(gtx.Ops),
-			Style: clip.StrokeStyle{
-				Cap:   clip.RoundCap,
-				Width: float32(connectionWidth + gtx.Dp*2),
-			},
+			Path:  path(gtx.Ops),
+			Width: float32(connectionWidth + gtx.Dp*2),
 		}.Op().Add(gtx.Ops)
 		paint.ColorOp{Color: DefaultConnection.Border}.Add(gtx.Ops)
 		paint.PaintOp{}.Add(gtx.Ops)
@@ -67,11 +64,8 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 	func() {
 		defer op.Save(gtx.Ops).Load()
 		clip.Stroke{
-			Path: path(gtx.Ops),
-			Style: clip.StrokeStyle{
-				Cap:   clip.RoundCap,
-				Width: float32(connectionWidth),
-			},
+			Path:  path(gtx.Ops),
+			Width: float32(connectionWidth),
 		}.Op().Add(gtx.Ops)
 		paint.ColorOp{Color: DefaultConnection.Fill}.Add(gtx.Ops)
 		paint.PaintOp{}.Add(gtx.Ops)

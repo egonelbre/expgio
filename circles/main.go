@@ -138,7 +138,7 @@ func NewOverlay(t string, flood f32.Point) *Overlay {
 		Bg:    f32color.HSL(0, 0.5, 0.15),
 		Flood: flood,
 		Text:  t,
-		Show:  NewAnimation(600 * time.Millisecond),
+		Show:  NewAnimation(1500 * time.Millisecond),
 	}
 }
 

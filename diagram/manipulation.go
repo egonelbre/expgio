@@ -5,7 +5,6 @@ import (
 
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
-	"gioui.org/op"
 )
 
 type ManipulationHud struct {
@@ -33,10 +32,9 @@ func (hud *ManipulationHud) Layout(gtx *Context) {
 type manipulationTag *Node
 
 func (hud *ManipulationHud) HandleNode(gtx *Context, node *Node) {
-	defer op.Save(gtx.Ops).Load()
 	tag := manipulationTag(node)
 
-	pointer.Rect(gtx.Bounds(node.Box)).Add(gtx.Ops)
+	defer pointer.Rect(gtx.Bounds(node.Box)).Push(gtx.Ops).Pop()
 	pointer.InputOp{
 		Tag:   tag,
 		Types: pointer.Press | pointer.Drag | pointer.Release,

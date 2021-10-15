@@ -91,8 +91,6 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 		layout.Stacked(func(gtx layout.Context) layout.Dimensions {
 			return m.View.Styles.Layout(gtx, len(Tango),
 				func(gtx layout.Context, index int) layout.Dimensions {
-					defer op.Save(gtx.Ops).Load()
-
 					type paintTag *Style
 					style := Tango[index]
 					tag := paintTag(style)
@@ -103,7 +101,7 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 					}
 					paint.FillShape(gtx.Ops, style.Fill, clip.Rect{Max: size}.Op())
 
-					pointer.Rect(image.Rectangle{Max: size}).Add(gtx.Ops)
+					defer pointer.Rect(image.Rectangle{Max: size}).Push(gtx.Ops).Pop()
 					pointer.InputOp{
 						Tag:   tag,
 						Types: pointer.Press,

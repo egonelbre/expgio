@@ -124,10 +124,8 @@ func (scene Scene) Layout(gtx layout.Context) layout.Dimensions {
 	}
 
 	clip.Stroke{
-		Path: p.End(),
-		Style: clip.StrokeStyle{
-			Width: 1,
-		},
+		Path:  p.End(),
+		Width: 1,
 	}.Op().Add(gtx.Ops)
 
 	paint.ColorOp{Color: color.NRGBA{A: 0xFF}}.Add(gtx.Ops)
@@ -190,10 +188,8 @@ func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
 			}
 
 			clip.Stroke{
-				Path: p.End(),
-				Style: clip.StrokeStyle{
-					Width: 3,
-				},
+				Path:  p.End(),
+				Width: 3,
 			}.Op().Add(gtx.Ops)
 
 			paint.ColorOp{

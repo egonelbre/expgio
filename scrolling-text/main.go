@@ -13,12 +13,12 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/op/clip"
 	"gioui.org/text"
 	"gioui.org/unit"
+	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"golang.org/x/image/math/fixed"
-
-	"gioui.org/x/scroll"
 )
 
 func main() {
@@ -46,7 +46,7 @@ type UI struct {
 
 type Terminal struct {
 	List   layout.List
-	Scroll scroll.Scrollable
+	Scroll widget.Scrollbar
 	Lines  []string
 }
 
@@ -100,9 +100,11 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 }
 
 func (term *Terminal) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
-	if didScroll, progress := term.Scroll.Scrolled(); didScroll {
-		term.List.Position.First = int(progress * float32(len(term.Lines)))
-	}
+	/*
+		if didScroll, progress := term.Scroll.Scrolled(); didScroll {
+			term.List.Position.First = int(progress * float32(len(term.Lines)))
+		}
+	*/
 	return layout.Flex{}.Layout(gtx,
 		layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
 			return term.List.Layout(gtx, len(term.Lines), func(gtx layout.Context, index int) layout.Dimensions {
@@ -112,7 +114,7 @@ func (term *Terminal) Layout(th *material.Theme, gtx layout.Context) layout.Dime
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 			progress := float32(term.List.Position.First) / float32(len(term.Lines))
 			size := float32(term.List.Position.Count) / float32(len(term.Lines))
-			return scroll.DefaultBar(&term.Scroll, progress, size).Layout(gtx)
+			return material.Scrollbar(th, &term.Scroll).Layout(gtx, layout.Vertical, progress, size)
 		}),
 	)
 }
@@ -184,7 +186,7 @@ func (s *Cache) LayoutString(font text.Font, size fixed.Int26_6, maxWidth int, s
 
 // Shape is a caching implementation of the Shaper interface. Shape assumes that the layout
 // argument is unchanged from a call to Layout or LayoutString.
-func (s *Cache) Shape(font text.Font, size fixed.Int26_6, layout text.Layout) op.CallOp {
+func (s *Cache) Shape(font text.Font, size fixed.Int26_6, layout text.Layout) clip.Op {
 	cache := s.lookup(font)
 	return cache.shape(size, layout)
 }
@@ -197,9 +199,9 @@ func (f *faceCache) layout(ppem fixed.Int26_6, maxWidth int, str string) []text.
 	return l
 }
 
-func (f *faceCache) shape(ppem fixed.Int26_6, layout text.Layout) op.CallOp {
+func (f *faceCache) shape(ppem fixed.Int26_6, layout text.Layout) clip.Op {
 	if f == nil {
-		return op.CallOp{}
+		return clip.Op{}
 	}
 	return f.face.Shape(ppem, layout)
 }
