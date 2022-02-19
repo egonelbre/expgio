@@ -164,16 +164,20 @@ func (panel *Panel) Update(left *Panel, gtx layout.Context) {
 func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
 	gtx.Constraints = layout.Exact(image.Pt(int(panel.WidthPx), int(gtx.Constraints.Max.Y)))
 
-	defer op.Save(gtx.Ops).Load()
-	op.Offset(f32.Pt(panel.LeftPx, 0)).Add(gtx.Ops)
-	clip.Rect{Max: gtx.Constraints.Max}.Add(gtx.Ops)
+	defer op.Offset(f32.Pt(panel.LeftPx, 0)).Push(gtx.Ops).Pop()
+	defer clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops).Pop()
 	paint.ColorOp{Color: panel.Color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
 	for range panel.Insert.Clicks() {
 		panel.UI.AddPanel(panel, NewPanel(panel.UI))
 	}
-	_ = panel.Insert.Layout(gtx)
+
+	_ = panel.Insert.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		return layout.Dimensions{
+			Size: gtx.Constraints.Max,
+		}
+	})
 
 	if panel.Close.Clicked() {
 		panel.UI.ClosePanel(panel)

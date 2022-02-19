@@ -67,38 +67,33 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 
 	//  background
 	func() {
-		defer op.Save(gtx.Ops).Load()
-		op.Offset(pixelAlignLine).Add(gtx.Ops)
-		clip.Outline{Path: path(gtx.Ops)}.Op().Add(gtx.Ops)
-		paint.ColorOp{Color: gtx.Theme.Node.Fill}.Add(gtx.Ops)
-		paint.PaintOp{}.Add(gtx.Ops)
+		defer op.Offset(pixelAlignLine).Push(gtx.Ops).Pop()
+		paint.FillShape(gtx.Ops, gtx.Theme.Node.Fill, clip.Outline{
+			Path: path(gtx.Ops),
+		}.Op())
 	}()
 
 	// border
 	func() {
-		defer op.Save(gtx.Ops).Load()
-		op.Offset(pixelAlignLine).Add(gtx.Ops)
-		clip.Stroke{
+		defer op.Offset(pixelAlignLine).Push(gtx.Ops).Pop()
+		paint.FillShape(gtx.Ops, gtx.Theme.Node.Border, clip.Stroke{
 			Path:  path(gtx.Ops),
 			Width: gtx.Metric.PxPerDp,
-		}.Op().Add(gtx.Ops)
-		paint.ColorOp{Color: gtx.Theme.Node.Border}.Add(gtx.Ops)
-		paint.PaintOp{}.Add(gtx.Ops)
+		}.Op())
 	}()
 
 	// ports
 	for _, p := range n.Ports {
 		center := gtx.FPt(p.Position())
 		center = center.Add(pixelAlignLine)
-		paint.FillShape(gtx.Ops, gtx.Theme.Node.Border, clip.Circle{
+		paint.FillShape(gtx.Ops, gtx.Theme.Node.Border, Circle{
 			Center: center,
 			Radius: portR,
 		}.Op(gtx.Ops))
 	}
 
-	defer op.Save(gtx.Ops).Load()
-	clip.Rect(b).Op().Add(gtx.Ops)
-	op.Offset(layout.FPt(b.Min)).Add(gtx.Ops)
+	defer clip.Rect(b).Op().Push(gtx.Ops).Pop()
+	defer op.Offset(layout.FPt(b.Min)).Push(gtx.Ops).Pop()
 
 	before := gtx.Constraints
 	defer func() { gtx.Constraints = before }()
@@ -137,11 +132,8 @@ func (layer *ConnLayer) LayoutConn(gtx *Context, conn *Conn) {
 		return p.End()
 	}
 
-	defer op.Save(gtx.Ops).Load()
-	clip.Stroke{
+	paint.FillShape(gtx.Ops, gtx.Theme.Conn.Border, clip.Stroke{
 		Path:  path(gtx.Ops),
 		Width: float32(connectionWidth),
-	}.Op().Add(gtx.Ops)
-	paint.ColorOp{Color: gtx.Theme.Conn.Border}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	}.Op())
 }

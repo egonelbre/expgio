@@ -85,8 +85,6 @@ func (p Size) Px(gtx layout.Context) image.Point {
 }
 
 func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement) layout.Dimensions {
-	defer op.Save(gtx.Ops).Load()
-
 	gap := gtx.Px(wrap.Gap)
 	itemWidth := gtx.Px(wrap.ItemWidth)
 	itemHeight := gtx.Px(wrap.ItemHeight)
@@ -106,16 +104,14 @@ func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement)
 renderItems:
 	for y := 0; ; y++ {
 		for x := 0; x < itemsPerLine; x++ {
-			stack := op.Save(gtx.Ops)
-
-			op.Offset(f32.Pt(
+			stack := op.Offset(f32.Pt(
 				float32(x*(itemWidth+gap)),
 				float32(y*(itemHeight+gap)),
-			)).Add(gtx.Ops)
+			)).Push(gtx.Ops)
 
 			w(cgtx, index)
 
-			stack.Load()
+			stack.Pop()
 
 			index++
 			if index >= itemCount {

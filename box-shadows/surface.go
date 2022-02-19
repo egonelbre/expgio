@@ -12,7 +12,7 @@ import (
 	"gioui.org/op/paint"
 	"gioui.org/unit"
 
-	"github.com/egonelbre/expgio/surface/f32color"
+	"github.com/egonelbre/expgio/shadow/f32color"
 )
 
 type SurfaceLayoutStyle struct {

@@ -50,8 +50,9 @@ func loop(w *app.Window) error {
 								material.H1(theme, string('A'+index)).Layout)
 							call := rec.Stop()
 
-							clip.Rect{Max: dims.Size}.Add(gtx.Ops)
+							stack := clip.Rect{Max: dims.Size}.Push(gtx.Ops)
 							paint.Fill(gtx.Ops, color.NRGBA{R: byte(index), G: byte(index * index), B: byte(index * index * index), A: 0xFF})
+							stack.Pop()
 
 							call.Add(gtx.Ops)
 
@@ -70,8 +71,6 @@ type Wrap struct {
 }
 
 func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement) layout.Dimensions {
-	defer op.Save(gtx.Ops).Load()
-
 	// calculate the pixel size of the gap.
 	gap := gtx.Px(wrap.Gap)
 	// well use the constraints as the max width rather than automatically determining.
@@ -101,21 +100,18 @@ func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement)
 		// x keeps track of the current x position of the widgets
 		x := 0
 		for _, w := range line {
-			// save the stack to avoid propagating offsets to the next items
-			stack := op.Save(gtx.Ops)
-
 			// adjust the drawing to the correct location.
-			op.Offset(f32.Pt(
+			stack := op.Offset(f32.Pt(
 				float32(x),
 				// we center each item on the Y axis,
 				float32(y+maxHeight/2-w.dims.Size.Y/2),
-			)).Add(gtx.Ops)
+			)).Push(gtx.Ops)
 
 			// draw the widget
 			w.call.Add(gtx.Ops)
 
 			// restore previous offset
-			stack.Load()
+			stack.Pop()
 
 			// update the x position.
 			x += w.dims.Size.X + gap

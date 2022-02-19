@@ -6,6 +6,7 @@ import (
 
 	"gioui.org/gesture"
 	"gioui.org/io/pointer"
+	"gioui.org/op/clip"
 )
 
 type NodeCreationHud struct {
@@ -18,7 +19,7 @@ type NodeCreationHud struct {
 }
 
 func (hud *NodeCreationHud) Layout(gtx *Context) {
-	defer pointer.Rect(image.Rectangle{Max: gtx.Constraints.Max}).Push(gtx.Ops).Pop()
+	defer clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops).Pop()
 	pointer.InputOp{
 		Tag:   hud,
 		Grab:  hud.drawing,
@@ -125,7 +126,7 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 
 	tag := connectionCreationTag(p)
 
-	defer pointer.Rect(r).Push(gtx.Ops).Pop()
+	defer clip.Rect(r).Push(gtx.Ops).Pop()
 	pointer.InputOp{
 		Tag:   tag,
 		Grab:  hud.drawing,

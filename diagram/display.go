@@ -51,25 +51,15 @@ func (hud *ConnectionHud) LayoutConnection(gtx *Context, c *Connection) {
 		return p.End()
 	}
 
-	func() {
-		defer op.Save(gtx.Ops).Load()
-		clip.Stroke{
-			Path:  path(gtx.Ops),
-			Width: float32(connectionWidth + gtx.Dp*2),
-		}.Op().Add(gtx.Ops)
-		paint.ColorOp{Color: DefaultConnection.Border}.Add(gtx.Ops)
-		paint.PaintOp{}.Add(gtx.Ops)
-	}()
+	paint.FillShape(gtx.Ops, DefaultConnection.Border, clip.Stroke{
+		Path:  path(gtx.Ops),
+		Width: float32(connectionWidth + gtx.Dp*2),
+	}.Op())
 
-	func() {
-		defer op.Save(gtx.Ops).Load()
-		clip.Stroke{
-			Path:  path(gtx.Ops),
-			Width: float32(connectionWidth),
-		}.Op().Add(gtx.Ops)
-		paint.ColorOp{Color: DefaultConnection.Fill}.Add(gtx.Ops)
-		paint.PaintOp{}.Add(gtx.Ops)
-	}()
+	paint.FillShape(gtx.Ops, DefaultConnection.Fill, clip.Stroke{
+		Path:  path(gtx.Ops),
+		Width: float32(connectionWidth),
+	}.Op())
 }
 
 type PortHud struct {

@@ -101,9 +101,10 @@ func loop(linecount int, w *app.Window) error {
 			}
 			builder.Line(start.Sub(prev))
 			builder.Close()
-			clip.Outline{Path: builder.End()}.Op().Add(gtx.Ops)
 
+			stack := clip.Outline{Path: builder.End()}.Op().Push(gtx.Ops)
 			paint.PaintOp{}.Add(gtx.Ops)
+			stack.Pop()
 
 			e.Frame(gtx.Ops)
 			w.Invalidate()

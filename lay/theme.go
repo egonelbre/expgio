@@ -89,6 +89,6 @@ func (s Scale) Value(base unit.Value, ratio ScaleRatio) unit.Value {
 	}
 	return unit.Value{
 		V: base.V * float32(math.Pow(float64(ratio), float64(s))),
-		U: Base.U,
+		U: base.U,
 	}
 }

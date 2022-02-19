@@ -104,11 +104,9 @@ func (state *State) Render(gtx layout.Context) {
 	// fill(gtx, color.NRGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 	fill(gtx, color.NRGBA{R: 0xFF, G: 0xFF, B: 0xEE, A: 0xFF})
 
-	defer op.Save(gtx.Ops).Load()
-
 	screenSize := layout.FPt(gtx.Constraints.Min)
 	offset := Neg(state.Camera).Add(screenSize.Mul(0.5))
-	op.Offset(offset).Add(gtx.Ops)
+	defer op.Offset(offset).Push(gtx.Ops).Pop()
 
 	state.Root.Render(gtx)
 }
@@ -302,21 +300,19 @@ func (branch *Branch) renderPath(gtx layout.Context, radiusAdd float32, color co
 			}
 		}
 
-		squashcircle(gtx, pt, radius+radiusAdd, color)
+		squashCircle(gtx, pt, radius+radiusAdd, color)
 	}
 }
 
-func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
-	defer op.Save(gtx.Ops).Load()
-
-	op.Offset(p).Add(gtx.Ops)
+func squashCircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
+	defer op.Offset(p).Push(gtx.Ops).Pop()
 
 	var path clip.Path
 	path.Begin(gtx.Ops)
 	path.Move(f32.Pt(0, -r))
 	path.Cube(f32.Pt(r, 0), f32.Pt(r, 2*r*0.75), f32.Pt(0, 2*r*0.75))
 	path.Cube(f32.Pt(-r, 0), f32.Pt(-r, -2*r*0.75), f32.Pt(0, -2*r*0.75))
-	clip.Outline{Path: path.End()}.Op().Add(gtx.Ops)
+	defer clip.Outline{Path: path.End()}.Op().Push(gtx.Ops).Pop()
 
 	paint.ColorOp{Color: color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)

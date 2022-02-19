@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -45,12 +44,10 @@ type ZoomHud struct {
 }
 
 func (hud *ZoomHud) Layout(gtx *Context) {
-	defer op.Save(gtx.Ops).Load()
-
 	/*
 		TODO: this overrides the drawing
 
-		pointer.Rect(image.Rectangle{Max: gtx.Context.Constraints.Max}).Add(gtx.Ops)
+		clip.Rect{Max: gtx.Context.Constraints.Max}.Add(gtx.Ops)
 		pointer.InputOp{
 			Tag:   hud,
 			Types: pointer.Scroll,

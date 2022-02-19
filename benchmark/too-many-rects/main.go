@@ -55,7 +55,6 @@ func loop(w *app.Window) error {
 			const size = 10
 			for y := 0; y < e.Size.Y; y += size {
 				for x := 0; x < e.Size.X; x += size {
-					stack := op.Save(gtx.Ops)
 					paint.ColorOp{
 						Color: color.NRGBA{
 							R: byte(x),
@@ -64,7 +63,7 @@ func loop(w *app.Window) error {
 							A: 0xFF,
 						},
 					}.Add(gtx.Ops)
-					clip.RRect{Rect: f32.Rectangle{
+					stack := clip.RRect{Rect: f32.Rectangle{
 						Min: f32.Point{
 							X: float32(x),
 							Y: float32(y),
@@ -73,9 +72,9 @@ func loop(w *app.Window) error {
 							X: float32(x + size),
 							Y: float32(y + size),
 						},
-					}}.Add(gtx.Ops)
+					}}.Push(gtx.Ops)
 					paint.PaintOp{}.Add(gtx.Ops)
-					stack.Load()
+					stack.Pop()
 				}
 			}
 

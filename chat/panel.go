@@ -4,7 +4,6 @@ import (
 	"image/color"
 
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/unit"
@@ -39,19 +38,10 @@ func (panel *Panel) Layout(gtx layout.Context, widget layout.Widget) layout.Dime
 }
 
 func (panel *Panel) fill(gtx layout.Context) {
-	defer op.Save(gtx.Ops).Load()
-
-	var bounds clip.Rect
-	bounds.Max = gtx.Constraints.Max
-	bounds.Add(gtx.Ops)
-
-	paint.ColorOp{Color: panel.Background}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	paint.FillShape(gtx.Ops, panel.Background, clip.Rect{Max: gtx.Constraints.Max}.Op())
 }
 
 func (panel *Panel) border(gtx layout.Context) layout.Context {
-	defer op.Save(gtx.Ops).Load()
-
 	var bounds clip.Rect
 	bounds.Max = gtx.Constraints.Max
 	borderPx := gtx.Px(panel.BorderWidth)
@@ -64,10 +54,8 @@ func (panel *Panel) border(gtx layout.Context) layout.Context {
 		gtx.Constraints.Min.X -= borderPx
 		gtx.Constraints.Max.X -= borderPx
 	}
-	bounds.Add(gtx.Ops)
 
-	paint.ColorOp{Color: panel.Border}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	paint.FillShape(gtx.Ops, panel.Border, bounds.Op())
 
 	return gtx
 }

@@ -11,7 +11,7 @@ import (
 	"gioui.org/op/paint"
 	"gioui.org/unit"
 
-	"github.com/egonelbre/expgio/surface/f32color"
+	"github.com/egonelbre/expgio/shadow/f32color"
 )
 
 type SurfaceLayoutStyle struct {
@@ -27,7 +27,7 @@ func (s *SurfaceLayoutStyle) Layout(gtx layout.Context) layout.Dimensions {
 
 	r := f32.Rect(0, 0, float32(sz.X), float32(sz.Y))
 	s.layoutShadow(gtx, r, rr)
-	clip.UniformRRect(r, rr).Add(gtx.Ops)
+	defer clip.UniformRRect(r, rr).Push(gtx.Ops).Pop()
 
 	background := s.Background
 	if s.DarkMode {

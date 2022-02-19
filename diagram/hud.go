@@ -6,7 +6,6 @@ import (
 
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/unit"
@@ -101,7 +100,7 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 					}
 					paint.FillShape(gtx.Ops, style.Fill, clip.Rect{Max: size}.Op())
 
-					defer pointer.Rect(image.Rectangle{Max: size}).Push(gtx.Ops).Pop()
+					defer clip.Rect{Max: size}.Push(gtx.Ops).Pop()
 					pointer.InputOp{
 						Tag:   tag,
 						Types: pointer.Press,
@@ -156,8 +155,7 @@ func (m *HudManager) LayoutControl(gtx layout.Context) layout.Dimensions {
 }
 
 func (m *HudManager) LayoutHuds(gtx layout.Context) layout.Dimensions {
-	defer op.Save(gtx.Ops).Load()
-	clip.Rect{Max: gtx.Constraints.Max}.Add(gtx.Ops)
+	defer clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops).Pop()
 
 	for _, hud := range m.Huds {
 		if !hud.Visible.Value {

@@ -143,8 +143,6 @@ func NewOverlay(t string, flood f32.Point) *Overlay {
 }
 
 func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
-	defer op.Save(gtx.Ops).Load()
-
 	progress := overlay.Show.Update(gtx)
 	if progress < 1 {
 		p := layout.FPt(gtx.Constraints.Max)
@@ -155,7 +153,8 @@ func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Di
 		var rect f32.Rectangle
 		rect.Min = p.Sub(f32.Pt(r, r))
 		rect.Max = p.Add(f32.Pt(r, r))
-		clip.UniformRRect(rect, r).Add(gtx.Ops)
+
+		defer clip.UniformRRect(rect, r).Push(gtx.Ops).Pop()
 	}
 
 	paint.ColorOp{Color: overlay.Bg}.Add(gtx.Ops)
@@ -168,10 +167,10 @@ func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Di
 	text := macro.Stop()
 
 	center := gtx.Constraints.Max.Div(2)
-	op.Offset(f32.Point{
+	defer op.Offset(f32.Point{
 		X: float32(center.X - dims.Size.X/2),
 		Y: float32(center.Y - dims.Size.Y/2),
-	}).Add(gtx.Ops)
+	}).Push(gtx.Ops).Pop()
 
 	paint.ColorOp{Color: overlay.Fg}.Add(gtx.Ops)
 	text.Add(gtx.Ops)

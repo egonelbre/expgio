@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -37,8 +36,6 @@ type ZoomHud struct {
 }
 
 func (hud *ZoomHud) Layout(gtx *Context) {
-	defer op.Save(gtx.Ops).Load()
-
 	layout.NW.Layout(gtx.Context, func(lgtx layout.Context) layout.Dimensions {
 		lgtx.Constraints.Min.X = lgtx.Px(unit.Dp(100))
 		if lgtx.Constraints.Min.X > lgtx.Constraints.Max.X {

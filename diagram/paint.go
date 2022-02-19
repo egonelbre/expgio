@@ -5,7 +5,6 @@ import (
 	"image/color"
 
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 )
@@ -29,17 +28,12 @@ func FillRectBorder(gtx *Context, r image.Rectangle, w float32, c color.NRGBA) {
 }
 
 func FillLine(gtx *Context, from, to image.Point, width int, c color.NRGBA) {
-	defer op.Save(gtx.Ops).Load()
-
 	var p clip.Path
 	p.Begin(gtx.Ops)
 	p.MoveTo(layout.FPt(from))
 	p.LineTo(layout.FPt(to))
-	clip.Stroke{
+	paint.FillShape(gtx.Ops, c, clip.Stroke{
 		Path:  p.End(),
 		Width: float32(width),
-	}.Op().Add(gtx.Ops)
-
-	paint.ColorOp{Color: c}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	}.Op())
 }

@@ -77,24 +77,20 @@ func render(gtx layout.Context, t float32) {
 		r := float32(i) / n
 		p := curve(t+r*1.2+Sin(t+r)*3, radius+Sin(r*1.1)*30)
 		q := radius * 0.3 * pcurve(float32(i)/(n-1), 1.5, 0.6)
-		squashcircle(gtx, p.Add(screenSize.Mul(0.5)), q, color.NRGBA{R: 0xff, G: 0xd7, B: byte(i), A: 0xFF})
+		squashCircle(gtx, p.Add(screenSize.Mul(0.5)), q, color.NRGBA{R: 0xff, G: 0xd7, B: byte(i), A: 0xFF})
 	}
 }
 
-func squashcircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
-	defer op.Save(gtx.Ops).Load()
-
-	op.Offset(p).Add(gtx.Ops)
+func squashCircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
+	defer op.Offset(p).Push(gtx.Ops).Pop()
 
 	var path clip.Path
 	path.Begin(gtx.Ops)
 	path.Move(f32.Pt(0, -r))
 	path.Cube(f32.Pt(r, 0), f32.Pt(r, 2*r*0.75), f32.Pt(0, 2*r*0.75))
 	path.Cube(f32.Pt(-r, 0), f32.Pt(-r, -2*r*0.75), f32.Pt(0, -2*r*0.75))
-	clip.Outline{Path: path.End()}.Op().Add(gtx.Ops)
 
-	paint.ColorOp{Color: color}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	paint.FillShape(gtx.Ops, color, clip.Outline{Path: path.End()}.Op())
 }
 
 func curve(t, s float32) f32.Point {

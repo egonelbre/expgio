@@ -64,8 +64,7 @@ func loop(w *app.Window) error {
 }
 
 func drawSurface(gtx layout.Context, offset f32.Point, elevation unit.Value) {
-	defer op.Save(gtx.Ops).Load()
-	op.Offset(offset).Add(gtx.Ops)
+	defer op.Offset(offset).Push(gtx.Ops).Pop()
 
 	gtx.Constraints.Min = image.Pt(100, 100)
 	gtx.Constraints.Max = image.Pt(100, 100)

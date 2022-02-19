@@ -89,7 +89,7 @@ func (label Label) Layout(gtx *Context) {
 type List []string
 
 func (list List) Layout(gtx *Context) {
-	defer op.Save(gtx.Ops).Load()
+	defer op.Offset(f32.Point{}).Push(gtx.Ops).Pop()
 
 	for _, label := range list {
 		w := material.Body1(gtx.Theme.Theme, string(label))

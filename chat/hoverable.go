@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image"
 	"image/color"
 	"time"
 
@@ -21,10 +20,8 @@ type Hoverable struct {
 func (h *Hoverable) Layout(gtx layout.Context) layout.Dimensions {
 	h.update(gtx)
 
-	defer op.Save(gtx.Ops).Load()
-
 	defer pointer.PassOp{}.Push(gtx.Ops).Pop()
-	defer pointer.Rect(image.Rectangle{Max: gtx.Constraints.Min}).Push(gtx.Ops).Pop()
+	defer clip.Rect{Max: gtx.Constraints.Min}.Push(gtx.Ops).Pop()
 
 	pointer.InputOp{
 		Tag:   h,
@@ -106,17 +103,12 @@ func (b BorderSmooth) Layout(gtx layout.Context, w layout.Widget) layout.Dimensi
 	sz := dims.Size
 	rr := float32(gtx.Px(b.CornerRadius))
 
-	defer op.Save(gtx.Ops).Load()
-
-	clip.Stroke{
+	paint.FillShape(gtx.Ops, b.Color, clip.Stroke{
 		Path: clip.UniformRRect(f32.Rectangle{
 			Max: layout.FPt(sz),
 		}, rr).Path(gtx.Ops),
 		Width: b.Width,
-	}.Op().Add(gtx.Ops)
-
-	paint.ColorOp{Color: b.Color}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	}.Op())
 
 	return dims
 }

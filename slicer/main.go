@@ -110,8 +110,6 @@ func (scene Scene) Layout(gtx layout.Context) layout.Dimensions {
 
 	paths := s.Render(scene.Eye, scene.Center, scene.Up, float64(size.X), float64(size.Y), 35, 0.1, 100, 0.01)
 
-	defer op.Save(gtx.Ops).Load()
-
 	p := clip.Path{}
 	p.Begin(gtx.Ops)
 
@@ -123,13 +121,10 @@ func (scene Scene) Layout(gtx layout.Context) layout.Dimensions {
 		}
 	}
 
-	clip.Stroke{
+	paint.FillShape(gtx.Ops, color.NRGBA{A: 0xFF}, clip.Stroke{
 		Path:  p.End(),
 		Width: 1,
-	}.Op().Add(gtx.Ops)
-
-	paint.ColorOp{Color: color.NRGBA{A: 0xFF}}.Add(gtx.Ops)
-	paint.PaintOp{}.Add(gtx.Ops)
+	}.Op())
 
 	return layout.Dimensions{
 		Size: size,
@@ -174,7 +169,9 @@ func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
 					Scale(ln.Vector{X: float64(size.X) / 2, Y: float64(size.Y) / 2, Z: 0}),
 			)
 
-			defer op.Save(gtx.Ops).Load()
+			if len(paths) == 0 {
+				return
+			}
 
 			p := clip.Path{}
 			p.Begin(gtx.Ops)
@@ -187,15 +184,12 @@ func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
 				}
 			}
 
-			clip.Stroke{
-				Path:  p.End(),
-				Width: 3,
-			}.Op().Add(gtx.Ops)
-
-			paint.ColorOp{
-				Color: f32color.HSL(float32(slice), 0.6, 0.6),
-			}.Add(gtx.Ops)
-			paint.PaintOp{}.Add(gtx.Ops)
+			paint.FillShape(gtx.Ops,
+				f32color.HSL(float32(slice), 0.6, 0.6),
+				clip.Stroke{
+					Path:  p.End(),
+					Width: 3,
+				}.Op())
 		}()
 	}
 

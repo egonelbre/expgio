@@ -2,7 +2,6 @@ package main
 
 import (
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/clip"
 )
 
@@ -38,8 +37,7 @@ func (editor *Editor) AddLayer(layer Layer) {
 }
 
 func (editor *Editor) Layout(th *Theme, gtx layout.Context) layout.Dimensions {
-	defer op.Save(gtx.Ops).Load()
-	clip.Rect{Max: gtx.Constraints.Max}.Add(gtx.Ops)
+	defer clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops).Pop()
 
 	for _, layer := range editor.Layers {
 		var lgtx layout.Context
