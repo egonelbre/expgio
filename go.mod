@@ -3,7 +3,7 @@ module github.com/egonelbre/expgio
 go 1.14
 
 require (
-	gioui.org v0.0.0-20220219111548-bed5902476c4
+	gioui.org v0.0.0-20220301130546-cdb288d1f98a
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/fogleman/ln v0.0.0-20170223135521-12e6c6e74459
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect

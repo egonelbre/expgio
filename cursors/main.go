@@ -21,24 +21,7 @@ import (
 	"github.com/egonelbre/expgio/f32color"
 )
 
-var allCursors = []pointer.CursorName{
-	pointer.CursorDefault,
-	pointer.CursorText,
-	pointer.CursorPointer,
-	pointer.CursorCrossHair,
-	pointer.CursorColResize,
-	pointer.CursorRowResize,
-	pointer.CursorGrab,
-	pointer.CursorNone,
-	pointer.CursorTopLeftResize,
-	pointer.CursorTopRightResize,
-	pointer.CursorBottomLeftResize,
-	pointer.CursorBottomRightResize,
-	pointer.CursorLeftResize,
-	pointer.CursorRightResize,
-	pointer.CursorTopResize,
-	pointer.CursorBottomResize,
-}
+const cursorCount = pointer.CursorNorthWestSouthEastResize + 1
 
 func main() {
 	th := material.NewTheme(gofont.Collection())
@@ -84,7 +67,7 @@ func (ui *UI) Run(w *app.Window) error {
 }
 
 func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
-	n := float64(len(allCursors))
+	n := float64(cursorCount)
 
 	ratio := float64(gtx.Constraints.Max.X) / float64(gtx.Constraints.Max.Y)
 	columnsBest := math.Sqrt(n * ratio)
@@ -96,13 +79,13 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	squareSize := gtx.Constraints.Max.X / cols
 	square := image.Point{X: squareSize, Y: squareSize}
 
-	i := 0
+	i := pointer.Cursor(0)
 	for row := 0; row < rows; row++ {
 		for col := 0; col < cols; col++ {
-			if i >= len(allCursors) {
+			if i >= cursorCount {
 				break
 			}
-			func(cursor pointer.CursorName) {
+			func(cursor pointer.Cursor) {
 				p := image.Point{X: col * squareSize, Y: row * squareSize}
 				defer op.Offset(layout.FPt(p)).Push(gtx.Ops).Pop()
 				defer clip.Rect{Max: square}.Push(gtx.Ops).Pop()
@@ -112,15 +95,13 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 				paint.PaintOp{}.Add(gtx.Ops)
 
 				pointer.InputOp{Tag: i}.Add(gtx.Ops)
-				pointer.CursorNameOp{
-					Name: cursor,
-				}.Add(gtx.Ops)
+				cursor.Add(gtx.Ops)
 
 				gtx := gtx
 				gtx.Constraints = layout.Exact(square)
 				layout.Center.Layout(gtx,
-					material.Body1(ui.Theme, string(cursor)).Layout)
-			}(allCursors[i])
+					material.Body1(ui.Theme, cursor.String()).Layout)
+			}(i)
 			i++
 		}
 	}
