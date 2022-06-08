@@ -19,7 +19,6 @@ import (
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
-	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"golang.org/x/image/draw"
@@ -156,7 +155,7 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 				fit = widget.Unscaled
 			}
 
-			return layout.UniformInset(unit.Px(64)).Layout(gtx,
+			return layout.UniformInset(64).Layout(gtx,
 				func(gtx layout.Context) layout.Dimensions {
 					paint.FillShape(gtx.Ops,
 						color.NRGBA{G: 0xFF, A: 0xFF},

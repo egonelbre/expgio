@@ -69,37 +69,43 @@ func (ui *UI) Run(w *app.Window) error {
 		switch e := e.(type) {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
-			ui.Layout(gtx)
-			e.Frame(gtx.Ops)
 
-		case key.Event:
-			switch e.Name {
-			case key.NameEscape:
-				return nil
-			}
-			if e.Modifiers == key.ModCtrl {
+			key.InputOp{Tag: w, Keys: key.NameEscape + "|Ctrl-[1,2,3,4,5,6,7,8,9]"}.Add(gtx.Ops)
+			for _, ev := range gtx.Queue.Events(w) {
+				e, ok := ev.(key.Event)
+				if !ok {
+					continue
+				}
 				switch e.Name {
-				case "1":
-					ui.activateGroup(w, 0)
-				case "2":
-					ui.activateGroup(w, 1)
-				case "3":
-					ui.activateGroup(w, 2)
-				case "4":
-					ui.activateGroup(w, 3)
-				case "5":
-					ui.activateGroup(w, 4)
-				case "6":
-					ui.activateGroup(w, 5)
-				case "7":
-					ui.activateGroup(w, 6)
-				case "8":
-					ui.activateGroup(w, 7)
-				case "9":
-					ui.activateGroup(w, 8)
+				case key.NameEscape:
+					return nil
+				}
+				if e.Modifiers == key.ModCtrl {
+					switch e.Name {
+					case "1":
+						ui.activateGroup(w, 0)
+					case "2":
+						ui.activateGroup(w, 1)
+					case "3":
+						ui.activateGroup(w, 2)
+					case "4":
+						ui.activateGroup(w, 3)
+					case "5":
+						ui.activateGroup(w, 4)
+					case "6":
+						ui.activateGroup(w, 5)
+					case "7":
+						ui.activateGroup(w, 6)
+					case "8":
+						ui.activateGroup(w, 7)
+					case "9":
+						ui.activateGroup(w, 8)
+					}
 				}
 			}
 
+			ui.Layout(gtx)
+			e.Frame(gtx.Ops)
 		case system.DestroyEvent:
 			return e.Err
 		}
@@ -150,7 +156,7 @@ var (
 
 	mainBackground = f32color.HSL(0.0, 0.0, 0.97)
 
-	borderWidth = unit.Px(1)
+	borderWidth = unit.Dp(1)
 
 	entriesPanel = Panel{
 		Axis: layout.Vertical,

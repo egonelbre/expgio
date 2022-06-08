@@ -106,7 +106,7 @@ func (state *State) Render(gtx layout.Context) {
 
 	screenSize := layout.FPt(gtx.Constraints.Min)
 	offset := Neg(state.Camera).Add(screenSize.Mul(0.5))
-	defer op.Offset(offset).Push(gtx.Ops).Pop()
+	defer op.Affine(f32.Affine2D{}.Offset(offset)).Push(gtx.Ops).Pop()
 
 	state.Root.Render(gtx)
 }
@@ -305,7 +305,7 @@ func (branch *Branch) renderPath(gtx layout.Context, radiusAdd float32, color co
 }
 
 func squashCircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
-	defer op.Offset(p).Push(gtx.Ops).Pop()
+	defer op.Affine(f32.Affine2D{}.Offset(p)).Push(gtx.Ops).Pop()
 
 	var path clip.Path
 	path.Begin(gtx.Ops)

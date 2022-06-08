@@ -119,7 +119,7 @@ func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *async.L
 		func(gtx layout.Context, index int) layout.Dimensions {
 			return defaultInset.Layout(gtx,
 				func(gtx layout.Context) layout.Dimensions {
-					px := gtx.Px(unit.Dp(64))
+					px := gtx.Dp(64)
 					size := image.Point{X: px, Y: px}
 					gtx.Constraints = layout.Exact(size)
 

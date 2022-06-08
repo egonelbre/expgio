@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"gioui.org/layout"
-	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 )
@@ -68,7 +67,7 @@ func (hud *ZoomHud) Layout(gtx *Context) {
 	*/
 
 	layout.NW.Layout(gtx.Context, func(lgtx layout.Context) layout.Dimensions {
-		lgtx.Constraints.Min.X = lgtx.Px(unit.Dp(100))
+		lgtx.Constraints.Min.X = lgtx.Dp(100)
 		if lgtx.Constraints.Min.X > lgtx.Constraints.Max.X {
 			lgtx.Constraints.Min.X = lgtx.Constraints.Max.X
 		}

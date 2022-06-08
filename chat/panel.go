@@ -11,15 +11,15 @@ import (
 
 type Panel struct {
 	Axis layout.Axis
-	Size unit.Value
+	Size unit.Dp
 
 	Background  color.NRGBA
 	Border      color.NRGBA
-	BorderWidth unit.Value
+	BorderWidth unit.Dp
 }
 
 func (panel *Panel) Layout(gtx layout.Context, widget layout.Widget) layout.Dimensions {
-	minorSize := gtx.Px(panel.Size)
+	minorSize := gtx.Dp(panel.Size)
 
 	size := gtx.Constraints.Max
 	if panel.Axis == layout.Horizontal {
@@ -44,7 +44,7 @@ func (panel *Panel) fill(gtx layout.Context) {
 func (panel *Panel) border(gtx layout.Context) layout.Context {
 	var bounds clip.Rect
 	bounds.Max = gtx.Constraints.Max
-	borderPx := gtx.Px(panel.BorderWidth)
+	borderPx := gtx.Dp(panel.BorderWidth)
 	if panel.Axis == layout.Horizontal {
 		bounds.Min.Y = bounds.Max.Y - borderPx
 		gtx.Constraints.Min.Y -= borderPx

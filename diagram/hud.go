@@ -8,7 +8,6 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
-	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 )
@@ -95,8 +94,8 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 					tag := paintTag(style)
 
 					size := image.Point{
-						X: gtx.Px(m.Theme.FingerSize),
-						Y: gtx.Px(m.Theme.FingerSize),
+						X: gtx.Dp(m.Theme.FingerSize),
+						Y: gtx.Dp(m.Theme.FingerSize),
 					}
 					paint.FillShape(gtx.Ops, style.Fill, clip.Rect{Max: size}.Op())
 
@@ -130,14 +129,14 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 
 func (m *HudManager) LayoutControl(gtx layout.Context) layout.Dimensions {
 	th := *m.Theme
-	th.TextSize.V *= 0.8
-	th.FingerSize.V *= 0.8
+	th.TextSize *= 0.8
+	th.FingerSize *= 0.8
 
 	return layout.Stack{}.Layout(gtx,
 		layout.Expanded(func(gtx layout.Context) layout.Dimensions {
 			r := image.Rectangle{
 				Max: image.Point{
-					X: gtx.Constraints.Min.X + gtx.Px(unit.Dp(4)),
+					X: gtx.Constraints.Min.X + gtx.Dp(4),
 					Y: gtx.Constraints.Max.Y,
 				},
 			}

@@ -29,13 +29,14 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 	portR := pxPerUnit * 0.15
 
 	path := func(ops *op.Ops) clip.PathSpec {
-		b := layout.FRect(b)
+		min := layout.FPt(b.Min)
+		max := layout.FPt(b.Max)
 
 		var p clip.Path
 		p.Begin(ops)
-		p.MoveTo(b.Min)
+		p.MoveTo(min)
 
-		p.LineTo(f32.Point{X: b.Max.X, Y: b.Min.Y})
+		p.LineTo(f32.Point{X: max.X, Y: min.Y})
 		for range n.Out {
 			p.Line(f32.Pt(0, tabP))
 			p.Cube(
@@ -45,10 +46,10 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 			)
 			p.Line(f32.Pt(0, tabP))
 		}
-		p.LineTo(b.Max)
-		p.LineTo(f32.Point{X: b.Min.X, Y: b.Max.Y})
+		p.LineTo(max)
+		p.LineTo(f32.Point{X: min.X, Y: max.Y})
 
-		p.LineTo(f32.Point{X: b.Min.X, Y: b.Min.Y + pxPerUnit*float32(len(n.In))})
+		p.LineTo(f32.Point{X: min.X, Y: min.Y + pxPerUnit*float32(len(n.In))})
 		for range n.In {
 			p.Line(f32.Pt(0, -tabP))
 			p.Cube(
@@ -64,10 +65,11 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 	}
 
 	pixelAlignLine := f32.Pt(-gtx.Metric.PxPerDp/2, -gtx.Metric.PxPerDp/2)
+	pixelAlign := f32.Affine2D{}.Offset(pixelAlignLine)
 
 	//  background
 	func() {
-		defer op.Offset(pixelAlignLine).Push(gtx.Ops).Pop()
+		defer op.Affine(pixelAlign).Push(gtx.Ops).Pop()
 		paint.FillShape(gtx.Ops, gtx.Theme.Node.Fill, clip.Outline{
 			Path: path(gtx.Ops),
 		}.Op())
@@ -75,7 +77,7 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 
 	// border
 	func() {
-		defer op.Offset(pixelAlignLine).Push(gtx.Ops).Pop()
+		defer op.Affine(pixelAlign).Push(gtx.Ops).Pop()
 		paint.FillShape(gtx.Ops, gtx.Theme.Node.Border, clip.Stroke{
 			Path:  path(gtx.Ops),
 			Width: gtx.Metric.PxPerDp,
@@ -93,7 +95,7 @@ func (layer *NodeLayer) LayoutNode(gtx *Context, n *Node) {
 	}
 
 	defer clip.Rect(b).Op().Push(gtx.Ops).Pop()
-	defer op.Offset(layout.FPt(b.Min)).Push(gtx.Ops).Pop()
+	defer op.Offset(b.Min).Push(gtx.Ops).Pop()
 
 	before := gtx.Constraints
 	defer func() { gtx.Constraints = before }()

@@ -5,7 +5,6 @@ import (
 
 	"gioui.org/f32"
 	"gioui.org/layout"
-	"gioui.org/unit"
 	"gioui.org/widget/material"
 )
 
@@ -31,11 +30,11 @@ type Transform struct {
 }
 
 func NewTransform(gtx layout.Context, zoom *Zoom) Transform {
-	px := gtx.Px(unit.Dp(30))
+	px := gtx.Dp(30)
 	px = (px / 24) * 24 // make it divisible by 2,3,4,6,12
 	px = int(float32(px) * zoom.Multiplier())
 	return Transform{
-		Dp:        gtx.Px(unit.Dp(1)),
+		Dp:        gtx.Dp(1),
 		PxPerUnit: px,
 	}
 }

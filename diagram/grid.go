@@ -13,8 +13,8 @@ type GridHud struct{}
 func (*GridHud) Layout(gtx *Context) {
 	paint.ColorOp{Color: color.NRGBA{R: 0xC0, G: 0xC0, B: 0xC0, A: 0xFF}}.Add(gtx.Ops)
 
-	min := image.Point{X: gtx.Dp / 2, Y: gtx.Dp / 2}
-	max := image.Point{X: min.X + gtx.Dp, Y: min.Y + gtx.Dp}
+	min := image.Point{X: gtx.Transform.Dp / 2, Y: gtx.Transform.Dp / 2}
+	max := image.Point{X: min.X + gtx.Transform.Dp, Y: min.Y + gtx.Transform.Dp}
 
 	scalePx := gtx.PxPerUnit
 	var p image.Point

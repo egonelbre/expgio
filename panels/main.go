@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"gioui.org/app"
-	"gioui.org/f32"
 	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
@@ -164,7 +163,7 @@ func (panel *Panel) Update(left *Panel, gtx layout.Context) {
 func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
 	gtx.Constraints = layout.Exact(image.Pt(int(panel.WidthPx), int(gtx.Constraints.Max.Y)))
 
-	defer op.Offset(f32.Pt(panel.LeftPx, 0)).Push(gtx.Ops).Pop()
+	defer op.Offset(image.Pt(int(panel.LeftPx), 0)).Push(gtx.Ops).Pop()
 	defer clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops).Pop()
 	paint.ColorOp{Color: panel.Color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
@@ -192,7 +191,7 @@ func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimens
 					Alignment: layout.Middle,
 				}.Layout(gtx,
 					layout.Rigid(material.Body1(th, panel.Title).Layout),
-					layout.Rigid(layout.Spacer{Height: th.TextSize}.Layout),
+					layout.Rigid(layout.Spacer{Height: unit.Dp(th.TextSize)}.Layout), // TODO: fix add gtx.DpToSp and gtx.SpToDp
 					layout.Rigid(material.Button(th, &panel.Close, "Close").Layout),
 				)
 			})

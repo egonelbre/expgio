@@ -11,16 +11,16 @@ import (
 type Theme struct {
 	Shaper text.Shaper
 
-	Base      unit.Value
+	Base      unit.Sp
 	BaseRatio ScaleRatio
 
-	TextSize   unit.Value
-	LineHeight unit.Value
+	TextSize   unit.Sp
+	LineHeight unit.Sp
 	TextRatio  ScaleRatio
 
 	Palette
 
-	FingerSize unit.Value
+	FingerSize unit.Dp
 }
 
 func NewTheme(fontCollection []text.FontFace) *Theme {
@@ -48,9 +48,9 @@ func NewTheme(fontCollection []text.FontFace) *Theme {
 
 func (th *Theme) Scale(modifier float32) *Theme {
 	scaled := *th
-	scaled.Base.V *= modifier
-	scaled.TextSize.V *= modifier
-	scaled.LineHeight.V *= modifier
+	scaled.Base *= unit.Sp(modifier)
+	scaled.TextSize *= unit.Sp(modifier)
+	scaled.LineHeight *= unit.Sp(modifier)
 	return &scaled
 }
 

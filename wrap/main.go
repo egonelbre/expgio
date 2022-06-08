@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/f32"
 	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -20,7 +19,7 @@ import (
 
 func main() {
 	go func() {
-		w := app.NewWindow(app.Size(unit.Px(150*6+50), unit.Px(150*6-50)))
+		w := app.NewWindow(app.Size(150*6+50, 150*6-50))
 		if err := loop(w); err != nil {
 			log.Fatal(err)
 		}
@@ -41,9 +40,9 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			layout.UniformInset(theme.TextSize).Layout(gtx,
+			layout.UniformInset(unit.Dp(theme.TextSize)).Layout(gtx,
 				func(gtx layout.Context) layout.Dimensions {
-					return Wrap{Gap: theme.TextSize}.Layout(gtx, 'Z'-'A',
+					return Wrap{Gap: unit.Dp(theme.TextSize)}.Layout(gtx, 'Z'-'A',
 						func(gtx layout.Context, index int) layout.Dimensions {
 							rec := op.Record(gtx.Ops)
 							dims := layout.UniformInset(unit.Dp(2)).Layout(gtx,
@@ -67,12 +66,12 @@ func loop(w *app.Window) error {
 }
 
 type Wrap struct {
-	Gap unit.Value
+	Gap unit.Dp
 }
 
 func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement) layout.Dimensions {
 	// calculate the pixel size of the gap.
-	gap := gtx.Px(wrap.Gap)
+	gap := gtx.Dp(wrap.Gap)
 	// well use the constraints as the max width rather than automatically determining.
 	width := gtx.Constraints.Max.X
 
@@ -101,10 +100,10 @@ func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement)
 		x := 0
 		for _, w := range line {
 			// adjust the drawing to the correct location.
-			stack := op.Offset(f32.Pt(
-				float32(x),
+			stack := op.Offset(image.Pt(
+				x,
 				// we center each item on the Y axis,
-				float32(y+maxHeight/2-w.dims.Size.Y/2),
+				y+maxHeight/2-w.dims.Size.Y/2,
 			)).Push(gtx.Ops)
 
 			// draw the widget

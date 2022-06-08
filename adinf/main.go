@@ -82,7 +82,7 @@ func render(gtx layout.Context, t float32) {
 }
 
 func squashCircle(gtx layout.Context, p f32.Point, r float32, color color.NRGBA) {
-	defer op.Offset(p).Push(gtx.Ops).Pop()
+	defer op.Affine(f32.Affine2D{}.Offset(p)).Push(gtx.Ops).Pop()
 
 	var path clip.Path
 	path.Begin(gtx.Ops)

@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	groupIconPadding     = unit.Dp(3)
-	iconCornerRadiusPx   = float32(8)
-	maxIconBorderWidthPx = float32(8)
+	groupIconPadding   = unit.Dp(3)
+	iconCornerRadius   = unit.Dp(8)
+	maxIconBorderWidth = unit.Dp(8)
 
 	iconActiveBorder   = f32color.HSL(0.5, 0.30, 0.40)
 	iconInactiveBorder = f32color.HSL(0.5, 0.16, 0.20)
@@ -79,12 +79,12 @@ func (groups *Groups) layoutGroup(th *material.Theme, gtx layout.Context, group 
 	btn := material.Button(th, &group.Click, group.Icon)
 	btn.Background = color.NRGBA{}
 
-	inset := layout.UniformInset(unit.Px(maxIconBorderWidthPx))
+	inset := layout.UniformInset(maxIconBorderWidth)
 	dimensions := inset.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		return BorderSmooth{
 			Color:        ifthen(isActive, iconActiveBorder, iconInactiveBorder),
-			CornerRadius: unit.Px(iconCornerRadiusPx),
-			Width:        easeInOutQuad(progress) * maxIconBorderWidthPx,
+			CornerRadius: iconCornerRadius,
+			Width:        easeInOutQuad(progress) * float32(gtx.Dp(maxIconBorderWidth)),
 		}.Layout(gtx,
 			btn.Layout,
 		)

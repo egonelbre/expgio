@@ -69,14 +69,17 @@ func (ui *UI) Run(w *app.Window) error {
 		switch e := e.(type) {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
+
+			key.InputOp{Tag: w, Keys: key.NameEscape}.Add(gtx.Ops)
+			for _, ev := range gtx.Queue.Events(w) {
+				if e, ok := ev.(key.Event); ok && e.Name == key.NameEscape {
+					return nil
+				}
+			}
+
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 
-		case key.Event:
-			switch e.Name {
-			case key.NameEscape:
-				return nil
-			}
 		case system.DestroyEvent:
 			return e.Err
 		}
@@ -95,7 +98,7 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 		}
 		last := ui.Overlays[len(ui.Overlays)-1]
 
-		pos := click.Position
+		pos := layout.FPt(click.Position)
 		max := layout.FPt(gtx.Constraints.Max)
 		pos.X /= max.X
 		pos.Y /= max.Y
@@ -150,11 +153,11 @@ func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Di
 		p.Y *= overlay.Flood.Y
 
 		r := magnitude(gtx.Constraints.Max) * progress
-		var rect f32.Rectangle
-		rect.Min = p.Sub(f32.Pt(r, r))
-		rect.Max = p.Add(f32.Pt(r, r))
+		var rect image.Rectangle
+		rect.Min = p.Sub(f32.Pt(r, r)).Round()
+		rect.Max = p.Add(f32.Pt(r, r)).Round()
 
-		defer clip.UniformRRect(rect, r).Push(gtx.Ops).Pop()
+		defer clip.UniformRRect(rect, int(r)).Push(gtx.Ops).Pop()
 	}
 
 	paint.ColorOp{Color: overlay.Bg}.Add(gtx.Ops)
@@ -163,13 +166,13 @@ func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Di
 	macro := op.Record(gtx.Ops)
 	textgtx := gtx
 	textgtx.Constraints.Min = image.Point{}
-	dims := widget.Label{}.Layout(textgtx, th.Shaper, text.Font{Weight: text.Bold}, unit.Px(128), overlay.Text)
+	dims := widget.Label{}.Layout(textgtx, th.Shaper, text.Font{Weight: text.Bold}, 128, overlay.Text)
 	text := macro.Stop()
 
 	center := gtx.Constraints.Max.Div(2)
-	defer op.Offset(f32.Point{
-		X: float32(center.X - dims.Size.X/2),
-		Y: float32(center.Y - dims.Size.Y/2),
+	defer op.Offset(image.Point{
+		X: center.X - dims.Size.X/2,
+		Y: center.Y - dims.Size.Y/2,
 	}).Push(gtx.Ops).Pop()
 
 	paint.ColorOp{Color: overlay.Fg}.Add(gtx.Ops)

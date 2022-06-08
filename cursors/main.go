@@ -49,14 +49,16 @@ func (ui *UI) Run(w *app.Window) error {
 		switch e := e.(type) {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
+
+			key.InputOp{Tag: w, Keys: key.NameEscape}.Add(gtx.Ops)
+			for _, ev := range gtx.Queue.Events(w) {
+				if e, ok := ev.(key.Event); ok && e.Name == key.NameEscape {
+					return nil
+				}
+			}
+
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
-
-		case key.Event:
-			switch e.Name {
-			case key.NameEscape:
-				return nil
-			}
 
 		case system.DestroyEvent:
 			return e.Err
@@ -87,7 +89,7 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 			}
 			func(cursor pointer.Cursor) {
 				p := image.Point{X: col * squareSize, Y: row * squareSize}
-				defer op.Offset(layout.FPt(p)).Push(gtx.Ops).Pop()
+				defer op.Offset(p).Push(gtx.Ops).Pop()
 				defer clip.Rect{Max: square}.Push(gtx.Ops).Pop()
 
 				col := f32color.HSL(float32(i)*math.Phi, 0.6, 0.6)

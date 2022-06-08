@@ -1,10 +1,10 @@
 package main
 
 import (
+	"image"
 	"image/color"
 	"time"
 
-	"gioui.org/f32"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -94,19 +94,15 @@ func (anim *AnimationTimer) Update(gtx layout.Context, active bool) float32 {
 // BorderSmooth lays out a widget and draws a border inside it, with non-pixel-perfect border.
 type BorderSmooth struct {
 	Color        color.NRGBA
-	CornerRadius unit.Value
+	CornerRadius unit.Dp
 	Width        float32
 }
 
 func (b BorderSmooth) Layout(gtx layout.Context, w layout.Widget) layout.Dimensions {
 	dims := w(gtx)
-	sz := dims.Size
-	rr := float32(gtx.Px(b.CornerRadius))
 
 	paint.FillShape(gtx.Ops, b.Color, clip.Stroke{
-		Path: clip.UniformRRect(f32.Rectangle{
-			Max: layout.FPt(sz),
-		}, rr).Path(gtx.Ops),
+		Path:  clip.UniformRRect(image.Rectangle{Max: dims.Size}, gtx.Dp(b.CornerRadius)).Path(gtx.Ops),
 		Width: b.Width,
 	}.Op())
 

@@ -1,7 +1,8 @@
 package main
 
 import (
-	"gioui.org/f32"
+	"image"
+
 	"gioui.org/op"
 	"gioui.org/text"
 	"gioui.org/widget/material"
@@ -89,13 +90,13 @@ func (label Label) Layout(gtx *Context) {
 type List []string
 
 func (list List) Layout(gtx *Context) {
-	defer op.Offset(f32.Point{}).Push(gtx.Ops).Pop()
+	defer op.Offset(image.Point{}).Push(gtx.Ops).Pop()
 
 	for _, label := range list {
 		w := material.Body1(gtx.Theme.Theme, string(label))
 		w.Alignment = text.Middle
 		w.Layout(gtx.Context)
 
-		op.Offset(f32.Point{Y: float32(gtx.PxPerUnit)}).Add(gtx.Ops)
+		op.Offset(image.Point{Y: gtx.PxPerUnit}).Add(gtx.Ops)
 	}
 }

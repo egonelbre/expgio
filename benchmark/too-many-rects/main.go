@@ -2,13 +2,13 @@ package main
 
 import (
 	"flag"
+	"image"
 	"image/color"
 	"log"
 	"os"
 	"runtime/pprof"
 
 	"gioui.org/app"
-	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -63,16 +63,9 @@ func loop(w *app.Window) error {
 							A: 0xFF,
 						},
 					}.Add(gtx.Ops)
-					stack := clip.RRect{Rect: f32.Rectangle{
-						Min: f32.Point{
-							X: float32(x),
-							Y: float32(y),
-						},
-						Max: f32.Point{
-							X: float32(x + size),
-							Y: float32(y + size),
-						},
-					}}.Push(gtx.Ops)
+					stack := clip.RRect{
+						Rect: image.Rect(x, y, x+size, y+size),
+					}.Push(gtx.Ops)
 					paint.PaintOp{}.Add(gtx.Ops)
 					stack.Pop()
 				}

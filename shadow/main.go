@@ -18,7 +18,7 @@ import (
 
 func main() {
 	go func() {
-		w := app.NewWindow(app.Size(unit.Px(150*6+50), unit.Px(150*6-50)))
+		w := app.NewWindow(app.Size(150*6+50, 150*6-50))
 		if err := loop(w); err != nil {
 			log.Fatal(err)
 		}
@@ -63,8 +63,8 @@ func loop(w *app.Window) error {
 	}
 }
 
-func drawSurface(gtx layout.Context, offset f32.Point, elevation unit.Value) {
-	defer op.Offset(offset).Push(gtx.Ops).Pop()
+func drawSurface(gtx layout.Context, offset f32.Point, elevation unit.Dp) {
+	defer op.Affine(f32.Affine2D{}.Offset(offset)).Push(gtx.Ops).Pop()
 
 	gtx.Constraints.Min = image.Pt(100, 100)
 	gtx.Constraints.Max = image.Pt(100, 100)

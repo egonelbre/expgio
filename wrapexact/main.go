@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/f32"
 	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -20,7 +19,7 @@ import (
 
 func main() {
 	go func() {
-		w := app.NewWindow(app.Size(unit.Px(150*6+50), unit.Px(150*6-50)))
+		w := app.NewWindow(app.Size(150*6+50, 150*6-50))
 		if err := loop(w); err != nil {
 			log.Fatal(err)
 		}
@@ -41,12 +40,12 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			layout.UniformInset(theme.TextSize).Layout(gtx,
+			layout.UniformInset(unit.Dp(theme.TextSize)).Layout(gtx,
 				func(gtx layout.Context) layout.Dimensions {
 					return layout.N.Layout(gtx,
 						func(gtx layout.Context) layout.Dimensions {
 							return Wrap{
-								Gap:        theme.TextSize,
+								Gap:        unit.Dp(theme.TextSize),
 								ItemWidth:  unit.Dp(256),
 								ItemHeight: unit.Dp(64),
 							}.Layout(gtx, 'Z'-'A',
@@ -66,28 +65,28 @@ func loop(w *app.Window) error {
 }
 
 type Wrap struct {
-	Gap unit.Value
+	Gap unit.Dp
 
-	ItemWidth  unit.Value
-	ItemHeight unit.Value
+	ItemWidth  unit.Dp
+	ItemHeight unit.Dp
 }
 
 type Size struct {
-	X unit.Value
-	Y unit.Value
+	X unit.Dp
+	Y unit.Dp
 }
 
 func (p Size) Px(gtx layout.Context) image.Point {
 	return image.Point{
-		X: gtx.Px(p.X),
-		Y: gtx.Px(p.Y),
+		X: gtx.Dp(p.X),
+		Y: gtx.Dp(p.Y),
 	}
 }
 
 func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement) layout.Dimensions {
-	gap := gtx.Px(wrap.Gap)
-	itemWidth := gtx.Px(wrap.ItemWidth)
-	itemHeight := gtx.Px(wrap.ItemHeight)
+	gap := gtx.Dp(wrap.Gap)
+	itemWidth := gtx.Dp(wrap.ItemWidth)
+	itemHeight := gtx.Dp(wrap.ItemHeight)
 
 	itemsPerLine := (gtx.Constraints.Max.X + gap) / (itemWidth + gap)
 	if itemsPerLine <= 0 {
@@ -104,9 +103,9 @@ func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement)
 renderItems:
 	for y := 0; ; y++ {
 		for x := 0; x < itemsPerLine; x++ {
-			stack := op.Offset(f32.Pt(
-				float32(x*(itemWidth+gap)),
-				float32(y*(itemHeight+gap)),
+			stack := op.Offset(image.Pt(
+				x*(itemWidth+gap),
+				y*(itemHeight+gap),
 			)).Push(gtx.Ops)
 
 			w(cgtx, index)

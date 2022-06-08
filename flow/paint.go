@@ -14,15 +14,14 @@ func FillRect(gtx *Context, r image.Rectangle, c color.NRGBA) {
 }
 
 func FillRectBorder(gtx *Context, r image.Rectangle, w float32, c color.NRGBA) {
-	rr := layout.FRect(r)
-	rr.Min.X += w / 2
-	rr.Min.Y += w / 2
-	rr.Max.X -= w / 2
-	rr.Max.Y -= w / 2
+	r.Min.X += int(w / 2)
+	r.Min.Y += int(w / 2)
+	r.Max.X -= int(w / 2)
+	r.Max.Y -= int(w / 2)
 
 	paint.FillShape(gtx.Ops, c,
 		clip.Stroke{
-			Path:  clip.RRect{Rect: rr}.Path(gtx.Ops),
+			Path:  clip.RRect{Rect: r}.Path(gtx.Ops),
 			Width: w,
 		}.Op())
 }
