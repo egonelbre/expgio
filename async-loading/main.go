@@ -19,6 +19,7 @@ import (
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
 	"gioui.org/unit"
+	"gioui.org/widget"
 	"gioui.org/widget/material"
 
 	"github.com/egonelbre/expgio/async-loading/async"
@@ -85,7 +86,7 @@ func (ui *UI) Run(w *app.Window) error {
 
 type Reels struct {
 	items []*Reel
-	list  layout.List
+	list  widget.List
 }
 
 func NewReels() *Reels {
@@ -101,7 +102,7 @@ func NewReels() *Reels {
 }
 
 func (reels *Reels) Layout(gtx layout.Context, th *material.Theme, loader *async.Loader) layout.Dimensions {
-	return reels.list.Layout(gtx, len(reels.items),
+	return material.List(th, &reels.list).Layout(gtx, len(reels.items),
 		func(gtx layout.Context, index int) layout.Dimensions {
 			reel := reels.items[index]
 			return reel.Layout(gtx, th, loader)
@@ -111,11 +112,11 @@ func (reels *Reels) Layout(gtx layout.Context, th *material.Theme, loader *async
 type Reel struct {
 	index int
 	count int
-	list  layout.List
+	list  widget.List
 }
 
 func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *async.Loader) layout.Dimensions {
-	return reel.list.Layout(gtx, reel.count,
+	return material.List(th, &reel.list).Layout(gtx, reel.count,
 		func(gtx layout.Context, index int) layout.Dimensions {
 			return defaultInset.Layout(gtx,
 				func(gtx layout.Context) layout.Dimensions {
