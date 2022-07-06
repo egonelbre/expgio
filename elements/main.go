@@ -56,11 +56,6 @@ func run(w *app.Window) error {
 
 func Elements(gtx layout.Context, widgets ...layout.Widget) (layout.Context, int, layout.ListElement) {
 	return gtx, len(widgets), func(gtx layout.Context, index int) layout.Dimensions {
-		if index < 0 {
-			return layout.Dimensions{}
-		} else if index >= len(widgets) {
-			return layout.Dimensions{}
-		}
 		return widgets[index](gtx)
 	}
 }
@@ -70,13 +65,7 @@ func ElementsGap(gtx layout.Context, gap unit.Dp, widgets ...layout.Widget) (lay
 		if index%2 == 0 {
 			return layout.Spacer{Width: gap, Height: gap}.Layout(gtx)
 		}
-		index /= 2
-		if index < 0 {
-			return layout.Dimensions{}
-		} else if index >= len(widgets) {
-			return layout.Dimensions{}
-		}
-		return widgets[index](gtx)
+		return widgets[index/2](gtx)
 	}
 }
 
