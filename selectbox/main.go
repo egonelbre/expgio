@@ -41,17 +41,6 @@ func main() {
 	app.Main()
 }
 
-type SelectList struct {
-	widget.List
-
-	Selected int
-	Hovered  int
-
-	ItemHeight unit.Dp
-
-	focused bool
-}
-
 type FocusBorderStyle struct {
 	Focused     bool
 	BorderWidth unit.Dp
@@ -80,6 +69,17 @@ func (focus FocusBorderStyle) Layout(gtx layout.Context, w layout.Widget) layout
 	})
 }
 
+type SelectList struct {
+	widget.List
+
+	Selected int
+	Hovered  int
+
+	ItemHeight unit.Dp
+
+	focused bool
+}
+
 func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length int, element layout.ListElement) layout.Dimensions {
 	return FocusBorder(th, list.focused).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 		size := gtx.Constraints.Max
@@ -87,8 +87,10 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 		defer clip.Rect{Max: size}.Push(gtx.Ops).Pop()
 
 		key.InputOp{
-			Tag:  list,
-			Keys: key.NameHome + "|" + key.NameUpArrow + "|" + key.NameDownArrow + "|" + key.NameEnd,
+			Tag: list,
+			Keys: key.NameUpArrow + "|" + key.NameDownArrow + "|" +
+				key.NameHome + "|" + key.NameEnd + "|" +
+				key.NamePageUp + "|" + key.NamePageDown,
 		}.Add(gtx.Ops)
 
 		pointer.InputOp{
@@ -109,25 +111,32 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 			switch ev := ev.(type) {
 			case key.Event:
 				if ev.State == key.Press {
+					offset := 0
 					switch ev.Name {
 					case key.NameHome:
-						if list.Selected != 0 {
-							list.Selected = 0
-							changed = true
-						}
+						offset = -length
 					case key.NameEnd:
-						if list.Selected != length-1 {
-							list.Selected = length - 1
-							changed = true
-						}
+						offset = length
 					case key.NameUpArrow:
-						if list.Selected > 0 {
-							list.Selected--
-							changed = true
-						}
+						offset = -1
 					case key.NameDownArrow:
-						if list.Selected < length-1 {
-							list.Selected++
+						offset = 1
+					case key.NamePageUp:
+						offset = -list.List.Position.Count
+					case key.NamePageDown:
+						offset = list.List.Position.Count
+					}
+
+					if offset != 0 {
+						target := list.Selected + offset
+						if target < 0 {
+							target = 0
+						}
+						if target >= length {
+							target = length - 1
+						}
+						if list.Selected != target {
+							list.Selected = target
 							changed = true
 						}
 					}
