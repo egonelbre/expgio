@@ -3,7 +3,7 @@ module github.com/egonelbre/expgio
 go 1.18
 
 require (
-	gioui.org v0.0.0-20220908094135-dbf642902651
+	gioui.org v0.0.0-20221122135904-dee53b364560
 	gioui.org/x v0.0.0-20220906202049-eecc69e4bc4c
 	github.com/fogleman/ln v0.0.0-20170223135521-12e6c6e74459
 	github.com/loov/hrtime v1.0.3
