@@ -16,11 +16,20 @@ import (
 	"gioui.org/op/paint"
 )
 
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+
 func main() {
-	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to `file`")
-
 	flag.Parse()
+	go func() {
+		w := app.NewWindow()
+		if err := loop(w); err != nil {
+			log.Println(err)
+		}
+	}()
+	app.Main()
+}
 
+func loop(w *app.Window) error {
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
@@ -33,16 +42,6 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	go func() {
-		w := app.NewWindow()
-		if err := loop(w); err != nil {
-			log.Println(err)
-		}
-	}()
-	app.Main()
-}
-
-func loop(w *app.Window) error {
 	var ops op.Ops
 	for {
 		e := <-w.Events()
