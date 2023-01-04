@@ -5,6 +5,7 @@ go 1.18
 require (
 	gioui.org v0.0.0-20230101161950-e9bce02b24f0
 	gioui.org/x v0.0.0-20221219202300-e2d994f107e4
+	github.com/aquilax/go-perlin v1.1.0
 	github.com/fogleman/ln v0.0.0-20170223135521-12e6c6e74459
 	github.com/loov/hrtime v1.0.3
 	golang.org/x/image v0.2.1-0.20221219105204-9b8a3be42546
