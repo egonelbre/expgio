@@ -130,16 +130,32 @@ func (cloth *Cloth) Layout(gtx layout.Context) {
 	}).Add(gtx.Ops)
 	scale := float32(gtx.Constraints.Max.X) * 0.5 / float32(cloth.N)
 
-	var p clip.Path
-	p.Begin(gtx.Ops)
-	for _, spring := range cloth.Spring {
-		a, b := &cloth.Vertices[spring.A], &cloth.Vertices[spring.B]
-		p.MoveTo(f32.Point(a.Position).Mul(scale))
-		p.LineTo(f32.Point(b.Position).Mul(scale))
+	if !*separate {
+		var p clip.Path
+		p.Begin(gtx.Ops)
+		for _, spring := range cloth.Spring {
+			a, b := &cloth.Vertices[spring.A], &cloth.Vertices[spring.B]
+			p.MoveTo(f32.Point(a.Position).Mul(scale))
+			p.LineTo(f32.Point(b.Position).Mul(scale))
+		}
+		spec := p.End()
+		paint.FillShape(gtx.Ops, color.NRGBA{A: 0xFF}, clip.Stroke{
+			Path:  spec,
+			Width: 1,
+		}.Op())
+	} else {
+		for _, spring := range cloth.Spring {
+			var p clip.Path
+			p.Begin(gtx.Ops)
+			a, b := &cloth.Vertices[spring.A], &cloth.Vertices[spring.B]
+			p.MoveTo(f32.Point(a.Position).Mul(scale))
+			p.LineTo(f32.Point(b.Position).Mul(scale))
+			paint.FillShape(gtx.Ops, color.NRGBA{A: 0xFF}, clip.Stroke{
+				Path:  p.End(),
+				Width: 1,
+			}.Op())
+		}
+
 	}
-	spec := p.End()
-	paint.FillShape(gtx.Ops, color.NRGBA{A: 0xFF}, clip.Stroke{
-		Path:  spec,
-		Width: 1,
-	}.Op())
+
 }

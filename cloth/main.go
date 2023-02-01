@@ -5,17 +5,16 @@ import (
 	"log"
 	"os"
 	"runtime/pprof"
-	"time"
 
 	"gioui.org/app"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"github.com/loov/hrtime"
 )
 
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 var n = flag.Int("n", 10, "line count")
+var separate = flag.Bool("separate", false, "separate line clip paths")
 
 func main() {
 	flag.Parse()
@@ -44,8 +43,6 @@ func loop(w *app.Window) error {
 		defer pprof.StopCPUProfile()
 	}
 
-	now := hrtime.Now()
-
 	var ops op.Ops
 	for {
 		e := <-w.Events()
@@ -55,14 +52,7 @@ func loop(w *app.Window) error {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
-			next := hrtime.Now()
-			dt := next - now
-			if dt > 60*time.Millisecond {
-				dt = 60 * time.Millisecond
-			}
-			now = next
-
-			cloth.Update(float32(dt.Seconds()))
+			cloth.Update(0.015)
 			cloth.Layout(gtx)
 
 			op.InvalidateOp{}.Add(gtx.Ops)
