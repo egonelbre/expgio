@@ -46,7 +46,7 @@ func loop(w *app.Window) error {
 						func(gtx layout.Context, index int) layout.Dimensions {
 							rec := op.Record(gtx.Ops)
 							dims := layout.UniformInset(unit.Dp(2)).Layout(gtx,
-								material.H1(theme, string('A'+index)).Layout)
+								material.H1(theme, string(rune('A'+index))).Layout)
 							call := rec.Stop()
 
 							stack := clip.Rect{Max: dims.Size}.Push(gtx.Ops)

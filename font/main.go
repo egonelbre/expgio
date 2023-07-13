@@ -5,11 +5,11 @@ import (
 	"os"
 
 	"gioui.org/app"
+	"gioui.org/font"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -83,7 +83,7 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 			case 1:
 				lbl := material.H2(ui.Theme, "Ebm")
 				lbl.Font.Typeface = "Noto Sans"
-				lbl.Font.Weight = text.Bold
+				lbl.Font.Weight = font.Bold
 				return lbl.Layout(gtx)
 			case 2:
 				lbl := material.H2(ui.Theme, "E♭m")

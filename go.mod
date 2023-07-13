@@ -3,12 +3,12 @@ module github.com/egonelbre/expgio
 go 1.18
 
 require (
-	gioui.org v0.0.0-20230611141527-3bb6cca15710
-	gioui.org/x v0.0.0-20221219202300-e2d994f107e4
+	gioui.org v0.1.0
+	gioui.org/x v0.1.0
 	github.com/aquilax/go-perlin v1.1.0
 	github.com/fogleman/ln v0.0.0-20170223135521-12e6c6e74459
 	github.com/loov/hrtime v1.0.3
-	golang.org/x/image v0.5.0
+	golang.org/x/image v0.7.0
 )
 
 require (
@@ -19,6 +19,6 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	golang.org/x/exp v0.0.0-20221012211006-4de253d81b95 // indirect
 	golang.org/x/exp/shiny v0.0.0-20220827204233-334a2380cb91 // indirect
-	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 )

@@ -11,6 +11,7 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
+	"gioui.org/font"
 	"gioui.org/font/gofont"
 	"gioui.org/gesture"
 	"gioui.org/io/key"
@@ -19,7 +20,6 @@ import (
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
-	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -163,10 +163,14 @@ func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Di
 	paint.ColorOp{Color: overlay.Bg}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
+	selectColorMacro := op.Record(gtx.Ops)
+	paint.ColorOp{Color: overlay.Fg}.Add(gtx.Ops)
+	selectColor := selectColorMacro.Stop()
+
 	macro := op.Record(gtx.Ops)
 	textgtx := gtx
 	textgtx.Constraints.Min = image.Point{}
-	dims := widget.Label{}.Layout(textgtx, th.Shaper, text.Font{Weight: text.Bold}, 128, overlay.Text)
+	dims := widget.Label{}.Layout(textgtx, th.Shaper, font.Font{Weight: font.Bold}, 128, overlay.Text, selectColor)
 	text := macro.Stop()
 
 	center := gtx.Constraints.Max.Div(2)
@@ -175,7 +179,6 @@ func (overlay *Overlay) Layout(th *material.Theme, gtx layout.Context) layout.Di
 		Y: center.Y - dims.Size.Y/2,
 	}).Push(gtx.Ops).Pop()
 
-	paint.ColorOp{Color: overlay.Fg}.Add(gtx.Ops)
 	text.Add(gtx.Ops)
 
 	return layout.Dimensions{Size: gtx.Constraints.Max}

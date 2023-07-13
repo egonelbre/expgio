@@ -9,7 +9,7 @@ import (
 )
 
 type Theme struct {
-	Shaper text.Shaper
+	Shaper *text.Shaper
 
 	Base      unit.Sp
 	BaseRatio ScaleRatio
@@ -25,7 +25,7 @@ type Theme struct {
 
 func NewTheme(fontCollection []text.FontFace) *Theme {
 	th := &Theme{
-		Shaper: text.NewCache(fontCollection),
+		Shaper: text.NewShaper(fontCollection),
 	}
 
 	th.Palette = Palette{
@@ -68,7 +68,7 @@ type Palette struct {
 
 type Scale int8
 
-type ScaleRatio = float32
+type ScaleRatio = unit.Sp
 
 const (
 	None Scale = -0x7f
@@ -80,15 +80,12 @@ const (
 	Bigger  Scale = 1
 )
 
-func (s Scale) Value(base unit.Value, ratio ScaleRatio) unit.Value {
+func (s Scale) Value(base unit.Sp, ratio ScaleRatio) unit.Sp {
 	if s == Default {
 		return base
 	}
 	if s == None {
-		return unit.Value{}
+		return base
 	}
-	return unit.Value{
-		V: base.V * float32(math.Pow(float64(ratio), float64(s))),
-		U: base.U,
-	}
+	return base * unit.Sp(math.Pow(float64(ratio), float64(s)))
 }

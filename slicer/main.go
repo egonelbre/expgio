@@ -81,8 +81,8 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	return Slice{
 		Mesh: ui.Mesh,
 		RotY: float64(gtx.Now.UnixNano()/1e6) * 0.001,
-		Eye:  ln.Vector{-0.5, 0.5, 2},
-		Up:   ln.Vector{0, 1, 0},
+		Eye:  ln.Vector{X: -0.5, Y: 0.5, Z: 2},
+		Up:   ln.Vector{X: 0, Y: 1, Z: 0},
 
 		Slices: 128,
 	}.Layout(gtx)
@@ -103,7 +103,7 @@ func (scene Scene) Layout(gtx layout.Context) layout.Dimensions {
 
 	s := ln.Scene{}
 	if scene.RotY != 0 {
-		s.Add(ln.NewTransformedShape(scene.Mesh, ln.Rotate(ln.Vector{0, 1, 0}, scene.RotY)))
+		s.Add(ln.NewTransformedShape(scene.Mesh, ln.Rotate(ln.Vector{X: 0, Y: 1, Z: 0}, scene.RotY)))
 	} else {
 		s.Add(scene.Mesh)
 	}
@@ -148,7 +148,7 @@ func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
 	size := gtx.Constraints.Max
 
 	aspect := float64(size.X) / float64(size.Y)
-	rotation := ln.Rotate(ln.Vector{0, 1, 0}, scene.RotY).Scale(ln.Vector{0.5, 0.5, 0.5})
+	rotation := ln.Rotate(ln.Vector{X: 0, Y: 1, Z: 0}, scene.RotY).Scale(ln.Vector{X: 0.5, Y: 0.5, Z: 0.5})
 	matrix := ln.LookAt(scene.Eye, scene.Center, scene.Up)
 	matrix = matrix.Perspective(35, aspect, 0.1, 100)
 
@@ -156,8 +156,8 @@ func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
 		func() {
 			slice := float64(i)/float64(scene.Slices)*2 - 1
 
-			point := ln.Vector{0, slice, 0}
-			plane := ln.Plane{point, ln.Vector{0, 1, 0}}
+			point := ln.Vector{X: 0, Y: slice, Z: 0}
+			plane := ln.Plane{Point: point, Normal: ln.Vector{X: 0, Y: 1, Z: 0}}
 			paths := plane.IntersectMesh(scene.Mesh)
 			paths = paths.Simplify(1e-6)
 
@@ -165,7 +165,7 @@ func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
 			paths = paths.Transform(rotation)
 			paths = paths.Transform(matrix)
 			paths = paths.Transform(
-				ln.Translate(ln.Vector{1, 1, 0}).
+				ln.Translate(ln.Vector{X: 1, Y: 1, Z: 0}).
 					Scale(ln.Vector{X: float64(size.X) / 2, Y: float64(size.Y) / 2, Z: 0}),
 			)
 

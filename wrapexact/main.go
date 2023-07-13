@@ -54,7 +54,7 @@ func loop(w *app.Window) error {
 										color.NRGBA{R: byte(index), G: byte(index * index), B: byte(index * index * index), A: 0xFF},
 										clip.Rect{Max: gtx.Constraints.Max}.Op(),
 									)
-									return layout.Center.Layout(gtx, material.H3(theme, string('A'+index)).Layout)
+									return layout.Center.Layout(gtx, material.H3(theme, string(rune('A'+index))).Layout)
 								})
 						})
 				})
