@@ -5,23 +5,21 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/io/key"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
 	"gioui.org/widget/material"
 
 	"github.com/egonelbre/expgio/editor/rig"
-	"github.com/egonelbre/expgio/font/noto"
 )
 
 func main() {
 	ui := NewUI()
 
 	go func() {
-		w := app.NewWindow(app.Title("Font Demo"), app.Size(1024, 1024))
-		if err := ui.Run(w); err != nil {
+		var w app.Window
+		w.Option(app.Title("Font Demo"), app.Size(unit.Dp(1024), unit.Dp(1024)))
+		if err := ui.Run(&w); err != nil {
 			log.Println(err)
 			os.Exit(1)
 		}
@@ -40,7 +38,7 @@ type UI struct {
 
 func NewUI() *UI {
 	ui := &UI{}
-	ui.Theme = material.NewTheme(noto.Collection())
+	ui.Theme = material.NewTheme()
 	ui.Screen = rig.NewScreen()
 	return ui
 }
@@ -48,26 +46,17 @@ func NewUI() *UI {
 func (ui *UI) Run(w *app.Window) error {
 	var ops op.Ops
 
-	for e := range w.Events() {
-		switch e := e.(type) {
-		case system.FrameEvent:
-
-			gtx := layout.NewContext(&ops, e)
+	for {
+		switch e := w.Event().(type) {
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 
-		case key.Event:
-			switch e.Name {
-			case key.NameEscape:
-				return nil
-			}
-
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
 		}
 	}
-
-	return nil
 }
 
 func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {

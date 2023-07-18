@@ -1,11 +1,12 @@
 package rig
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 
+	"gioui.org/f32"
 	"gioui.org/gesture"
+	"gioui.org/io/event"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -131,24 +132,40 @@ func (area *Area) Layout(screen *Screen, gtx layout.Context) {
 		Rect:   offsetRect(0, 0, cornerRadius, cornerRadius),
 		Cursor: pointer.CursorSouthEastResize,
 		Sizer:  &area.NW,
+		Modify: func(delta image.Point) {
+			area.Bounds.Min.X += delta.X
+			area.Bounds.Min.Y += delta.Y
+		},
 	}.Layout(gtx)
 
 	Corner{
 		Rect:   offsetRect(size.X, 0, -cornerRadius, cornerRadius),
 		Cursor: pointer.CursorSouthWestResize,
 		Sizer:  &area.NE,
+		Modify: func(delta image.Point) {
+			area.Bounds.Max.X += delta.X
+			area.Bounds.Min.Y += delta.Y
+		},
 	}.Layout(gtx)
 
 	Corner{
 		Rect:   offsetRect(size.X, size.Y, -cornerRadius, -cornerRadius),
 		Cursor: pointer.CursorNorthWestResize,
 		Sizer:  &area.SE,
+		Modify: func(delta image.Point) {
+			area.Bounds.Max.X += delta.X
+			area.Bounds.Max.Y += delta.Y
+		},
 	}.Layout(gtx)
 
 	Corner{
 		Rect:   offsetRect(0, size.Y, cornerRadius, -cornerRadius),
 		Cursor: pointer.CursorNorthEastResize,
 		Sizer:  &area.SW,
+		Modify: func(delta image.Point) {
+			area.Bounds.Min.X += delta.X
+			area.Bounds.Max.Y += delta.Y
+		},
 	}.Layout(gtx)
 }
 
@@ -159,19 +176,31 @@ func offsetRect(x, y int, dx, dy int) image.Rectangle {
 type Corner struct {
 	Rect   image.Rectangle
 	Cursor pointer.Cursor
+	Modify func(image.Point)
 	Sizer  *Sizer
 }
 
 func (corner Corner) Layout(gtx layout.Context) {
 	defer op.Offset(corner.Rect.Min).Push(gtx.Ops).Pop()
-	defer clip.Rect(image.Rectangle{Max: corner.Rect.Size()}).Push(gtx.Ops).Pop()
+	areaStack := clip.Rect(image.Rectangle{Max: corner.Rect.Size()}).Push(gtx.Ops)
+	defer areaStack.Pop()
 	gtx.Constraints = layout.Exact(corner.Rect.Size())
 
-	for _, ev := range corner.Sizer.Events(gtx.Metric, gtx.Queue, gesture.Both) {
-		fmt.Println(ev)
+	delta := f32.Point{}
+	for _, ev := range corner.Sizer.Events(gtx, gesture.Both) {
+		if ev.Kind == pointer.Drag {
+			delta = ev.Position
+		}
 	}
 	corner.Cursor.Add(gtx.Ops)
-	corner.Sizer.Add(gtx.Ops)
+	event.Op(gtx.Ops, corner.Sizer)
+
+	if delta != (f32.Point{}) {
+		corner.Modify(image.Point{
+			X: int(gtx.Metric.PxToDp(int(delta.X))),
+			Y: int(gtx.Metric.PxToDp(int(delta.Y))),
+		})
+	}
 
 	var color color.NRGBA
 	switch {
