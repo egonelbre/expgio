@@ -8,7 +8,6 @@ import (
 	"os/signal"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -32,7 +31,7 @@ func main() {
 }
 
 func run(ctx context.Context, w *app.Window) error {
-	th := material.NewTheme(gofont.Collection())
+	th := material.NewTheme()
 	var ops op.Ops
 	for {
 		select {

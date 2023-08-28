@@ -9,7 +9,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
-	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -30,7 +29,7 @@ func main() {
 	}
 	mesh.UnitCube()
 
-	th := material.NewTheme(gofont.Collection())
+	th := material.NewTheme()
 	ui := &UI{
 		Theme: th,
 		Mesh:  mesh,

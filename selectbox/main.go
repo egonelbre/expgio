@@ -7,7 +7,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
-	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
 	"gioui.org/io/system"
@@ -199,7 +198,8 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 	})
 }
 
-var theme = material.NewTheme(gofont.Collection())
+var theme = material.NewTheme()
+
 var state = SelectList{
 	List: widget.List{
 		List: layout.List{

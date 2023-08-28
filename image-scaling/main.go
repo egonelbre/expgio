@@ -12,7 +12,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -31,9 +30,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	th := material.NewTheme(gofont.Collection())
 	ui := &UI{
-		Theme: th,
+		Theme: material.NewTheme(),
 		Image: paint.NewImageOp(img),
 	}
 	go func() {

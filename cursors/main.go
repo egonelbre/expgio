@@ -9,7 +9,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
 	"gioui.org/io/system"
@@ -24,8 +23,7 @@ import (
 const cursorCount = pointer.CursorNorthWestSouthEastResize + 1
 
 func main() {
-	th := material.NewTheme(gofont.Collection())
-	ui := &UI{Theme: th}
+	ui := &UI{Theme: material.NewTheme()}
 	go func() {
 		w := app.NewWindow(app.Title("Image Viewer"))
 		if err := ui.Run(w); err != nil {

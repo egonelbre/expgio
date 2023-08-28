@@ -10,6 +10,7 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
@@ -42,7 +43,8 @@ type UI struct {
 
 func NewUI() *UI {
 	ui := &UI{}
-	ui.Theme = material.NewTheme(noto.Collection())
+	ui.Theme = material.NewTheme()
+	ui.Theme.Shaper = text.NewShaper(text.WithCollection(noto.Collection()))
 	ui.List.List.Axis = layout.Vertical
 	return ui
 }

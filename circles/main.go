@@ -12,7 +12,6 @@ import (
 	"gioui.org/app"
 	"gioui.org/f32"
 	"gioui.org/font"
-	"gioui.org/font/gofont"
 	"gioui.org/gesture"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
@@ -55,7 +54,7 @@ type UI struct {
 
 func NewUI() *UI {
 	ui := &UI{}
-	ui.Theme = material.NewTheme(gofont.Collection())
+	ui.Theme = material.NewTheme()
 	ui.Overlays = []*Overlay{
 		NewOverlay("Hello", f32.Pt(0.5, 0.5)),
 	}

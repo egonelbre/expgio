@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -50,7 +49,7 @@ type UI struct {
 
 func NewUI() *UI {
 	return &UI{
-		theme:  material.NewTheme(gofont.Collection()),
+		theme:  material.NewTheme(),
 		loader: async.NewLoader(5),
 		reels:  NewReels(),
 	}

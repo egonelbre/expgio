@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -44,7 +43,7 @@ type UI struct {
 
 func NewUI() *UI {
 	ui := &UI{}
-	ui.Theme = material.NewTheme(gofont.Collection())
+	ui.Theme = material.NewTheme()
 
 	ui.Groups = NewGroups(
 		NewGroup("A", "Alpha"),

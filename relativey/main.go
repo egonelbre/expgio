@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -26,7 +25,7 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	theme := material.NewTheme(gofont.Collection())
+	theme := material.NewTheme()
 
 	var ops op.Ops
 	for {

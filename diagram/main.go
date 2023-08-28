@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/font/gofont"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
 	"gioui.org/layout"
@@ -19,7 +18,7 @@ import (
 )
 
 func main() {
-	th := material.NewTheme(gofont.Collection())
+	th := material.NewTheme()
 	ui := &UI{
 		Theme: th,
 		Hud:   NewHudManager(th),

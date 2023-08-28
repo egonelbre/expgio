@@ -25,7 +25,7 @@ type Theme struct {
 
 func NewTheme(fontCollection []text.FontFace) *Theme {
 	th := &Theme{
-		Shaper: text.NewShaper(fontCollection),
+		Shaper: text.NewShaper(text.WithCollection(fontCollection)),
 	}
 
 	th.Palette = Palette{
