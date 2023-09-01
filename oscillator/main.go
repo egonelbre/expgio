@@ -49,7 +49,6 @@ type UI struct {
 
 func NewUI(gen *generator.Client) *UI {
 	theme := material.NewTheme()
-	theme.Shaper = text.NewShaper()
 	return &UI{
 		theme: theme,
 
