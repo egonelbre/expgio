@@ -81,7 +81,7 @@ func (ui *UI) Run(w *app.Window) error {
 				if ui.controls.Next != ui.controls.Previous {
 					ui.generator.Update(ui.controls.Next)
 					ui.controls.Previous = ui.controls.Next
-					w.Invalidate()
+					op.InvalidateOp{}.Add(gtx.Ops)
 				}
 
 				e.Frame(gtx.Ops)
