@@ -15,6 +15,7 @@ type Function byte
 const (
 	Sin = Function(iota)
 	Sawtooth
+	SinSaw
 	Random
 )
 
@@ -24,6 +25,8 @@ func (s Function) String() string {
 		return "SIN"
 	case Sawtooth:
 		return "SAW"
+	case SinSaw:
+		return "SNW"
 	case Random:
 		return "RNG"
 	default:
@@ -32,7 +35,7 @@ func (s Function) String() string {
 }
 
 func (Function) Options() []Function {
-	return []Function{Sin, Sawtooth, Random}
+	return []Function{Sin, Sawtooth, SinSaw, Random}
 }
 
 type Scale byte

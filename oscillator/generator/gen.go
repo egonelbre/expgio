@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	DataFrequency  = 30 * time.Millisecond
 	UpdateDebounce = 500 * time.Millisecond
 )
 
@@ -40,12 +41,12 @@ func NewClient(initial Config) *Client {
 	}
 }
 
-func (client *Client) InitialConfig() Config {	return client.initial }
+func (client *Client) InitialConfig() Config { return client.initial }
 
 func (client *Client) Run(ctx context.Context) {
 	client.reconfigure(client.initial)
 
-	tick := time.NewTicker(time.Second)
+	tick := time.NewTicker(DataFrequency)
 	defer tick.Stop()
 
 	for ctx.Err() == nil {
@@ -64,13 +65,15 @@ func (client *Client) Run(ctx context.Context) {
 			for i := range data.Values {
 				var p Point
 
-				now := float64(time.Now().Unix()) / 5
+				now := float64(time.Now().UnixMilli()%10000) / 1000
 				t := float64(i)/N + now
 				switch client.active.Function {
 				case Sin:
 					p = Point{X: float32(t), Y: float32(math.Sin(t))}
 				case Sawtooth:
 					p = Point{X: float32(t), Y: float32(math.Mod(t, 1))}
+				case SinSaw:
+					p = Point{X: float32(t), Y: float32(math.Sin(t*2.89) * math.Mod(t, 1))}
 				case Random:
 					p = Point{X: rand.Float32(), Y: rand.Float32()}
 				}
@@ -81,11 +84,17 @@ func (client *Client) Run(ctx context.Context) {
 					p.Y *= 0.1
 				case Medium:
 				case Large:
-					p.X *= 10
-					p.Y *= 10
+					p.X *= p.Y
 				}
 
 				data.Values[i] = p
+			}
+
+			data.Min = data.Values[0]
+			data.Max = data.Values[0]
+			for _, v := range data.Values {
+				data.Min = data.Min.Min(v)
+				data.Max = data.Max.Max(v)
 			}
 
 			sendAndDropOld(client.Data, data)
@@ -95,7 +104,7 @@ func (client *Client) Run(ctx context.Context) {
 			sendAndDropOld(client.Status, "Waiting for more control")
 
 			// wait for more updates, if there are any
-			wait:
+		wait:
 			for {
 				tick := time.NewTimer(UpdateDebounce)
 				select {
@@ -132,6 +141,20 @@ func (client *Client) Update(config Config) {
 
 type Point struct {
 	X, Y float32
+}
+
+func (a Point) Min(b Point) Point {
+	return Point{
+		X: min(a.X, b.X),
+		Y: min(a.Y, b.Y),
+	}
+}
+
+func (a Point) Max(b Point) Point {
+	return Point{
+		X: max(a.X, b.X),
+		Y: max(a.Y, b.Y),
+	}
 }
 
 func sendAndDropOld[C chan T, T any](ch C, v T) {

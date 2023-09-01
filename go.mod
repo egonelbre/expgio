@@ -1,6 +1,6 @@
 module github.com/egonelbre/expgio
 
-go 1.18
+go 1.21
 
 require (
 	gioui.org v0.2.1-0.20230823193131-cf5ae4aad92e

@@ -51,9 +51,12 @@ func NewUI(gen *generator.Client) *UI {
 	theme := material.NewTheme()
 	theme.Shaper = text.NewShaper()
 	return &UI{
-		theme:     theme,
-		status:    NewStatus(),
-		controls:  NewControls(gen.InitialConfig()),
+		theme: theme,
+
+		status:   NewStatus(),
+		controls: NewControls(gen.InitialConfig()),
+		scope:    scope.NewDisplay(),
+
 		generator: gen,
 	}
 }
@@ -63,6 +66,8 @@ func (ui *UI) Run(w *app.Window) error {
 	for {
 		select {
 		case ui.status.Current = <-ui.generator.Status:
+			w.Invalidate()
+		case ui.scope.Data = <-ui.generator.Data:
 			w.Invalidate()
 
 		case e := <-w.Events():
@@ -90,6 +95,9 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 			return ui.status.Layout(ui.theme, gtx)
+		}),
+		layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+			return ui.scope.Layout(ui.theme, gtx)
 		}),
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 			return ui.controls.Layout(ui.theme, gtx)
