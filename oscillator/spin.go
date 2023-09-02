@@ -41,24 +41,28 @@ func (spin *Spin[T]) Spin(offset int) {
 	*spin.Current = values[i]
 }
 
-func (style *Spin[T]) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
-	if style.Prev.Clicked() {
-		style.Spin(-1)
+func (spin *Spin[T]) update() {
+	if spin.Prev.Clicked() {
+		spin.Spin(-1)
 	}
-	if style.Next.Clicked() {
-		style.Spin(1)
+	if spin.Next.Clicked() {
+		spin.Spin(1)
 	}
+}
+
+func (spin *Spin[T]) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
+	spin.update()
 	return layout.Flex{
 		Axis:      layout.Horizontal,
 		Spacing:   layout.SpaceBetween,
 		Alignment: layout.Middle,
 	}.Layout(gtx,
-		layout.Rigid(material.Button(th, &style.Next, "<").Layout),
+		layout.Rigid(material.Button(th, &spin.Next, "<").Layout),
 		layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-			label := material.Body1(th, (*style.Current).String())
+			label := material.Body1(th, (*spin.Current).String())
 			label.Alignment = text.Middle
 			return label.Layout(gtx)
 		}),
-		layout.Rigid(material.Button(th, &style.Prev, ">").Layout),
+		layout.Rigid(material.Button(th, &spin.Prev, ">").Layout),
 	)
 }

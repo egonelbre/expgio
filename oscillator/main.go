@@ -9,7 +9,6 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
-	"gioui.org/text"
 	"gioui.org/widget/material"
 
 	"github.com/egonelbre/expgio/oscillator/generator"
@@ -53,7 +52,7 @@ func NewUI(gen *generator.Client) *UI {
 		theme: theme,
 
 		status:   NewStatus(),
-		controls: NewControls(gen.InitialConfig()),
+		controls: NewControls(gen),
 		scope:    scope.NewDisplay(),
 
 		generator: gen,
@@ -76,14 +75,6 @@ func (ui *UI) Run(w *app.Window) error {
 			case system.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
 				ui.Layout(gtx)
-
-				// TODO: maybe this logic should be in the Controls?
-				if ui.controls.Next != ui.controls.Previous {
-					ui.generator.Update(ui.controls.Next)
-					ui.controls.Previous = ui.controls.Next
-					op.InvalidateOp{}.Add(gtx.Ops)
-				}
-
 				e.Frame(gtx.Ops)
 			}
 		}
@@ -117,6 +108,8 @@ func (status *StatusBar) Layout(th *material.Theme, gtx layout.Context) layout.D
 }
 
 type Controls struct {
+	Generator *generator.Client
+
 	Previous generator.Config
 	Next     generator.Config
 
@@ -124,8 +117,12 @@ type Controls struct {
 	Scale    Spin[generator.Scale]
 }
 
-func NewControls(initial generator.Config) *Controls {
+func NewControls(gen *generator.Client) *Controls {
+	initial := gen.InitialConfig()
+
 	panel := &Controls{
+		Generator: gen,
+
 		Previous: initial,
 		Next:     initial,
 	}
@@ -137,6 +134,14 @@ func NewControls(initial generator.Config) *Controls {
 }
 
 func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
+	defer func() {
+		if controls.Next != controls.Previous {
+			controls.Generator.Update(controls.Next)
+			controls.Previous = controls.Next
+			op.InvalidateOp{}.Add(gtx.Ops)
+		}
+	}()
+
 	return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 			return controls.Function.Layout(th, gtx)
