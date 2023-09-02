@@ -3,12 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"image/color"
 	"os"
 
 	"gioui.org/app"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/op/clip"
+	"gioui.org/op/paint"
+	"gioui.org/widget"
 	"gioui.org/widget/material"
 
 	"github.com/egonelbre/expgio/oscillator/generator"
@@ -90,6 +94,10 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 			return ui.scope.Layout(ui.theme, gtx)
 		}),
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+			// Let's hardcode the height
+			gtx.Constraints.Max.Y = gtx.Metric.Sp(150)
+			gtx.Constraints.Min.Y = gtx.Constraints.Max.Y
+
 			return ui.controls.Layout(ui.theme, gtx)
 		}),
 	)
@@ -142,12 +150,35 @@ func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.
 		}
 	}()
 
-	return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
-		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-			return controls.Function.Layout(th, gtx)
-		}),
-		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-			return controls.Scale.Layout(th, gtx)
-		}),
+	// wrapper to avoid needing to repeat passing theme into Layout
+	themed := func(w func(th *material.Theme, gtx layout.Context) layout.Dimensions) layout.Widget {
+		return func(gtx layout.Context) layout.Dimensions {
+			return w(th, gtx)
+		}
+	}
+
+	return Grid{
+		Row: []float64{1, 1, 1},
+		Col: []float64{1, 1, 1},
+		Gap: 8,
+	}.Layout(gtx,
+		CellAt(0, 0, themed(controls.Function.Layout)),
+		CellAt(1, 0, themed(controls.Scale.Layout)),
+
+		// non functional buttons for demo
+		CellRows(0, 2, 1, ColorBox{G: 0x88, B: 0x88, A: 0x88}.Layout),
+
+		CellAt(0, 2, material.Button(th, &widget.Clickable{}, "Ping").Layout),
+		CellAt(1, 2, material.Button(th, &widget.Clickable{}, "Trace").Layout),
+		CellAt(2, 2, material.Button(th, &widget.Clickable{}, "Tune").Layout),
 	)
+}
+
+// useful for stubbig out things
+
+type ColorBox color.NRGBA
+
+func (c ColorBox) Layout(gtx layout.Context) layout.Dimensions {
+	paint.FillShape(gtx.Ops, color.NRGBA(c), clip.Rect{Max: gtx.Constraints.Min}.Op())
+	return layout.Dimensions{Size: gtx.Constraints.Min}
 }
