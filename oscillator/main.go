@@ -123,6 +123,10 @@ type Controls struct {
 
 	Function Spin[generator.Function]
 	Scale    Spin[generator.Scale]
+
+	Ping  widget.Clickable
+	Trace widget.Clickable
+	Tune  widget.Clickable
 }
 
 func NewControls(gen *generator.Client) *Controls {
@@ -144,7 +148,7 @@ func NewControls(gen *generator.Client) *Controls {
 func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
 	defer func() {
 		if controls.Next != controls.Previous {
-			controls.Generator.Update(controls.Next)
+			controls.Generator.Reconf(controls.Next)
 			controls.Previous = controls.Next
 			op.InvalidateOp{}.Add(gtx.Ops)
 		}
@@ -155,6 +159,16 @@ func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.
 		return func(gtx layout.Context) layout.Dimensions {
 			return w(th, gtx)
 		}
+	}
+
+	if controls.Ping.Clicked() {
+		controls.Generator.Control(generator.Ping)
+	}
+	if controls.Tune.Clicked() {
+		controls.Generator.Control(generator.Tune)
+	}
+	if controls.Trace.Clicked() {
+		controls.Generator.Control(generator.Trace)
 	}
 
 	return Grid{
@@ -168,9 +182,9 @@ func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.
 		// non functional buttons for demo
 		CellRows(0, 2, 1, ColorBox{G: 0x88, B: 0x88, A: 0x88}.Layout),
 
-		CellAt(0, 2, material.Button(th, &widget.Clickable{}, "Ping").Layout),
-		CellAt(1, 2, material.Button(th, &widget.Clickable{}, "Trace").Layout),
-		CellAt(2, 2, material.Button(th, &widget.Clickable{}, "Tune").Layout),
+		CellAt(0, 2, material.Button(th, &controls.Ping, "Ping").Layout),
+		CellAt(1, 2, material.Button(th, &controls.Trace, "Trace").Layout),
+		CellAt(2, 2, material.Button(th, &controls.Tune, "Tune").Layout),
 	)
 }
 

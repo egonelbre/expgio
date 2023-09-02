@@ -16,11 +16,20 @@ type Client struct {
 	Status chan Status
 	Data   chan Data
 
-	control chan Config
+	reconf  chan Config
+	control chan Control
 	active  Config
 
 	initial Config
 }
+
+type Control string
+
+const (
+	Ping  = Control("Ping")
+	Tune  = Control("Tune")
+	Trace = Control("Trace")
+)
 
 type Status string
 
@@ -35,7 +44,8 @@ func NewClient(initial Config) *Client {
 		Status: make(chan Status, 1),
 		Data:   make(chan Data, 1),
 
-		control: make(chan Config, 1),
+		reconf:  make(chan Config, 1),
+		control: make(chan Control, 1),
 
 		initial: initial,
 	}
@@ -99,25 +109,17 @@ func (client *Client) Run(ctx context.Context) {
 
 			sendAndDropOld(client.Data, data)
 
-		case next := <-client.control:
-
-			sendAndDropOld(client.Status, "Waiting for more control")
-
-			// wait for more updates, if there are any
-		wait:
-			for {
-				tick := time.NewTimer(UpdateDebounce)
-				select {
-				case <-tick.C:
-					break wait
-				case next = <-client.control:
-					tick.Stop()
-					continue wait
-				}
-			}
+		case next := <-client.reconf:
+			sendAndDropOld(client.Status, "Waiting for more updates")
+			next = debounce(client.reconf, next, UpdateDebounce)
 
 			// finally update
 			client.reconfigure(next)
+
+		case ctrl := <-client.control:
+			sendAndDropOld(client.Status, Status(string(ctrl)+" started"))
+			time.Sleep(300 * time.Millisecond)
+			sendAndDropOld(client.Status, Status(string(ctrl)+" complete"))
 		}
 	}
 }
@@ -135,8 +137,12 @@ func (client *Client) reconfigure(next Config) {
 	sendAndDropOld(client.Status, "Ready")
 }
 
-func (client *Client) Update(config Config) {
-	sendAndDropOld(client.control, config)
+func (client *Client) Reconf(config Config) {
+	sendAndDropOld(client.reconf, config)
+}
+
+func (client *Client) Control(control Control) {
+	sendAndDropOld(client.control, control)
 }
 
 type Point struct {
@@ -154,6 +160,20 @@ func (a Point) Max(b Point) Point {
 	return Point{
 		X: max(a.X, b.X),
 		Y: max(a.Y, b.Y),
+	}
+}
+
+func debounce[C chan T, T any](ch C, v T, delay time.Duration) T {
+	// wait for more updates, if there are any
+	for {
+		tick := time.NewTimer(UpdateDebounce)
+		select {
+		case <-tick.C:
+			return v
+		case v = <-ch:
+			tick.Stop()
+			continue
+		}
 	}
 }
 
