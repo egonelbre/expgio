@@ -51,9 +51,8 @@ type UI struct {
 }
 
 func NewUI(gen *generator.Client) *UI {
-	theme := material.NewTheme()
 	return &UI{
-		theme: theme,
+		theme: material.NewTheme(),
 
 		status:   NewStatus(),
 		controls: NewControls(gen),
