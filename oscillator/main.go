@@ -118,8 +118,8 @@ func (status *StatusBar) Layout(th *material.Theme, gtx layout.Context) layout.D
 type Controls struct {
 	Generator *generator.Client
 
-	Previous generator.Config
-	Next     generator.Config
+	Active  generator.Config
+	Pending generator.Config
 
 	Function Spin[generator.Function]
 	Scale    Spin[generator.Scale]
@@ -135,21 +135,21 @@ func NewControls(gen *generator.Client) *Controls {
 	panel := &Controls{
 		Generator: gen,
 
-		Previous: initial,
-		Next:     initial,
+		Active:  initial,
+		Pending: initial,
 	}
 
-	panel.Function.Current = &panel.Next.Function
-	panel.Scale.Current = &panel.Next.Scale
+	panel.Function.Current = &panel.Pending.Function
+	panel.Scale.Current = &panel.Pending.Scale
 
 	return panel
 }
 
 func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
 	defer func() {
-		if controls.Next != controls.Previous {
-			controls.Generator.Reconf(controls.Next)
-			controls.Previous = controls.Next
+		if controls.Pending != controls.Active {
+			controls.Generator.Reconf(controls.Pending)
+			controls.Active = controls.Pending
 			op.InvalidateOp{}.Add(gtx.Ops)
 		}
 	}()
