@@ -101,7 +101,7 @@ func (pie Pie) Layout(gtx layout.Context) layout.Dimensions {
 	}
 
 	const tau = 2 * math.Pi
-	const segmentAngle = tau / 8
+	const segmentAngle = tau / 12
 	overlap := float32(1 / radius)
 
 	startAngle := float32(0.0)
@@ -133,16 +133,11 @@ func (pie Pie) Layout(gtx layout.Context) layout.Dimensions {
 			)
 		}
 
-		var segmentAlphas []float32
 		// next segment position rounded to segment angle
 		lastAngle := startAngle
-		segmentAlpha := (startAngle + segmentAngle) - float32(math.Mod(float64(startAngle), segmentAngle))
-		for ; segmentAlpha < endAngle; segmentAlpha += segmentAngle {
+		for segmentAlpha := startAngle + segmentAngle; segmentAlpha < endAngle; segmentAlpha += segmentAngle {
 			drawArcTo(lastAngle, segmentAlpha, radius)
 			lastAngle = segmentAlpha
-			if hole >= 0 {
-				segmentAlphas = append(segmentAlphas, segmentAlpha)
-			}
 		}
 		drawArcTo(lastAngle, endAngle+overlap, radius)
 
@@ -150,10 +145,9 @@ func (pie Pie) Layout(gtx layout.Context) layout.Dimensions {
 			p.LineTo(center)
 		} else {
 			p.LineTo(polarToXY(endAngle+overlap, hole))
-
+			segmentAlpha := lastAngle - segmentAngle
 			lastAngle := endAngle + overlap
-			for i := len(segmentAlphas) - 1; i >= 0; i-- {
-				segmentAlpha := segmentAlphas[i]
+			for ; segmentAlpha > startAngle; segmentAlpha -= segmentAngle {
 				drawArcTo(lastAngle, segmentAlpha, hole)
 				lastAngle = segmentAlpha
 			}
