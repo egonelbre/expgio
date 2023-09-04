@@ -27,7 +27,7 @@ type Span struct {
 func CellAt(row, col int, w layout.Widget) Span {
 	return Span{
 		Min:    image.Pt(col, row),
-		Max:    image.Pt(col+1, row+1),
+		Max:    image.Pt(col, row),
 		Widget: w,
 	}
 }
@@ -35,7 +35,7 @@ func CellAt(row, col int, w layout.Widget) Span {
 func CellRows(row0, row1, col int, w layout.Widget) Span {
 	return Span{
 		Min:    image.Pt(col, row0),
-		Max:    image.Pt(col+1, row1+1),
+		Max:    image.Pt(col, row1),
 		Widget: w,
 	}
 }
@@ -43,30 +43,41 @@ func CellRows(row0, row1, col int, w layout.Widget) Span {
 func CellCols(row, col0, col1 int, w layout.Widget) Span {
 	return Span{
 		Min:    image.Pt(col0, row),
-		Max:    image.Pt(col1+1, row+1),
+		Max:    image.Pt(col1, row),
 		Widget: w,
 	}
 }
 
 func (g Grid) Layout(gtx layout.Context, spans ...Span) layout.Dimensions {
-	row := proportions(g.Row)
-	col := proportions(g.Col)
+	var colBuffer, rowBuffer [16]float64
 
+	// cumulative weights of row or column
+	col := cumulativeProp(g.Col, colBuffer[:])
+	row := cumulativeProp(g.Row, rowBuffer[:])
+
+	// total size of the context
 	size := gtx.Constraints.Max
-	// TODO: fix gap calculation for edges -- it actually should place straight to the edge.
+	// gap between cells
 	gap := gtx.Metric.Dp(g.Gap)
+	// total size of cells (excluding gaps)
+	display := image.Point{
+		X: size.X - gap*(len(g.Col)-1),
+		Y: size.Y - gap*(len(g.Row)-1),
+	}
 
-	coordToDisplay := func(p image.Point) image.Point {
+	// calculates the coordinates based on the cell coordinates.
+	// bottomRight = 1, means it should calculate the bottom right corner of the cell.
+	cellPosition := func(p image.Point, bottomRight int) image.Point {
 		return image.Point{
-			X: int(col[p.X] * float64(size.X)),
-			Y: int(row[p.Y] * float64(size.Y)),
+			X: int(col[p.X+bottomRight]*float64(display.X) + float64(gap*p.X)),
+			Y: int(row[p.Y+bottomRight]*float64(display.Y) + float64(gap*p.Y)),
 		}
 	}
 
 	for _, span := range spans {
 		func() {
-			min := coordToDisplay(span.Min).Add(image.Point{X: gap / 2, Y: gap / 2})
-			max := coordToDisplay(span.Max).Sub(image.Point{X: gap / 2, Y: gap / 2})
+			min := cellPosition(span.Min, 0)
+			max := cellPosition(span.Max, 1)
 
 			defer op.Offset(min).Push(gtx.Ops).Pop()
 			size := max.Sub(min)
@@ -83,8 +94,12 @@ func (g Grid) Layout(gtx layout.Context, spans ...Span) layout.Dimensions {
 	}
 }
 
-func proportions(in []float64) []float64 {
-	out := make([]float64, len(in)+1)
+func cumulativeProp(in []float64, out []float64) []float64 {
+	if cap(out) < len(in)+1 {
+		out = make([]float64, len(in)+1)
+	} else {
+		out = out[:len(in)+1]
+	}
 	cum := 0.0
 	for i, r := range in {
 		out[i] = cum
