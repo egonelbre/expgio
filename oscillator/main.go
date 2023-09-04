@@ -174,7 +174,7 @@ func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.
 	return Grid{
 		Row: []float64{1, 1, 1},
 		Col: []float64{1, 1, 1},
-		Gap: 8,
+		Gap: 8, Margin: 8,
 	}.Layout(gtx,
 		CellAt(0, 0, themed(controls.Function.Layout)),
 		CellAt(1, 0, themed(controls.Scale.Layout)),
