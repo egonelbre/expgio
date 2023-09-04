@@ -166,7 +166,7 @@ func (a Point) Max(b Point) Point {
 func debounce[C chan T, T any](ch C, v T, delay time.Duration) T {
 	// wait for more updates, if there are any
 	for {
-		tick := time.NewTimer(UpdateDebounce)
+		tick := time.NewTimer(delay)
 		select {
 		case <-tick.C:
 			return v
