@@ -4,7 +4,6 @@ import (
 	"slices"
 
 	"gioui.org/layout"
-	"gioui.org/text"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 )
@@ -59,9 +58,8 @@ func (spin *Spin[T]) Layout(th *material.Theme, gtx layout.Context) layout.Dimen
 	}.Layout(gtx,
 		layout.Rigid(material.Button(th, &spin.Next, "<").Layout),
 		layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-			label := material.Body1(th, (*spin.Current).String())
-			label.Alignment = text.Middle
-			return label.Layout(gtx)
+			return layout.Center.Layout(gtx,
+				material.Body1(th, (*spin.Current).String()).Layout)
 		}),
 		layout.Rigid(material.Button(th, &spin.Prev, ">").Layout),
 	)
