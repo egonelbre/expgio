@@ -11,6 +11,7 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/text"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
 )
@@ -65,8 +66,8 @@ func (ui *UI) Run(w *app.Window) error {
 
 				material.List(ui.theme, &ui.list).Layout(gtx, len(linesOfText),
 					func(gtx layout.Context, index int) layout.Dimensions {
-						s := fmt.Sprintf("%s [%#v]", linesOfText[index], ui.list.List.Position)
-						text := material.Body1(ui.theme, s)
+						line := material.Body1(ui.theme, linesOfText[index])
+						line.Alignment = text.Middle
 
 						distance := index - center
 						if distance < 0 {
@@ -74,10 +75,10 @@ func (ui *UI) Run(w *app.Window) error {
 						}
 						distance -= 3
 						if distance > 0 {
-							text.Color.A = uint8(max(255-distance*10, 0))
+							line.Color.A = uint8(max(255-distance*20, 0))
 						}
 
-						return text.Layout(gtx)
+						return line.Layout(gtx)
 					})
 
 				e.Frame(gtx.Ops)
