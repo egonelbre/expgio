@@ -23,8 +23,8 @@ func main() {
 	go func() {
 		w := app.NewWindow(app.Title("Selectbox"))
 		var ops op.Ops
-		for e := range w.Events() {
-			switch e := e.(type) {
+		for {
+			switch e := w.NextEvent().(type) {
 			case system.FrameEvent:
 
 				gtx := layout.NewContext(&ops, e)
@@ -94,7 +94,7 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 
 		pointer.InputOp{
 			Tag:          list,
-			Types:        pointer.Press | pointer.Move,
+			Kinds:        pointer.Press | pointer.Move,
 			ScrollBounds: image.Rectangle{},
 		}.Add(gtx.Ops)
 
@@ -146,7 +146,7 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 					op.InvalidateOp{}.Add(gtx.Ops)
 				}
 			case pointer.Event:
-				switch ev.Type {
+				switch ev.Kind {
 				case pointer.Press:
 					if !list.focused && !grabbed {
 						grabbed = true

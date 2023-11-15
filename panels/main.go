@@ -56,8 +56,8 @@ func NewUI() *UI {
 func (ui *UI) Run(w *app.Window) error {
 	var ops op.Ops
 
-	for e := range w.Events() {
-		switch e := e.(type) {
+	for {
+		switch e := w.NextEvent().(type) {
 		case system.FrameEvent:
 
 			gtx := layout.NewContext(&ops, e)
@@ -74,8 +74,6 @@ func (ui *UI) Run(w *app.Window) error {
 			return e.Err
 		}
 	}
-
-	return nil
 }
 
 func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
@@ -167,7 +165,7 @@ func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimens
 	paint.ColorOp{Color: panel.Color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
-	for range panel.Insert.Clicks() {
+	for range panel.Insert.Update(gtx) {
 		panel.UI.AddPanel(panel, NewPanel(panel.UI))
 	}
 
@@ -177,7 +175,7 @@ func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimens
 		}
 	})
 
-	if panel.Close.Clicked() {
+	if panel.Close.Clicked(gtx) {
 		panel.UI.ClosePanel(panel)
 	}
 

@@ -41,8 +41,8 @@ type UI struct {
 func (ui *UI) Run(w *app.Window) error {
 	var ops op.Ops
 
-	for e := range w.Events() {
-		switch e := e.(type) {
+	for {
+		switch e := w.NextEvent().(type) {
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 			ui.Layout(gtx)
@@ -58,8 +58,6 @@ func (ui *UI) Run(w *app.Window) error {
 			return e.Err
 		}
 	}
-
-	return nil
 }
 
 func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {

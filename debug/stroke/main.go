@@ -32,8 +32,8 @@ func main() {
 func run(w *app.Window) error {
 	ops := new(op.Ops)
 
-	for e := range w.Events() {
-		switch e := e.(type) {
+	for {
+		switch e := w.NextEvent().(type) {
 		case system.FrameEvent:
 			gtx := layout.NewContext(ops, e)
 
@@ -53,5 +53,4 @@ func run(w *app.Window) error {
 			return e.Err
 		}
 	}
-	return nil
 }

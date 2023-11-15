@@ -25,7 +25,7 @@ func (h *Hoverable) Layout(gtx layout.Context) layout.Dimensions {
 
 	pointer.InputOp{
 		Tag:   h,
-		Types: pointer.Enter | pointer.Leave,
+		Kinds: pointer.Enter | pointer.Leave,
 	}.Add(gtx.Ops)
 
 	return layout.Dimensions{
@@ -42,7 +42,7 @@ func (h *Hoverable) update(gtx layout.Context) {
 			continue
 		}
 
-		switch ev.Type {
+		switch ev.Kind {
 		case pointer.Enter:
 			h.hovered = true
 		case pointer.Leave:

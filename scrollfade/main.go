@@ -49,40 +49,37 @@ func NewUI() *UI {
 func (ui *UI) Run(w *app.Window) error {
 	var ops op.Ops
 	for {
-		select {
-		case e := <-w.Events():
-			switch e := e.(type) {
-			case system.DestroyEvent:
-				return e.Err
-			case system.FrameEvent:
+		switch e := w.NextEvent().(type) {
+		case system.DestroyEvent:
+			return e.Err
+		case system.FrameEvent:
 
-				gtx := layout.NewContext(&ops, e)
+			gtx := layout.NewContext(&ops, e)
 
-				pos := &ui.list.List.Position
+			pos := &ui.list.List.Position
 
-				// TODO: you need to take into account pos.Offset and pos.OffsetLast as well
-				// also first draw is invalid atm
-				center := pos.First + pos.Count/2
+			// TODO: you need to take into account pos.Offset and pos.OffsetLast as well
+			// also first draw is invalid atm
+			center := pos.First + pos.Count/2
 
-				material.List(ui.theme, &ui.list).Layout(gtx, len(linesOfText),
-					func(gtx layout.Context, index int) layout.Dimensions {
-						line := material.Body1(ui.theme, linesOfText[index])
-						line.Alignment = text.Middle
+			material.List(ui.theme, &ui.list).Layout(gtx, len(linesOfText),
+				func(gtx layout.Context, index int) layout.Dimensions {
+					line := material.Body1(ui.theme, linesOfText[index])
+					line.Alignment = text.Middle
 
-						distance := index - center
-						if distance < 0 {
-							distance = -distance
-						}
-						distance -= 3
-						if distance > 0 {
-							line.Color.A = uint8(max(255-distance*20, 0))
-						}
+					distance := index - center
+					if distance < 0 {
+						distance = -distance
+					}
+					distance -= 3
+					if distance > 0 {
+						line.Color.A = uint8(max(255-distance*20, 0))
+					}
 
-						return line.Layout(gtx)
-					})
+					return line.Layout(gtx)
+				})
 
-				e.Frame(gtx.Ops)
-			}
+			e.Frame(gtx.Ops)
 		}
 	}
 }

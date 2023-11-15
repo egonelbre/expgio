@@ -23,13 +23,13 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 	pointer.InputOp{
 		Tag:   hud,
 		Grab:  hud.drawing,
-		Types: pointer.Press | pointer.Drag | pointer.Release,
+		Kinds: pointer.Press | pointer.Drag | pointer.Release,
 	}.Add(gtx.Ops)
 
 	for _, ev := range gtx.Events(hud) {
 		switch ev := ev.(type) {
 		case pointer.Event:
-			switch ev.Type {
+			switch ev.Kind {
 			case pointer.Press:
 				if hud.pointer == 0 {
 					hud.start = gtx.FInv(ev.Position)
@@ -130,13 +130,13 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 	pointer.InputOp{
 		Tag:   tag,
 		Grab:  hud.drawing,
-		Types: pointer.Press | pointer.Drag | pointer.Release,
+		Kinds: pointer.Press | pointer.Drag | pointer.Release,
 	}.Add(gtx.Ops)
 
 	for _, ev := range gtx.Events(tag) {
 		switch ev := ev.(type) {
 		case pointer.Event:
-			switch ev.Type {
+			switch ev.Kind {
 			case pointer.Press:
 				if hud.pointer == 0 {
 					hud.source = p

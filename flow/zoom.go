@@ -41,10 +41,10 @@ func (hud *ZoomHud) Layout(gtx *Context) {
 			lgtx.Constraints.Min.X = lgtx.Constraints.Max.X
 		}
 
-		hud.slider.Value = float32(hud.Zoom.Level)
-		size := material.Slider(gtx.Theme.Theme, &hud.slider, 0, float32(len(ZoomLevels)-1)).Layout(lgtx)
+		hud.slider.Value = float32(hud.Zoom.Level) / float32(len(ZoomLevels)-1)
+		size := material.Slider(gtx.Theme.Theme, &hud.slider).Layout(lgtx)
 
-		hud.Zoom.Level = int(math.Round(float64(hud.slider.Value)))
+		hud.Zoom.Level = int(math.Round(float64(hud.slider.Value) * float64(len(ZoomLevels)-1)))
 		if hud.Zoom.Level < 0 {
 			hud.Zoom.Level = 0
 		} else if hud.Zoom.Level >= len(ZoomLevels) {

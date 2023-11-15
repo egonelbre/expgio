@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"sync"
 
 	"gioui.org/app"
 	"gioui.org/io/system"
@@ -62,24 +63,62 @@ func NewUI(gen *generator.Client) *UI {
 	}
 }
 
+type AsyncValue[T any] struct {
+	mu      sync.Mutex
+	updated bool
+	value   T
+}
+
+func AsyncRead[T any](data <-chan T, updated func()) *AsyncValue[T] {
+	async := &AsyncValue[T]{}
+	go async.Read(data, updated)
+	return async
+}
+
+func (async *AsyncValue[T]) Read(data <-chan T, updated func()) {
+	for v := range data {
+		async.mu.Lock()
+		async.updated = true
+		async.value = v
+		async.mu.Unlock()
+
+		updated()
+	}
+}
+
+func (async *AsyncValue[T]) Check(onChange func(v T)) {
+	async.mu.Lock()
+	defer async.mu.Unlock()
+
+	if !async.updated {
+		return
+	}
+	async.updated = false
+	onChange(async.value)
+}
+
 func (ui *UI) Run(w *app.Window) error {
 	var ops op.Ops
-	for {
-		select {
-		case ui.status.Current = <-ui.generator.Status:
-			w.Invalidate()
-		case ui.scope.Data = <-ui.generator.Data:
-			w.Invalidate()
 
-		case e := <-w.Events():
-			switch e := e.(type) {
-			case system.DestroyEvent:
-				return e.Err
-			case system.FrameEvent:
-				gtx := layout.NewContext(&ops, e)
-				ui.Layout(gtx)
-				e.Frame(gtx.Ops)
-			}
+	asyncStatus := AsyncRead(ui.generator.Status, w.Invalidate)
+	asyncData := AsyncRead(ui.generator.Data, w.Invalidate)
+
+	for {
+		switch e := w.NextEvent().(type) {
+		case system.DestroyEvent:
+			return e.Err
+		case system.FrameEvent:
+
+			asyncStatus.Check(func(v generator.Status) {
+				ui.status.Current = v
+			})
+			asyncData.Check(func(v generator.Data) {
+				ui.scope.Data = v
+			})
+
+			gtx := layout.NewContext(&ops, e)
+			ui.Layout(gtx)
+			e.Frame(gtx.Ops)
 		}
 	}
 }
@@ -160,13 +199,13 @@ func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.
 		}
 	}
 
-	if controls.Ping.Clicked() {
+	if controls.Ping.Clicked(gtx) {
 		controls.Generator.Control(generator.Ping)
 	}
-	if controls.Tune.Clicked() {
+	if controls.Tune.Clicked(gtx) {
 		controls.Generator.Control(generator.Tune)
 	}
-	if controls.Trace.Clicked() {
+	if controls.Trace.Clicked(gtx) {
 		controls.Generator.Control(generator.Trace)
 	}
 

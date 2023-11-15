@@ -40,17 +40,17 @@ func (spin *Spin[T]) Spin(offset int) {
 	*spin.Current = values[i]
 }
 
-func (spin *Spin[T]) update() {
-	if spin.Prev.Clicked() {
+func (spin *Spin[T]) update(gtx layout.Context) {
+	if spin.Prev.Clicked(gtx) {
 		spin.Spin(-1)
 	}
-	if spin.Next.Clicked() {
+	if spin.Next.Clicked(gtx) {
 		spin.Spin(1)
 	}
 }
 
 func (spin *Spin[T]) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {
-	spin.update()
+	spin.update(gtx)
 	return layout.Flex{
 		Axis:      layout.Horizontal,
 		Spacing:   layout.SpaceBetween,

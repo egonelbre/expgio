@@ -59,26 +59,27 @@ func NewUI() *UI {
 func (ui *UI) Run(w *app.Window) error {
 	go ui.loader.Run(context.Background())
 
-	var ops op.Ops
-	for {
-		select {
-		case <-ui.loader.Updated():
+	go func() {
+		for range ui.loader.Updated() {
 			fmt.Printf("%#v\n", ui.loader.Stats())
 			w.Invalidate()
-		case e := <-w.Events():
-			switch e := e.(type) {
-			case system.DestroyEvent:
-				return e.Err
-			case system.FrameEvent:
+		}
+	}()
 
-				gtx := layout.NewContext(&ops, e)
+	var ops op.Ops
+	for {
+		switch e := w.NextEvent().(type) {
+		case system.DestroyEvent:
+			return e.Err
+		case system.FrameEvent:
 
-				ui.loader.Frame(gtx, func(gtx layout.Context) layout.Dimensions {
-					return ui.reels.Layout(gtx, ui.theme, ui.loader)
-				})
+			gtx := layout.NewContext(&ops, e)
 
-				e.Frame(gtx.Ops)
-			}
+			ui.loader.Frame(gtx, func(gtx layout.Context) layout.Dimensions {
+				return ui.reels.Layout(gtx, ui.theme, ui.loader)
+			})
+
+			e.Frame(gtx.Ops)
 		}
 	}
 }

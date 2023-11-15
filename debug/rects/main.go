@@ -28,7 +28,8 @@ func main() {
 		}
 
 		profileTag := new(int)
-		for e := range w.Events() {
+		for {
+			e := w.NextEvent()
 			if ev, ok := e.(system.FrameEvent); ok {
 				gtx := layout.NewContext(&ops, ev)
 

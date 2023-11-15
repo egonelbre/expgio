@@ -31,8 +31,7 @@ func main() {
 func loop(w *app.Window) error {
 	var ops op.Ops
 	for {
-		e := <-w.Events()
-		switch e := e.(type) {
+		switch e := w.NextEvent().(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
@@ -57,8 +56,8 @@ func layoutDrag(gtx layout.Context) {
 	paint.ColorOp{Color: color.NRGBA{G: 0xFF, A: 0xFF}}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
-	for _, e := range drag.Events(gtx.Metric, gtx, gesture.Both) {
-		if e.Type == pointer.Drag {
+	for _, e := range drag.Update(gtx.Metric, gtx, gesture.Both) {
+		if e.Kind == pointer.Drag {
 			p.X = e.Position.X
 			p.Y = e.Position.Y
 		}

@@ -31,27 +31,27 @@ func main() {
 }
 
 func run(ctx context.Context, w *app.Window) error {
+	go func() {
+		<-ctx.Done()
+		w.Perform(system.ActionClose)
+	}()
+
 	th := material.NewTheme()
 	var ops op.Ops
 	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case e := <-w.Events():
-			switch e := e.(type) {
-			case system.DestroyEvent:
-				return e.Err
-			case system.FrameEvent:
-				gtx := layout.NewContext(&ops, e)
+		switch e := w.NextEvent().(type) {
+		case system.DestroyEvent:
+			return e.Err
+		case system.FrameEvent:
+			gtx := layout.NewContext(&ops, e)
 
-				title := material.H1(th, "Hello, Gio")
-				maroon := color.NRGBA{R: 127, G: 0, B: 0, A: 255}
-				title.Color = maroon
-				title.Alignment = text.Middle
-				title.Layout(gtx)
+			title := material.H1(th, "Hello, Gio")
+			maroon := color.NRGBA{R: 127, G: 0, B: 0, A: 255}
+			title.Color = maroon
+			title.Alignment = text.Middle
+			title.Layout(gtx)
 
-				e.Frame(gtx.Ops)
-			}
+			e.Frame(gtx.Ops)
 		}
 	}
 }

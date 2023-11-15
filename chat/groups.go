@@ -70,7 +70,7 @@ func (groups *Groups) layoutGroup(th *material.Theme, gtx layout.Context, group 
 	sz := gtx.Constraints.Max.X
 	gtx.Constraints = layout.Exact(image.Pt(sz, sz))
 
-	if group.Click.Clicked() {
+	if group.Click.Clicked(gtx) {
 		groups.Active = group
 	}
 	isActive := group == groups.Active

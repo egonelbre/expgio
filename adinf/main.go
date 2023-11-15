@@ -49,8 +49,7 @@ func loop(w *app.Window) error {
 	start := time.Now()
 	var ops op.Ops
 	for {
-		e := <-w.Events()
-		switch e := e.(type) {
+		switch e := w.NextEvent().(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:

@@ -102,12 +102,12 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 					defer clip.Rect{Max: size}.Push(gtx.Ops).Pop()
 					pointer.InputOp{
 						Tag:   tag,
-						Types: pointer.Press,
+						Kinds: pointer.Press,
 					}.Add(gtx.Ops)
 
 					for _, ev := range gtx.Events(tag) {
 						if ev, ok := ev.(pointer.Event); ok {
-							switch ev.Type {
+							switch ev.Kind {
 							case pointer.Press:
 								for selected := range m.Diagram.Selection.Selected {
 									switch sel := selected.(type) {

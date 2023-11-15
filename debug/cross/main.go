@@ -38,8 +38,7 @@ func run(w *app.Window) error {
 	var ops op.Ops
 	var angle float32
 	for {
-		e := <-w.Events()
-		switch e := e.(type) {
+		switch e := w.NextEvent().(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:

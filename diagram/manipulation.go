@@ -38,12 +38,12 @@ func (hud *ManipulationHud) HandleNode(gtx *Context, node *Node) {
 	defer clip.Rect(gtx.Bounds(node.Box)).Push(gtx.Ops).Pop()
 	pointer.InputOp{
 		Tag:   tag,
-		Types: pointer.Press | pointer.Drag | pointer.Release,
+		Kinds: pointer.Press | pointer.Drag | pointer.Release,
 	}.Add(gtx.Ops)
 
 	for _, ev := range gtx.Events(tag) {
 		if ev, ok := ev.(pointer.Event); ok {
-			switch ev.Type {
+			switch ev.Kind {
 			case pointer.Press:
 				if !hud.dragging {
 					if ev.Modifiers.Contain(key.ModCtrl) {

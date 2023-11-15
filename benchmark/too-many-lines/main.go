@@ -50,8 +50,7 @@ func loop(linecount int, w *app.Window) error {
 
 	var ops op.Ops
 	for {
-		e := <-w.Events()
-		switch e := e.(type) {
+		switch e := w.NextEvent().(type) {
 		case system.DestroyEvent:
 			return e.Err
 		case system.FrameEvent:
