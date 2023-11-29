@@ -43,7 +43,7 @@ func loop(w *app.Window) error {
 			paint.Fill(gtx.Ops, f32color.NRGBAHex(0xe5e5e5FF))
 			//paint.Fill(gtx.Ops, f32color.NRGBAHex(0x121212ff))
 
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 
 			for dp := 0; dp < 24; dp++ {
 				ix := dp % 6

@@ -54,7 +54,7 @@ func loop(w *app.Window) error {
 			cloth.Update(0.015)
 			cloth.Layout(gtx)
 
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 			e.Frame(gtx.Ops)
 		}
 	}

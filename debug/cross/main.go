@@ -52,7 +52,7 @@ func run(w *app.Window) error {
 				angle -= 2 * math.Pi
 			}
 
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 			e.Frame(gtx.Ops)
 		}
 	}

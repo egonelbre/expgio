@@ -44,7 +44,7 @@ func main() {
 					fmt.Println(ev)
 				}
 				profile.Op{Tag: 0}.Add(gtx.Ops)
-				op.InvalidateOp{}.Add(gtx.Ops)
+				gtx.Execute(op.InvalidateCmd{})
 
 				e.Frame(gtx.Ops)
 			}

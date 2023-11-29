@@ -212,7 +212,7 @@ func (anim *Animation) Update(gtx layout.Context) float32 {
 		if anim.progress > anim.duration {
 			anim.progress = anim.duration
 		}
-		op.InvalidateOp{}.Add(gtx.Ops)
+		gtx.Execute(op.InvalidateCmd{})
 	}
 
 	return float32(float64(anim.progress) / float64(anim.duration))

@@ -143,7 +143,7 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 			case key.FocusEvent:
 				if list.focused != ev.Focus {
 					list.focused = ev.Focus
-					op.InvalidateOp{}.Add(gtx.Ops)
+					gtx.Execute(op.InvalidateCmd{})
 				}
 			case pointer.Event:
 				switch ev.Kind {

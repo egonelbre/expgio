@@ -62,7 +62,7 @@ func loop(w *app.Window) error {
 			return e.Err
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 
 			timeSinceStart := hrtime.Since(now)
 			delta := timeSinceStart - lastRender

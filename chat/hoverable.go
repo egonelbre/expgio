@@ -73,7 +73,7 @@ func (anim *AnimationTimer) Update(gtx layout.Context, active bool) float32 {
 	if active {
 		if anim.progress < anim.Duration {
 			anim.progress += delta
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 			if anim.progress > anim.Duration {
 				anim.progress = anim.Duration
 			}
@@ -81,7 +81,7 @@ func (anim *AnimationTimer) Update(gtx layout.Context, active bool) float32 {
 	} else {
 		if anim.progress > 0 {
 			anim.progress -= delta
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 			if anim.progress < 0 {
 				anim.progress = 0
 			}

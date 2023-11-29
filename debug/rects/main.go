@@ -49,7 +49,7 @@ func main() {
 				}
 
 				profile.Op{Tag: profileTag}.Add(gtx.Ops)
-				op.InvalidateOp{}.Add(gtx.Ops)
+				gtx.Execute(op.InvalidateCmd{})
 				ev.Frame(gtx.Ops)
 			}
 		}

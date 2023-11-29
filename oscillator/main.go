@@ -188,7 +188,7 @@ func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.
 		if controls.Pending != controls.Active {
 			controls.Generator.Reconf(controls.Pending)
 			controls.Active = controls.Pending
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 		}
 	}()
 

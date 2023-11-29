@@ -55,7 +55,7 @@ func main() {
 						Hole: float32(math.Sin(seconds)*0.4) + 0.5,
 					}.Layout)
 
-				op.InvalidateOp{}.Add(gtx.Ops)
+				gtx.Execute(op.InvalidateCmd{})
 				e.Frame(gtx.Ops)
 			case app.DestroyEvent:
 				os.Exit(0)

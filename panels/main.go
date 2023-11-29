@@ -154,7 +154,7 @@ func (panel *Panel) Update(left *Panel, gtx layout.Context) {
 	}
 
 	panel.LeftPx = panel.LeftPx*(1-dt) + target*dt
-	op.InvalidateOp{}.Add(gtx.Ops)
+	gtx.Execute(op.InvalidateCmd{})
 }
 
 func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimensions {

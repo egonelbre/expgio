@@ -94,7 +94,7 @@ type Scene struct {
 }
 
 func (scene Scene) Layout(gtx layout.Context) layout.Dimensions {
-	op.InvalidateOp{}.Add(gtx.Ops)
+	gtx.Execute(op.InvalidateCmd{})
 
 	size := gtx.Constraints.Max
 
@@ -140,7 +140,7 @@ type Slice struct {
 }
 
 func (scene Slice) Layout(gtx layout.Context) layout.Dimensions {
-	op.InvalidateOp{}.Add(gtx.Ops)
+	gtx.Execute(op.InvalidateCmd{})
 
 	size := gtx.Constraints.Max
 
