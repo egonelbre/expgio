@@ -42,7 +42,7 @@ func run(w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 			paint.ColorOp{Color: defaultColor}.Add(gtx.Ops)
 			paint.PaintOp{}.Add(gtx.Ops)
 

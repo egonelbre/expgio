@@ -36,7 +36,7 @@ func run(w *app.Window) error {
 	for {
 		switch e := w.NextEvent().(type) {
 		case app.FrameEvent:
-			gtx := layout.NewContext(ops, e)
+			gtx := app.NewContext(ops, e)
 
 			material.List(th, &list).Layout(ElementsGap(gtx, 8,
 				material.H1(th, "Hello, world!").Layout,

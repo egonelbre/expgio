@@ -46,7 +46,7 @@ func (ui *UI) Run(w *app.Window) error {
 	for {
 		switch e := w.NextEvent().(type) {
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 
 			key.InputOp{Tag: w, Keys: key.NameEscape}.Add(gtx.Ops)
 			for _, ev := range gtx.Queue.Events(w) {

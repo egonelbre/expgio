@@ -116,7 +116,7 @@ func (ui *UI) Run(w *app.Window) error {
 				ui.scope.Data = v
 			})
 
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 		}

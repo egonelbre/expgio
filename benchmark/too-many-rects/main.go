@@ -48,7 +48,7 @@ func loop(w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 
 			const size = 10
 			for y := 0; y < e.Size.Y; y += size {

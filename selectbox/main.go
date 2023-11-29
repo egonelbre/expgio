@@ -27,7 +27,7 @@ func main() {
 			switch e := w.NextEvent().(type) {
 			case app.FrameEvent:
 
-				gtx := layout.NewContext(&ops, e)
+				gtx := app.NewContext(&ops, e)
 				Layout(gtx)
 				e.Frame(gtx.Ops)
 

@@ -54,7 +54,7 @@ func loop(linecount int, w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 
 			now := time.Since(start)
 			_ = now

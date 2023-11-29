@@ -31,7 +31,7 @@ func main() {
 		for {
 			switch e := w.NextEvent().(type) {
 			case app.FrameEvent:
-				gtx := layout.NewContext(&ops, e)
+				gtx := app.NewContext(&ops, e)
 
 				seconds := gtx.Now.Sub(start).Seconds() * 0.5
 				layout.Center.Layout(gtx,

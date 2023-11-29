@@ -53,7 +53,7 @@ func loop(w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 
 			fill(gtx, color.NRGBA{R: 0x10, G: 0x14, B: 0x10, A: 0xFF})
 			render(gtx, float32(time.Since(start).Seconds()))

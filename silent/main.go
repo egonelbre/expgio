@@ -43,7 +43,7 @@ func run(ctx context.Context, w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 
 			title := material.H1(th, "Hello, Gio")
 			maroon := color.NRGBA{R: 127, G: 0, B: 0, A: 255}

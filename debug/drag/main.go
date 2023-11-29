@@ -35,7 +35,7 @@ func loop(w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 			layoutBox(gtx)
 			layoutDrag(gtx)
 			e.Frame(gtx.Ops)

@@ -31,7 +31,7 @@ func main() {
 		for {
 			e := w.NextEvent()
 			if ev, ok := e.(app.FrameEvent); ok {
-				gtx := layout.NewContext(&ops, ev)
+				gtx := app.NewContext(&ops, ev)
 
 				for x := 0; x < 70; x++ {
 					for y := 0; y < 70; y++ {

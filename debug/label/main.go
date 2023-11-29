@@ -37,7 +37,7 @@ func run(w *app.Window) error {
 	for {
 		switch e := w.NextEvent().(type) {
 		case app.FrameEvent:
-			gtx := layout.NewContext(ops, e)
+			gtx := app.NewContext(ops, e)
 
 			material.List(th, &list).Layout(gtx, 2,
 				func(gtx layout.Context, index int) layout.Dimensions {

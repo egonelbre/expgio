@@ -44,7 +44,7 @@ func (ui *UI) Run(w *app.Window) error {
 	for {
 		switch e := w.NextEvent().(type) {
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 

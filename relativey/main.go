@@ -33,7 +33,7 @@ func loop(w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 			RelativeY{Pos: 0.3}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 				return material.H1(theme, "Hello").Layout(gtx)
 			})

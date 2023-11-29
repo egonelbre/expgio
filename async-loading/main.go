@@ -73,7 +73,7 @@ func (ui *UI) Run(w *app.Window) error {
 			return e.Err
 		case app.FrameEvent:
 
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 
 			ui.loader.Frame(gtx, func(gtx layout.Context) layout.Dimensions {
 				return ui.reels.Layout(gtx, ui.theme, ui.loader)

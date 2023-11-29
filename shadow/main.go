@@ -36,7 +36,7 @@ func loop(w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 			paint.Fill(gtx.Ops, f32color.NRGBAHex(0xe5e5e5FF))
 			//paint.Fill(gtx.Ops, f32color.NRGBAHex(0x121212ff))
 
