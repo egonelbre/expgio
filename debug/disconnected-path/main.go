@@ -24,7 +24,7 @@ func main() {
 
 		for {
 			switch e := w.NextEvent().(type) {
-			case system.FrameEvent:
+			case app.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
 
 				var p clip.Path

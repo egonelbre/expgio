@@ -40,9 +40,9 @@ func run(ctx context.Context, w *app.Window) error {
 	var ops op.Ops
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
+		case app.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
 			title := material.H1(th, "Hello, Gio")

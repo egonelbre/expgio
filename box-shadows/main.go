@@ -36,9 +36,9 @@ func loop(w *app.Window) error {
 	var ops op.Ops
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
+		case app.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 			paint.Fill(gtx.Ops, f32color.NRGBAHex(0xe5e5e5FF))
 			//paint.Fill(gtx.Ops, f32color.NRGBAHex(0x121212ff))

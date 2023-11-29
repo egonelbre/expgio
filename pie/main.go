@@ -30,7 +30,7 @@ func main() {
 
 		for {
 			switch e := w.NextEvent().(type) {
-			case system.FrameEvent:
+			case app.FrameEvent:
 				gtx := layout.NewContext(&ops, e)
 
 				seconds := gtx.Now.Sub(start).Seconds() * 0.5
@@ -57,7 +57,7 @@ func main() {
 
 				op.InvalidateOp{}.Add(gtx.Ops)
 				e.Frame(gtx.Ops)
-			case system.DestroyEvent:
+			case app.DestroyEvent:
 				os.Exit(0)
 			}
 		}

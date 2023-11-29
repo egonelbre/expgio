@@ -39,9 +39,9 @@ func run(w *app.Window) error {
 	var angle float32
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
+		case app.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 			paint.ColorOp{Color: defaultColor}.Add(gtx.Ops)
 			paint.PaintOp{}.Add(gtx.Ops)

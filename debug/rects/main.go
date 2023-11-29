@@ -30,7 +30,7 @@ func main() {
 		profileTag := new(int)
 		for {
 			e := w.NextEvent()
-			if ev, ok := e.(system.FrameEvent); ok {
+			if ev, ok := e.(app.FrameEvent); ok {
 				gtx := layout.NewContext(&ops, ev)
 
 				for x := 0; x < 70; x++ {

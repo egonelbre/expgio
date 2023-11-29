@@ -66,7 +66,7 @@ func (ui *UI) Run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.FrameEvent:
+		case app.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
 			key.InputOp{Tag: w, Keys: key.NameEscape}.Add(gtx.Ops)
@@ -79,7 +79,7 @@ func (ui *UI) Run(w *app.Window) error {
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
 		}
 	}

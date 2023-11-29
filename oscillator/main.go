@@ -105,9 +105,9 @@ func (ui *UI) Run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
+		case app.FrameEvent:
 
 			asyncStatus.Check(func(v generator.Status) {
 				ui.status.Current = v

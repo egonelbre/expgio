@@ -66,9 +66,9 @@ func loop(w *app.Window) error {
 	var ops op.Ops
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
+		case app.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
 
 			layout.UniformInset(unit.Dp(30)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {

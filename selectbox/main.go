@@ -25,13 +25,13 @@ func main() {
 		var ops op.Ops
 		for {
 			switch e := w.NextEvent().(type) {
-			case system.FrameEvent:
+			case app.FrameEvent:
 
 				gtx := layout.NewContext(&ops, e)
 				Layout(gtx)
 				e.Frame(gtx.Ops)
 
-			case system.DestroyEvent:
+			case app.DestroyEvent:
 				os.Exit(0)
 			}
 		}
