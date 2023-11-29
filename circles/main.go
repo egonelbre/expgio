@@ -14,7 +14,6 @@ import (
 	"gioui.org/font"
 	"gioui.org/gesture"
 	"gioui.org/io/key"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"

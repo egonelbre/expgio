@@ -10,7 +10,6 @@ import (
 	"gioui.org/app"
 	"gioui.org/f32"
 	"gioui.org/io/key"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"

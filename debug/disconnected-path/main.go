@@ -6,9 +6,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
-	"gioui.org/io/profile"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
@@ -43,7 +40,6 @@ func main() {
 				for _, ev := range gtx.Events(0) {
 					fmt.Println(ev)
 				}
-				profile.Op{Tag: 0}.Add(gtx.Ops)
 				gtx.Execute(op.InvalidateCmd{})
 
 				e.Frame(gtx.Ops)
