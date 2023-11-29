@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 
@@ -24,7 +23,6 @@ func main() {
 			{0xAA, 0xFF, 0xFF, 0xFF},
 		}
 
-		profileTag := new(int)
 		for {
 			e := w.NextEvent()
 			if ev, ok := e.(app.FrameEvent); ok {
@@ -39,10 +37,6 @@ func main() {
 						paint.Fill(gtx.Ops, colors[x*y%len(colors)])
 						stack.Pop()
 					}
-				}
-
-				for _, ev := range gtx.Events(profileTag) {
-					fmt.Println(ev)
 				}
 
 				gtx.Execute(op.InvalidateCmd{})

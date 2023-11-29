@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 
 	"gioui.org/app"
@@ -36,10 +35,6 @@ func main() {
 					}
 				}
 				paint.FillShape(gtx.Ops, color.NRGBA{A: 0xFF}, clip.Outline{Path: p.End()}.Op())
-
-				for _, ev := range gtx.Events(0) {
-					fmt.Println(ev)
-				}
 				gtx.Execute(op.InvalidateCmd{})
 
 				e.Frame(gtx.Ops)
