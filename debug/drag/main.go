@@ -55,7 +55,11 @@ func layoutDrag(gtx layout.Context) {
 	paint.ColorOp{Color: color.NRGBA{G: 0xFF, A: 0xFF}}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
-	for _, e := range drag.Update(gtx.Metric, gtx, gesture.Both) {
+	for {
+		e, ok := drag.Update(gtx.Metric, gtx.Source, gesture.Both)
+		if !ok {
+			break
+		}
 		if e.Kind == pointer.Drag {
 			p.X = e.Position.X
 			p.Y = e.Position.Y
