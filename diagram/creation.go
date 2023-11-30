@@ -41,8 +41,6 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 				if hud.pointer == 0 {
 					hud.start = gtx.FInv(ev.Position)
 					hud.end = hud.start
-					hud.pointer = ev.PointerID
-					hud.drawing = true
 
 					gtx.Diagram.Selection.Clear()
 				}
@@ -50,6 +48,13 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 				if ev.PointerID == hud.pointer {
 					hud.drawing = true
 					hud.end = gtx.FInv(ev.Position).Add(Vector{X: 1, Y: 1})
+
+					if ev.Priority < pointer.Grabbed {
+						gtx.Execute(pointer.GrabCmd{
+							Tag: hud,
+							ID:  hud.pointer,
+						})
+					}
 				}
 			case pointer.Release:
 				if hud.drawing && ev.PointerID == hud.pointer {
@@ -76,11 +81,6 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 	}
 
 	if hud.drawing {
-		gtx.Execute(pointer.GrabCmd{
-			Tag: hud,
-			ID:  hud.pointer,
-		})
-
 		min := gtx.Pt(hud.start.Min(hud.end))
 		max := gtx.Pt(hud.start.Max(hud.end))
 		FillRect(gtx, image.Rectangle{
@@ -141,7 +141,6 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 
 	defer clip.Rect(r).Push(gtx.Ops).Pop()
 
-	// TODO: broken
 	tag := connectionCreationTag(p)
 	event.Op(gtx.Ops, tag)
 
@@ -175,6 +174,13 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 						X: int(ev.Position.X),
 						Y: int(ev.Position.Y),
 					}
+
+					if ev.Priority < pointer.Grabbed {
+						gtx.Execute(pointer.GrabCmd{
+							Tag: tag,
+							ID:  hud.pointer,
+						})
+					}
 				}
 			case pointer.Release:
 				if hud.drawing && ev.PointerID == hud.pointer {
@@ -194,12 +200,5 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 				}
 			}
 		}
-	}
-
-	if hud.drawing {
-		gtx.Execute(pointer.GrabCmd{
-			Tag: tag,
-			ID:  hud.pointer,
-		})
 	}
 }

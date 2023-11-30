@@ -73,6 +73,13 @@ func (hud *ManipulationHud) HandleNode(gtx *Context, node *Node) {
 						Y: int(ev.Position.Y),
 					}
 					hud.updateDelta(gtx)
+
+					if ev.Priority < pointer.Grabbed {
+						gtx.Execute(pointer.GrabCmd{
+							Tag: hud,
+							ID:  hud.pointer,
+						})
+					}
 				}
 			case pointer.Release:
 				if ev.PointerID == hud.pointer && hud.dragging {
@@ -93,14 +100,6 @@ func (hud *ManipulationHud) HandleNode(gtx *Context, node *Node) {
 				}
 			}
 		}
-	}
-
-	// TODO: broken
-	if hud.dragging {
-		gtx.Execute(pointer.GrabCmd{
-			Tag: hud,
-			ID:  hud.pointer,
-		})
 	}
 }
 
