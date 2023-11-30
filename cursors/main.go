@@ -3,12 +3,14 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"log"
 	"math"
 	"os"
 
 	"gioui.org/app"
+	"gioui.org/io/event"
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
@@ -74,6 +76,9 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	squareSize := gtx.Constraints.Max.X / cols
 	square := image.Point{X: squareSize, Y: squareSize}
 
+	// TODO: just for debug
+	fmt.Println("redraw")
+
 	i := pointer.Cursor(0)
 	for row := 0; row < rows; row++ {
 		for col := 0; col < cols; col++ {
@@ -89,8 +94,13 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 				paint.ColorOp{Color: col}.Add(gtx.Ops)
 				paint.PaintOp{}.Add(gtx.Ops)
 
-				// TODO: this does not work
 				cursor.Add(gtx.Ops)
+				event.Op(gtx.Ops, i)
+				// TODO: not, sure whether we want a redraw for every pointer move?
+				gtx.Event(pointer.Filter{
+					Target: i,
+					Kinds:  pointer.Enter,
+				})
 
 				gtx := gtx
 				gtx.Constraints = layout.Exact(square)
