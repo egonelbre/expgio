@@ -143,6 +143,7 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 
 	tag := connectionCreationTag(p)
 	event.Op(gtx.Ops, tag)
+	pointer.CursorCrosshair.Add(gtx.Ops)
 
 	for {
 		ev, ok := gtx.Event(
