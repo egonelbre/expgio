@@ -5,7 +5,9 @@ import (
 	"image/color"
 
 	"gioui.org/gesture"
+	"gioui.org/io/event"
 	"gioui.org/io/pointer"
+	"gioui.org/op"
 	"gioui.org/op/clip"
 )
 
@@ -20,20 +22,27 @@ type NodeCreationHud struct {
 
 func (hud *NodeCreationHud) Layout(gtx *Context) {
 	defer clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops).Pop()
-	pointer.InputOp{
-		Tag:   hud,
-		Grab:  hud.drawing,
-		Kinds: pointer.Press | pointer.Drag | pointer.Release,
-	}.Add(gtx.Ops)
 
-	for _, ev := range gtx.Events(hud) {
+	event.Op(gtx.Ops, hud)
+
+	for {
+		ev, ok := gtx.Event(pointer.Filter{
+			Target: hud,
+			Kinds:  pointer.Press | pointer.Drag | pointer.Release,
+		})
+		if !ok {
+			break
+		}
+
 		switch ev := ev.(type) {
 		case pointer.Event:
 			switch ev.Kind {
 			case pointer.Press:
 				if hud.pointer == 0 {
 					hud.start = gtx.FInv(ev.Position)
+					hud.end = hud.start
 					hud.pointer = ev.PointerID
+					hud.drawing = true
 
 					gtx.Diagram.Selection.Clear()
 				}
@@ -54,6 +63,7 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 						node := NewNode(min, size)
 						gtx.Diagram.Nodes = append(gtx.Diagram.Nodes, node)
 						gtx.Diagram.Selection.Select(node)
+						gtx.Execute(op.InvalidateCmd{})
 					}
 				}
 			case pointer.Cancel:
@@ -66,6 +76,11 @@ func (hud *NodeCreationHud) Layout(gtx *Context) {
 	}
 
 	if hud.drawing {
+		gtx.Execute(pointer.GrabCmd{
+			Tag: hud,
+			ID:  hud.pointer,
+		})
+
 		min := gtx.Pt(hud.start.Min(hud.end))
 		max := gtx.Pt(hud.start.Max(hud.end))
 		FillRect(gtx, image.Rectangle{
@@ -124,23 +139,34 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 		}
 	}
 
-	tag := connectionCreationTag(p)
-
 	defer clip.Rect(r).Push(gtx.Ops).Pop()
-	pointer.InputOp{
-		Tag:   tag,
-		Grab:  hud.drawing,
-		Kinds: pointer.Press | pointer.Drag | pointer.Release,
-	}.Add(gtx.Ops)
 
-	for _, ev := range gtx.Events(tag) {
+	// TODO: broken
+	tag := connectionCreationTag(p)
+	event.Op(gtx.Ops, tag)
+
+	for {
+		ev, ok := gtx.Event(
+			pointer.Filter{
+				Target: tag,
+				Kinds:  pointer.Press | pointer.Drag | pointer.Release,
+			},
+		)
+		if !ok {
+			break
+		}
 		switch ev := ev.(type) {
 		case pointer.Event:
 			switch ev.Kind {
 			case pointer.Press:
 				if hud.pointer == 0 {
 					hud.source = p
+					hud.end = image.Point{
+						X: int(ev.Position.X),
+						Y: int(ev.Position.Y),
+					}
 					hud.pointer = ev.PointerID
+					hud.drawing = true
 				}
 			case pointer.Drag:
 				if ev.PointerID == hud.pointer {
@@ -168,5 +194,12 @@ func (hud *ConnectionCreationHud) LayoutPort(gtx *Context, p *Port) {
 				}
 			}
 		}
+	}
+
+	if hud.drawing {
+		gtx.Execute(pointer.GrabCmd{
+			Tag: tag,
+			ID:  hud.pointer,
+		})
 	}
 }

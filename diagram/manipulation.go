@@ -3,6 +3,7 @@ package main
 import (
 	"image"
 
+	"gioui.org/io/event"
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
 	"gioui.org/op/clip"
@@ -33,15 +34,19 @@ func (hud *ManipulationHud) Layout(gtx *Context) {
 type manipulationTag *Node
 
 func (hud *ManipulationHud) HandleNode(gtx *Context, node *Node) {
-	tag := manipulationTag(node)
-
 	defer clip.Rect(gtx.Bounds(node.Box)).Push(gtx.Ops).Pop()
-	pointer.InputOp{
-		Tag:   tag,
-		Kinds: pointer.Press | pointer.Drag | pointer.Release,
-	}.Add(gtx.Ops)
+	tag := manipulationTag(node)
+	event.Op(gtx.Ops, tag)
 
-	for _, ev := range gtx.Events(tag) {
+	for {
+		ev, ok := gtx.Event(pointer.Filter{
+			Target: tag,
+			Kinds:  pointer.Press | pointer.Drag | pointer.Release,
+		})
+		if !ok {
+			break
+		}
+
 		if ev, ok := ev.(pointer.Event); ok {
 			switch ev.Kind {
 			case pointer.Press:
@@ -88,6 +93,14 @@ func (hud *ManipulationHud) HandleNode(gtx *Context, node *Node) {
 				}
 			}
 		}
+	}
+
+	// TODO: broken
+	if hud.dragging {
+		gtx.Execute(pointer.GrabCmd{
+			Tag: hud,
+			ID:  hud.pointer,
+		})
 	}
 }
 
