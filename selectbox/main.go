@@ -7,6 +7,7 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
+	"gioui.org/io/event"
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
@@ -92,6 +93,9 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 		pointerClicked := false
 		pointerHovered := false
 		pointerPosition := f32.Point{}
+
+		event.Op(gtx.Ops, &list.List)
+
 		for {
 			ev, ok := gtx.Event(
 				key.Filter{
@@ -100,9 +104,9 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 						key.NameHome + "|" + key.NameEnd + "|" +
 						key.NamePageUp + "|" + key.NamePageDown,
 				},
-				// TODO: this does not work
 				pointer.Filter{
-					Kinds: pointer.Press | pointer.Move,
+					Target: &list.List,
+					Kinds:  pointer.Press | pointer.Move,
 				},
 			)
 			if !ok {
