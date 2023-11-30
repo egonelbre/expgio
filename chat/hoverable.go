@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"time"
 
+	"gioui.org/io/event"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -18,25 +19,20 @@ type Hoverable struct {
 }
 
 func (h *Hoverable) Layout(gtx layout.Context) layout.Dimensions {
-	h.update(gtx)
-
 	defer pointer.PassOp{}.Push(gtx.Ops).Pop()
 	defer clip.Rect{Max: gtx.Constraints.Min}.Push(gtx.Ops).Pop()
 
-	pointer.InputOp{
-		Tag:   h,
-		Kinds: pointer.Enter | pointer.Leave,
-	}.Add(gtx.Ops)
+	event.Op(gtx.Ops, h)
 
-	return layout.Dimensions{
-		Size: gtx.Constraints.Min,
-	}
-}
+	for {
+		e, ok := gtx.Event(pointer.Filter{
+			Target: h,
+			Kinds:  pointer.Enter | pointer.Leave,
+		})
+		if !ok {
+			break
+		}
 
-func (h *Hoverable) Active() bool { return h.hovered }
-
-func (h *Hoverable) update(gtx layout.Context) {
-	for _, e := range gtx.Events(h) {
 		ev, ok := e.(pointer.Event)
 		if !ok {
 			continue
@@ -49,7 +45,13 @@ func (h *Hoverable) update(gtx layout.Context) {
 			h.hovered = false
 		}
 	}
+
+	return layout.Dimensions{
+		Size: gtx.Constraints.Min,
+	}
 }
+
+func (h *Hoverable) Active() bool { return h.hovered }
 
 type AnimationTimer struct {
 	Duration time.Duration

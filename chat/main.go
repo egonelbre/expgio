@@ -68,18 +68,33 @@ func (ui *UI) Run(w *app.Window) error {
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
 
-			key.InputOp{Tag: w, Keys: key.NameEscape + "|Ctrl-[1,2,3,4,5,6,7,8,9]"}.Add(gtx.Ops)
-			for _, ev := range gtx.Queue.Events(w) {
-				e, ok := ev.(key.Event)
+			for {
+				e, ok := gtx.Event(
+					key.Filter{Name: key.NameEscape},
+					key.Filter{Name: "1", Optional: key.ModCtrl},
+					key.Filter{Name: "2", Optional: key.ModCtrl},
+					key.Filter{Name: "3", Optional: key.ModCtrl},
+					key.Filter{Name: "4", Optional: key.ModCtrl},
+					key.Filter{Name: "5", Optional: key.ModCtrl},
+					key.Filter{Name: "6", Optional: key.ModCtrl},
+					key.Filter{Name: "7", Optional: key.ModCtrl},
+					key.Filter{Name: "8", Optional: key.ModCtrl},
+					key.Filter{Name: "9", Optional: key.ModCtrl},
+				)
+				if !ok {
+					break
+				}
+
+				ev, ok := e.(key.Event)
 				if !ok {
 					continue
 				}
-				switch e.Name {
+				switch ev.Name {
 				case key.NameEscape:
 					return nil
 				}
-				if e.Modifiers == key.ModCtrl {
-					switch e.Name {
+				if ev.Modifiers == key.ModCtrl {
+					switch ev.Name {
 					case "1":
 						ui.activateGroup(w, 0)
 					case "2":
