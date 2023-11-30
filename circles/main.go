@@ -68,11 +68,9 @@ func (ui *UI) Run(w *app.Window) error {
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
 
-			key.InputOp{Tag: w, Keys: key.NameEscape}.Add(gtx.Ops)
-			for _, ev := range gtx.Queue.Events(w) {
-				if e, ok := ev.(key.Event); ok && e.Name == key.NameEscape {
-					return nil
-				}
+			_, ok := gtx.Event(key.Filter{Name: key.NameEscape})
+			if ok {
+				return nil
 			}
 
 			ui.Layout(gtx)
@@ -88,7 +86,11 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	gtx.Constraints = layout.Exact(gtx.Constraints.Max)
 
 	ui.Change.Add(gtx.Ops)
-	for _, click := range ui.Change.Update(gtx.Queue) {
+	for {
+		click, ok := ui.Change.Update(gtx.Source)
+		if !ok {
+			break
+		}
 		if click.Kind != gesture.KindClick {
 			continue
 		}
