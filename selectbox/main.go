@@ -84,19 +84,6 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 		gtx.Constraints = layout.Exact(size)
 		defer clip.Rect{Max: size}.Push(gtx.Ops).Pop()
 
-		key.InputOp{
-			Tag: list,
-			Keys: key.NameUpArrow + "|" + key.NameDownArrow + "|" +
-				key.NameHome + "|" + key.NameEnd + "|" +
-				key.NamePageUp + "|" + key.NamePageDown,
-		}.Add(gtx.Ops)
-
-		pointer.InputOp{
-			Tag:          list,
-			Kinds:        pointer.Press | pointer.Move,
-			ScrollBounds: image.Rectangle{},
-		}.Add(gtx.Ops)
-
 		changed := false
 		grabbed := false
 
@@ -105,7 +92,23 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 		pointerClicked := false
 		pointerHovered := false
 		pointerPosition := f32.Point{}
-		for _, ev := range gtx.Events(list) {
+		for {
+			ev, ok := gtx.Event(
+				key.Filter{
+					Focus: list,
+					Name: key.NameUpArrow + "|" + key.NameDownArrow + "|" +
+						key.NameHome + "|" + key.NameEnd + "|" +
+						key.NamePageUp + "|" + key.NamePageDown,
+				},
+				// TODO: this does not work
+				pointer.Filter{
+					Kinds: pointer.Press | pointer.Move,
+				},
+			)
+			if !ok {
+				break
+			}
+
 			switch ev := ev.(type) {
 			case key.Event:
 				if ev.State == key.Press {
@@ -149,7 +152,7 @@ func (list *SelectList) Layout(th *material.Theme, gtx layout.Context, length in
 				case pointer.Press:
 					if !list.focused && !grabbed {
 						grabbed = true
-						key.FocusOp{Tag: list}.Add(gtx.Ops)
+						gtx.Execute(key.FocusCmd{Tag: list})
 					}
 					// TODO: find the item
 					pointerClicked = true
@@ -269,7 +272,8 @@ var editor widget.Editor
 func Layout(gtx layout.Context) {
 	layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-			return FocusBorder(theme, editor.Focused()).Layout(gtx,
+			focused := gtx.Source.Focused(&editor)
+			return FocusBorder(theme, focused).Layout(gtx,
 				material.Editor(theme, &editor, "Hint").Layout)
 		}),
 		layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
