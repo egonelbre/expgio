@@ -60,14 +60,14 @@ func (ui *UI) Run(w *app.Window) error {
 		case app.FrameEvent:
 
 			gtx := app.NewContext(&ops, e)
-			ui.Layout(gtx)
-			e.Frame(gtx.Ops)
 
-		case key.Event:
-			switch e.Name {
-			case key.NameEscape:
+			_, ok := gtx.Event(key.Filter{Name: key.NameEscape})
+			if ok {
 				return nil
 			}
+
+			ui.Layout(gtx)
+			e.Frame(gtx.Ops)
 
 		case app.DestroyEvent:
 			return e.Err
@@ -164,7 +164,11 @@ func (panel *Panel) Layout(th *material.Theme, gtx layout.Context) layout.Dimens
 	paint.ColorOp{Color: panel.Color}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
-	for range panel.Insert.Update(gtx) {
+	for {
+		_, ok := panel.Insert.Update(gtx)
+		if !ok {
+			break
+		}
 		panel.UI.AddPanel(panel, NewPanel(panel.UI))
 	}
 
