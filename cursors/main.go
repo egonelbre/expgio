@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"log"
 	"math"
@@ -76,9 +75,6 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	squareSize := gtx.Constraints.Max.X / cols
 	square := image.Point{X: squareSize, Y: squareSize}
 
-	// TODO: just for debug
-	fmt.Println("redraw")
-
 	i := pointer.Cursor(0)
 	for row := 0; row < rows; row++ {
 		for col := 0; col < cols; col++ {
@@ -96,11 +92,6 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 
 				cursor.Add(gtx.Ops)
 				event.Op(gtx.Ops, i)
-				// TODO: not, sure whether we want a redraw for every pointer move?
-				gtx.Event(pointer.Filter{
-					Target: i,
-					Kinds:  pointer.Enter,
-				})
 
 				gtx := gtx
 				gtx.Constraints = layout.Exact(square)
