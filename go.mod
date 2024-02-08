@@ -22,3 +22,5 @@ require (
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 )
+
+replace gioui.org => ../gioui.org
