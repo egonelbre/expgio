@@ -52,6 +52,9 @@ type UI struct {
 
 	Direction widget.Enum
 	Fit       widget.Enum
+	Filter    widget.Enum
+	WrapX     widget.Enum
+	WrapY     widget.Enum
 }
 
 func (ui *UI) Run(w *app.Window) error {
@@ -108,6 +111,29 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 				ui.radio(&ui.Fit, "ScaleDown"),
 			)
 		}),
+		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+			gtx.Constraints.Max.X = 1e6
+			return layout.Flex{}.Layout(gtx,
+				ui.radio(&ui.Filter, "Linear"),
+				ui.radio(&ui.Filter, "Nearest"),
+			)
+		}),
+		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+			gtx.Constraints.Max.X = 1e6
+			return layout.Flex{}.Layout(gtx,
+				ui.radio(&ui.WrapX, "Clamp"),
+				ui.radio(&ui.WrapX, "Repeat"),
+				ui.radio(&ui.WrapX, "MirrorRepeat"),
+			)
+		}),
+		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+			gtx.Constraints.Max.X = 1e6
+			return layout.Flex{}.Layout(gtx,
+				ui.radio(&ui.WrapY, "Clamp"),
+				ui.radio(&ui.WrapY, "Repeat"),
+				ui.radio(&ui.WrapY, "MirrorRepeat"),
+			)
+		}),
 		layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
 			paint.FillShape(gtx.Ops, color.NRGBA{R: 0xFF, A: 0xFF},
 				clip.Rect{Max: gtx.Constraints.Max}.Op(),
@@ -151,13 +177,68 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 				fit = widget.Unscaled
 			}
 
+			var filter paint.ImageFilter
+			switch ui.Filter.Value {
+			case "", "Linear":
+				filter = paint.FilterLinear
+			case "Nearest":
+				filter = paint.FilterNearest
+			}
+
+			var wrap paint.ImageWrap
+			switch ui.WrapX.Value {
+			case "", "Clamp":
+				wrap |= paint.ClampX
+			case "Repeat":
+				wrap |= paint.RepeatX
+			case "MirrorRepeat":
+				wrap |= paint.MirroredRepeatX
+			}
+
+			switch ui.WrapY.Value {
+			case "", "Clamp":
+				wrap |= paint.ClampY
+			case "Repeat":
+				wrap |= paint.RepeatY
+			case "MirrorRepeat":
+				wrap |= paint.MirroredRepeatY
+			}
+
 			return layout.UniformInset(64).Layout(gtx,
 				func(gtx layout.Context) layout.Dimensions {
+					size := gtx.Constraints.Max
+					
 					paint.FillShape(gtx.Ops,
 						color.NRGBA{G: 0xFF, A: 0xFF},
 						clip.Rect{Max: gtx.Constraints.Max}.Op(),
 					)
-					return widget.Image{Src: ui.Image, Fit: fit, Position: pos}.Layout(gtx)
+
+					defer clip.Rect{Max: size}.Push(gtx.Ops).Pop()
+
+					img := ui.Image
+					img.Filter = filter
+					img.Wrap = wrap
+					img.Add(gtx.Ops)
+					paint.PaintOp{}.Add(gtx.Ops)
+
+					_ = pos
+					_ = fit
+
+					return layout.Dimensions{Size: size}
+
+
+
+					/*
+					paint.FillShape(gtx.Ops,
+						color.NRGBA{G: 0xFF, A: 0xFF},
+						clip.Rect{Max: gtx.Constraints.Max}.Op(),
+					)
+
+					img := ui.Image
+					img.Filter = filter
+					img.Wrap = wrap
+
+					return widget.Image{Src: img, Fit: fit, Position: pos}.Layout(gtx)*/
 				})
 		}),
 	)
