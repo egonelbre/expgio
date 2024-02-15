@@ -10,7 +10,6 @@ import (
 	"gioui.org/f32"
 	"gioui.org/gesture"
 	"gioui.org/io/pointer"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -32,10 +31,10 @@ func loop(w *app.Window) error {
 	var ops op.Ops
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 			layoutBox(gtx)
 			layoutDrag(gtx)
 			e.Frame(gtx.Ops)
@@ -56,7 +55,11 @@ func layoutDrag(gtx layout.Context) {
 	paint.ColorOp{Color: color.NRGBA{G: 0xFF, A: 0xFF}}.Add(gtx.Ops)
 	paint.PaintOp{}.Add(gtx.Ops)
 
-	for _, e := range drag.Update(gtx.Metric, gtx, gesture.Both) {
+	for {
+		e, ok := drag.Update(gtx.Metric, gtx.Source, gesture.Both)
+		if !ok {
+			break
+		}
 		if e.Kind == pointer.Drag {
 			p.X = e.Position.X
 			p.Y = e.Position.Y

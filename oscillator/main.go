@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"gioui.org/app"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -105,9 +104,9 @@ func (ui *UI) Run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
+		case app.FrameEvent:
 
 			asyncStatus.Check(func(v generator.Status) {
 				ui.status.Current = v
@@ -116,7 +115,7 @@ func (ui *UI) Run(w *app.Window) error {
 				ui.scope.Data = v
 			})
 
-			gtx := layout.NewContext(&ops, e)
+			gtx := app.NewContext(&ops, e)
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 		}
@@ -188,7 +187,7 @@ func (controls *Controls) Layout(th *material.Theme, gtx layout.Context) layout.
 		if controls.Pending != controls.Active {
 			controls.Generator.Reconf(controls.Pending)
 			controls.Active = controls.Pending
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 		}
 	}()
 

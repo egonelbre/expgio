@@ -7,8 +7,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
@@ -34,8 +32,8 @@ func run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.FrameEvent:
-			gtx := layout.NewContext(ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(ops, e)
 
 			var p clip.Path
 			p.Begin(gtx.Ops)
@@ -49,7 +47,7 @@ func run(w *app.Window) error {
 
 			e.Frame(gtx.Ops)
 
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
 		}
 	}

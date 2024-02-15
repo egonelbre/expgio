@@ -1,14 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 
 	"gioui.org/app"
 	"gioui.org/f32"
-	"gioui.org/io/profile"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
@@ -24,8 +20,8 @@ func main() {
 
 		for {
 			switch e := w.NextEvent().(type) {
-			case system.FrameEvent:
-				gtx := layout.NewContext(&ops, e)
+			case app.FrameEvent:
+				gtx := app.NewContext(&ops, e)
 
 				var p clip.Path
 				p.Begin(gtx.Ops)
@@ -39,12 +35,7 @@ func main() {
 					}
 				}
 				paint.FillShape(gtx.Ops, color.NRGBA{A: 0xFF}, clip.Outline{Path: p.End()}.Op())
-
-				for _, ev := range gtx.Events(0) {
-					fmt.Println(ev)
-				}
-				profile.Op{Tag: 0}.Add(gtx.Ops)
-				op.InvalidateOp{}.Add(gtx.Ops)
+				gtx.Execute(op.InvalidateCmd{})
 
 				e.Frame(gtx.Ops)
 			}

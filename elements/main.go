@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"gioui.org/app"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
@@ -35,8 +34,8 @@ func run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.FrameEvent:
-			gtx := layout.NewContext(ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(ops, e)
 
 			material.List(th, &list).Layout(ElementsGap(gtx, 8,
 				material.H1(th, "Hello, world!").Layout,
@@ -46,7 +45,7 @@ func run(w *app.Window) error {
 
 			e.Frame(gtx.Ops)
 
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
 		}
 	}

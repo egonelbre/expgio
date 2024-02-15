@@ -3,9 +3,8 @@ package main
 import (
 	"testing"
 
+	"gioui.org/app"
 	"gioui.org/font/gofont"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/text"
 	"gioui.org/widget/material"
@@ -21,7 +20,7 @@ func BenchmarkLayout(b *testing.B) {
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		gtx := layout.NewContext(ops, system.FrameEvent{})
+		gtx := app.NewContext(ops, app.FrameEvent{})
 		for i := 0; i < 10; i++ {
 			material.Label(t, 10, "abcdefghijklmnopqrstuvwxyz").Layout(gtx)
 			material.Label(t, 10, "oifajmorfj983 4mroaermfnkli").Layout(gtx)

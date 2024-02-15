@@ -8,7 +8,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -39,10 +38,10 @@ func run(w *app.Window) error {
 	var angle float32
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 			paint.ColorOp{Color: defaultColor}.Add(gtx.Ops)
 			paint.PaintOp{}.Add(gtx.Ops)
 
@@ -52,7 +51,7 @@ func run(w *app.Window) error {
 				angle -= 2 * math.Pi
 			}
 
-			op.InvalidateOp{}.Add(gtx.Ops)
+			gtx.Execute(op.InvalidateCmd{})
 			e.Frame(gtx.Ops)
 		}
 	}

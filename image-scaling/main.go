@@ -13,7 +13,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/io/key"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -59,8 +58,8 @@ func (ui *UI) Run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 
@@ -70,7 +69,7 @@ func (ui *UI) Run(w *app.Window) error {
 				return nil
 			}
 
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
 		}
 	}

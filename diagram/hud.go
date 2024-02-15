@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 
+	"gioui.org/io/event"
 	"gioui.org/io/pointer"
 	"gioui.org/layout"
 	"gioui.org/op/clip"
@@ -91,7 +92,6 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 				func(gtx layout.Context, index int) layout.Dimensions {
 					type paintTag *Style
 					style := Tango[index]
-					tag := paintTag(style)
 
 					size := image.Point{
 						X: gtx.Dp(m.Theme.FingerSize),
@@ -100,12 +100,18 @@ func (m *HudManager) LayoutPaint(gtx layout.Context) layout.Dimensions {
 					paint.FillShape(gtx.Ops, style.Fill, clip.Rect{Max: size}.Op())
 
 					defer clip.Rect{Max: size}.Push(gtx.Ops).Pop()
-					pointer.InputOp{
-						Tag:   tag,
-						Kinds: pointer.Press,
-					}.Add(gtx.Ops)
+					tag := paintTag(style)
+					event.Op(gtx.Ops, tag)
 
-					for _, ev := range gtx.Events(tag) {
+					for {
+						ev, ok := gtx.Event(pointer.Filter{
+							Target: tag,
+							Kinds:  pointer.Press,
+						})
+						if !ok {
+							break
+						}
+
 						if ev, ok := ev.(pointer.Event); ok {
 							switch ev.Kind {
 							case pointer.Press:

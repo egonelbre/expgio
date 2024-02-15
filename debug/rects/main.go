@@ -1,14 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 
 	"gioui.org/app"
-	"gioui.org/io/profile"
-	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
 	"gioui.org/op/paint"
@@ -27,11 +23,10 @@ func main() {
 			{0xAA, 0xFF, 0xFF, 0xFF},
 		}
 
-		profileTag := new(int)
 		for {
 			e := w.NextEvent()
-			if ev, ok := e.(system.FrameEvent); ok {
-				gtx := layout.NewContext(&ops, ev)
+			if ev, ok := e.(app.FrameEvent); ok {
+				gtx := app.NewContext(&ops, ev)
 
 				for x := 0; x < 70; x++ {
 					for y := 0; y < 70; y++ {
@@ -44,12 +39,7 @@ func main() {
 					}
 				}
 
-				for _, ev := range gtx.Events(profileTag) {
-					fmt.Println(ev)
-				}
-
-				profile.Op{Tag: profileTag}.Add(gtx.Ops)
-				op.InvalidateOp{}.Add(gtx.Ops)
+				gtx.Execute(op.InvalidateCmd{})
 				ev.Frame(gtx.Ops)
 			}
 		}

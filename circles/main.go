@@ -14,7 +14,6 @@ import (
 	"gioui.org/font"
 	"gioui.org/gesture"
 	"gioui.org/io/key"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -66,20 +65,18 @@ func (ui *UI) Run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 
-			key.InputOp{Tag: w, Keys: key.NameEscape}.Add(gtx.Ops)
-			for _, ev := range gtx.Queue.Events(w) {
-				if e, ok := ev.(key.Event); ok && e.Name == key.NameEscape {
-					return nil
-				}
+			_, ok := gtx.Event(key.Filter{Name: key.NameEscape})
+			if ok {
+				return nil
 			}
 
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
 		}
 	}
@@ -89,7 +86,11 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	gtx.Constraints = layout.Exact(gtx.Constraints.Max)
 
 	ui.Change.Add(gtx.Ops)
-	for _, click := range ui.Change.Update(gtx.Queue) {
+	for {
+		click, ok := ui.Change.Update(gtx.Source)
+		if !ok {
+			break
+		}
 		if click.Kind != gesture.KindClick {
 			continue
 		}
@@ -212,7 +213,7 @@ func (anim *Animation) Update(gtx layout.Context) float32 {
 		if anim.progress > anim.duration {
 			anim.progress = anim.duration
 		}
-		op.InvalidateOp{}.Add(gtx.Ops)
+		gtx.Execute(op.InvalidateCmd{})
 	}
 
 	return float32(float64(anim.progress) / float64(anim.duration))

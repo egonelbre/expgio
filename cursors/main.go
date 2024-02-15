@@ -9,9 +9,9 @@ import (
 	"os"
 
 	"gioui.org/app"
+	"gioui.org/io/event"
 	"gioui.org/io/key"
 	"gioui.org/io/pointer"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -45,20 +45,18 @@ func (ui *UI) Run(w *app.Window) error {
 
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 
-			key.InputOp{Tag: w, Keys: key.NameEscape}.Add(gtx.Ops)
-			for _, ev := range gtx.Queue.Events(w) {
-				if e, ok := ev.(key.Event); ok && e.Name == key.NameEscape {
-					return nil
-				}
+			_, ok := gtx.Event(key.Filter{Name: key.NameEscape})
+			if ok {
+				return nil
 			}
 
 			ui.Layout(gtx)
 			e.Frame(gtx.Ops)
 
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
 		}
 	}
@@ -92,8 +90,8 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 				paint.ColorOp{Color: col}.Add(gtx.Ops)
 				paint.PaintOp{}.Add(gtx.Ops)
 
-				pointer.InputOp{Tag: i}.Add(gtx.Ops)
 				cursor.Add(gtx.Ops)
+				event.Op(gtx.Ops, i)
 
 				gtx := gtx
 				gtx.Constraints = layout.Exact(square)

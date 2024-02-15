@@ -9,7 +9,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/io/system"
-	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/text"
 	"gioui.org/widget/material"
@@ -40,10 +39,10 @@ func run(ctx context.Context, w *app.Window) error {
 	var ops op.Ops
 	for {
 		switch e := w.NextEvent().(type) {
-		case system.DestroyEvent:
+		case app.DestroyEvent:
 			return e.Err
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
+		case app.FrameEvent:
+			gtx := app.NewContext(&ops, e)
 
 			title := material.H1(th, "Hello, Gio")
 			maroon := color.NRGBA{R: 127, G: 0, B: 0, A: 255}

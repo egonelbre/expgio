@@ -8,7 +8,6 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
-	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
@@ -30,8 +29,8 @@ func main() {
 
 		for {
 			switch e := w.NextEvent().(type) {
-			case system.FrameEvent:
-				gtx := layout.NewContext(&ops, e)
+			case app.FrameEvent:
+				gtx := app.NewContext(&ops, e)
 
 				seconds := gtx.Now.Sub(start).Seconds() * 0.5
 				layout.Center.Layout(gtx,
@@ -55,9 +54,9 @@ func main() {
 						Hole: float32(math.Sin(seconds)*0.4) + 0.5,
 					}.Layout)
 
-				op.InvalidateOp{}.Add(gtx.Ops)
+				gtx.Execute(op.InvalidateCmd{})
 				e.Frame(gtx.Ops)
-			case system.DestroyEvent:
+			case app.DestroyEvent:
 				os.Exit(0)
 			}
 		}
