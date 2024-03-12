@@ -23,7 +23,8 @@ var defaultColor = color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF}
 
 func main() {
 	go func() {
-		w := app.NewWindow(app.Size(600, 600))
+		w := &app.Window{}
+		w.Option(app.Size(600, 600))
 		err := run(w)
 		if err != nil {
 			log.Fatal(err)
@@ -37,7 +38,7 @@ func run(w *app.Window) error {
 	var ops op.Ops
 	var angle float32
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:

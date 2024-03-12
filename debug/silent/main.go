@@ -19,7 +19,8 @@ func main() {
 	defer stop()
 
 	go func() {
-		w := app.NewWindow(app.Fullscreen.Option())
+		w := &app.Window{}
+		w.Option(app.Fullscreen.Option())
 		err := run(ctx, w)
 		if err != nil {
 			log.Fatal(err)
@@ -38,7 +39,7 @@ func run(ctx context.Context, w *app.Window) error {
 	th := material.NewTheme()
 	var ops op.Ops
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:

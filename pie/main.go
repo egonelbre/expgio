@@ -20,7 +20,8 @@ type D = layout.Dimensions
 
 func main() {
 	go func() {
-		w := app.NewWindow(
+		w := &app.Window{}
+		w.Option(
 			app.Size(unit.Dp(400), unit.Dp(700)),
 		)
 
@@ -28,7 +29,7 @@ func main() {
 		start := time.Now()
 
 		for {
-			switch e := w.NextEvent().(type) {
+			switch e := w.Event().(type) {
 			case app.FrameEvent:
 				gtx := app.NewContext(&ops, e)
 

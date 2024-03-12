@@ -27,7 +27,8 @@ func main() {
 	ui := NewUI()
 
 	go func() {
-		w := app.NewWindow(
+		w := &app.Window{}
+		w.Option(
 			app.Title("Loader"),
 		)
 		if err := ui.Run(w); err != nil {
@@ -67,7 +68,7 @@ func (ui *UI) Run(w *app.Window) error {
 
 	var ops op.Ops
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:

@@ -12,7 +12,7 @@ import (
 
 func main() {
 	go func() {
-		w := app.NewWindow()
+		w := &app.Window{}
 		var ops op.Ops
 
 		colors := []color.NRGBA{
@@ -24,7 +24,7 @@ func main() {
 		}
 
 		for {
-			e := w.NextEvent()
+			e := w.Event()
 			if ev, ok := e.(app.FrameEvent); ok {
 				gtx := app.NewContext(&ops, ev)
 

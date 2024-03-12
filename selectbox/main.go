@@ -21,10 +21,11 @@ import (
 
 func main() {
 	go func() {
-		w := app.NewWindow(app.Title("Selectbox"))
+		w := &app.Window{}
+		w.Option(app.Title("Selectbox"))
 		var ops op.Ops
 		for {
-			switch e := w.NextEvent().(type) {
+			switch e := w.Event().(type) {
 			case app.FrameEvent:
 
 				gtx := app.NewContext(&ops, e)
