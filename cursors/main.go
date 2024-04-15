@@ -25,7 +25,8 @@ const cursorCount = pointer.CursorNorthWestSouthEastResize + 1
 func main() {
 	ui := &UI{Theme: material.NewTheme()}
 	go func() {
-		w := app.NewWindow(app.Title("Image Viewer"))
+		w := new(app.Window)
+		w.Option(app.Title("Image Viewer"))
 		if err := ui.Run(w); err != nil {
 			log.Println(err)
 			os.Exit(1)
@@ -44,7 +45,7 @@ func (ui *UI) Run(w *app.Window) error {
 	var ops op.Ops
 
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
 

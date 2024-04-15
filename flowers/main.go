@@ -27,7 +27,7 @@ var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
 func main() {
 	flag.Parse()
 	go func() {
-		w := app.NewWindow()
+		w := new(app.Window)
 		if err := loop(w); err != nil {
 			log.Println(err)
 		}
@@ -56,7 +56,7 @@ func loop(w *app.Window) error {
 
 	var ops op.Ops
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:

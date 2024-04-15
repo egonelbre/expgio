@@ -20,7 +20,8 @@ import (
 
 func main() {
 	go func() {
-		w := app.NewWindow(app.Size(unit.Px(150*6+50), unit.Px(150*6-50)))
+		w := new(app.Window)
+		w.Option(app.Size(unit.Px(150*6+50), unit.Px(150*6-50)))
 		if err := loop(w); err != nil {
 			log.Fatal(err)
 		}
@@ -34,7 +35,7 @@ func loop(w *app.Window) error {
 
 	var ops op.Ops
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.DestroyEvent:
 			return e.Err
 		case app.FrameEvent:

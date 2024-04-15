@@ -34,7 +34,8 @@ func main() {
 		Mesh:  mesh,
 	}
 	go func() {
-		w := app.NewWindow(app.Title("Slicer"))
+		w := new(app.Window)
+		w.Option(app.Title("Slicer"))
 		if err := ui.Run(w); err != nil {
 			log.Println(err)
 			os.Exit(1)
@@ -55,7 +56,7 @@ func (ui *UI) Run(w *app.Window) error {
 	var ops op.Ops
 
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
 			ui.Layout(gtx)

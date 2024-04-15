@@ -14,7 +14,8 @@ import (
 
 func main() {
 	go func() {
-		w := app.NewWindow(
+		w := new(app.Window)
+		w.Option(
 			app.Title("Drawing Test"),
 			app.Size(unit.Dp(400), unit.Dp(600)),
 		)
@@ -33,7 +34,7 @@ func run(w *app.Window) error {
 	ops := new(op.Ops)
 
 	for {
-		switch e := w.NextEvent().(type) {
+		switch e := w.Event().(type) {
 		case app.FrameEvent:
 			gtx := app.NewContext(ops, e)
 
