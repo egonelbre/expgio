@@ -49,9 +49,12 @@ type UI struct {
 
 func NewUI() *UI {
 	return &UI{
-		theme:  material.NewTheme(),
-		loader: async.NewLoader(5),
-		reels:  NewReels(),
+		theme: material.NewTheme(),
+		loader: async.NewLoader(async.LoaderConfig{
+			MaxCount:    50,
+			Concurrency: 4,
+		}),
+		reels: NewReels(),
 	}
 }
 
@@ -134,12 +137,20 @@ func (reel *Reel) Layout(gtx layout.Context, th *material.Theme, loader *async.L
 					case async.Loading:
 						col := color.NRGBA{R: 0xC0, G: 0xFF, B: 0xC0, A: 0xFF}
 						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
+						pct := fmt.Sprintf("%.0f%%", r.Progress*100)
+						layout.Center.Layout(gtx, material.Body1(th, pct).Layout)
 					case async.Loaded:
-						col := color.NRGBA{R: 0xF0, G: 0xF0, B: 0xF0, A: 0xFF}
-						paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
+						if r.Value == nil {
+							// Cancelled load, show as queued.
+							col := color.NRGBA{R: 0xFF, G: 0xC0, B: 0xC0, A: 0xFF}
+							paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
+						} else {
+							col := color.NRGBA{R: 0xF0, G: 0xF0, B: 0xF0, A: 0xFF}
+							paint.FillShape(gtx.Ops, col, clip.Rect{Max: size}.Op())
 
-						data := r.Value.(Data)
-						layout.Center.Layout(gtx, material.Body1(th, data.String()).Layout)
+							data := r.Value.(Data)
+							layout.Center.Layout(gtx, material.Body1(th, data.String()).Layout)
+						}
 					}
 
 					return layout.Dimensions{Size: size}
@@ -154,8 +165,16 @@ type Data struct {
 	Item int
 }
 
-func (data *Data) Load(ctx context.Context) any {
-	time.Sleep(5 * time.Millisecond)
+func (data *Data) Load(ctx context.Context, progress func(float32)) any {
+	const steps = 5
+	for i := range steps {
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(time.Millisecond):
+		}
+		progress(float32(i+1) / float32(steps))
+	}
 	return *data
 }
 

@@ -4,43 +4,53 @@ package async
 
 import (
 	"context"
+	"math"
 	"sync"
 	"sync/atomic"
 
 	"gioui.org/layout"
 )
 
-// TODO:
-//  * load multiple resources concurrently
-//  * gradual loading
-//  * loading progress
-//  * resource limit based on size (e.g. max 10MiB of images)
-//  * cancel loading when unloaded
-//  * ensure purging doesn't block the rendering
-//  * try to improve performance
-
 type Loader struct {
-	refresh sync.Cond
-	mu      sync.Mutex
+	mu sync.Mutex
 
-	maxLoaded int
+	config LoaderConfig
 
 	atomicActiveFrame   int64
 	atomicFinishedFrame int64
 
+	signal  chan struct{}
 	updated chan struct{}
-	lookup  map[Tag]*resource
-	queued  []*resource
+	workCh  chan *resource
+	wg      sync.WaitGroup
+
+	lookup map[Tag]*resource
+	queued []*resource
+
+	// LRU doubly-linked list: head = most recent, tail = least recent
+	lruHead   *resource
+	lruTail   *resource
+	lruLen    int
+	totalBytes int64
 }
 
-func NewLoader(maxLoaded int) *Loader {
-	loader := &Loader{
-		updated:   make(chan struct{}, 1),
-		lookup:    make(map[Tag]*resource),
-		maxLoaded: maxLoaded,
+type LoaderConfig struct {
+	MaxCount    int   // 0 = unlimited
+	MaxBytes    int64 // 0 = unlimited
+	Concurrency int   // default 4
+}
+
+func NewLoader(config LoaderConfig) *Loader {
+	if config.Concurrency <= 0 {
+		config.Concurrency = 4
 	}
-	loader.refresh.L = &loader.mu
-	return loader
+	return &Loader{
+		config:  config,
+		signal:  make(chan struct{}, 1),
+		updated: make(chan struct{}, 1),
+		workCh:  make(chan *resource),
+		lookup:  make(map[Tag]*resource),
+	}
 }
 
 func (loader *Loader) Updated() <-chan struct{} { return loader.updated }
@@ -52,9 +62,18 @@ func (loader *Loader) update() {
 	}
 }
 
+func (loader *Loader) notify() {
+	select {
+	case loader.signal <- struct{}{}:
+	default:
+	}
+}
+
 type LoaderStats struct {
-	Lookup int
-	Queued int
+	Lookup     int
+	Queued     int
+	LRULen     int
+	TotalBytes int64
 }
 
 func (loader *Loader) Stats() LoaderStats {
@@ -62,8 +81,10 @@ func (loader *Loader) Stats() LoaderStats {
 	defer loader.mu.Unlock()
 
 	return LoaderStats{
-		Lookup: len(loader.lookup),
-		Queued: len(loader.queued),
+		Lookup:     len(loader.lookup),
+		Queued:     len(loader.queued),
+		LRULen:     loader.lruLen,
+		TotalBytes: loader.totalBytes,
 	}
 }
 
@@ -71,10 +92,7 @@ func (loader *Loader) Frame(gtx layout.Context, w layout.Widget) layout.Dimensio
 	atomic.AddInt64(&loader.atomicActiveFrame, 1)
 	dim := w(gtx)
 	atomic.StoreInt64(&loader.atomicFinishedFrame, atomic.LoadInt64(&loader.atomicActiveFrame))
-
-	// signal to maybe purge old entries
-	loader.refresh.Signal()
-
+	loader.notify()
 	return dim
 }
 
@@ -90,92 +108,226 @@ func (loader *Loader) Schedule(tag Tag, load Load) Resource {
 		}
 		loader.lookup[tag] = r
 		loader.queued = append(loader.queued, r)
-		loader.refresh.Signal()
+		loader.notify()
 	}
 
 	activeFrame := atomic.LoadInt64(&loader.atomicActiveFrame)
 	atomic.StoreInt64(&r.atomicFrame, activeFrame)
 
+	// Promote to LRU head if already in the list.
+	if r.inLRU {
+		loader.lruPromote(r)
+	}
+
 	res := Resource{}
 	res.State = State(atomic.LoadInt64(&r.atomicState))
-	if res.State == Loaded {
+	switch res.State {
+	case Loaded:
 		res.Value = r.value
+	case Loading:
+		res.Progress = math.Float32frombits(uint32(atomic.LoadInt64(&r.atomicProgress)))
 	}
 	return res
 }
 
 func (loader *Loader) Run(ctx context.Context) {
-	go func() {
-		<-ctx.Done()
-		loader.refresh.Signal()
-	}()
+	// Start worker goroutines.
+	for range loader.config.Concurrency {
+		loader.wg.Add(1)
+		go loader.worker(ctx)
+	}
 
-	loader.mu.Lock()
-	defer loader.mu.Unlock()
-
+	// Dispatcher loop.
 	for {
-		loader.refresh.Wait()
-		if ctx.Err() != nil {
+		select {
+		case <-ctx.Done():
+			close(loader.workCh)
+			loader.wg.Wait()
 			return
+		case <-loader.signal:
 		}
 
-		loader.purgeOld()
+		loader.dispatch(ctx)
+	}
+}
 
-		for len(loader.queued) > 0 {
-			active := loader.queued[0]
-			loader.queued = loader.queued[1:]
+func (loader *Loader) dispatch(ctx context.Context) {
+	loader.mu.Lock()
+	queued := loader.queued
+	loader.queued = nil
+	loader.mu.Unlock()
 
-			if atomic.LoadInt64(&active.atomicFrame) < atomic.LoadInt64(&loader.atomicFinishedFrame) {
-				delete(loader.lookup, active.tag)
-				continue
-			}
+	finishedFrame := atomic.LoadInt64(&loader.atomicFinishedFrame)
 
-			atomic.StoreInt64(&active.atomicState, int64(Loading))
-			loader.update()
-
-			loader.mu.Unlock()
-			// TODO: implement concurrent loading
-			value := active.load(ctx)
+	for _, r := range queued {
+		// Skip stale items that weren't visible in the last finished frame.
+		if atomic.LoadInt64(&r.atomicFrame) < finishedFrame {
 			loader.mu.Lock()
+			delete(loader.lookup, r.tag)
+			loader.mu.Unlock()
+			continue
+		}
 
-			active.value = value
-			atomic.StoreInt64(&active.atomicState, int64(Loaded))
+		atomic.StoreInt64(&r.atomicState, int64(Loading))
+		loader.update()
 
-			loader.update()
+		// Create per-resource cancellation context.
+		rctx, cancel := context.WithCancel(ctx)
+		r.ctx = rctx
+		r.cancel = cancel
 
-			loader.purgeOld()
+		select {
+		case loader.workCh <- r:
+		case <-ctx.Done():
+			cancel()
+			return
 		}
 	}
 }
 
-// TODO: this might end up blocking rendering
-func (loader *Loader) purgeOld() {
-	finishedFrame := atomic.LoadInt64(&loader.atomicFinishedFrame)
-	for _, r := range loader.lookup {
-		if len(loader.lookup) < loader.maxLoaded {
-			break
+func (loader *Loader) worker(_ context.Context) {
+	defer loader.wg.Done()
+
+	for r := range loader.workCh {
+		if r.ctx.Err() != nil {
+			continue
 		}
-		if atomic.LoadInt64(&r.atomicFrame) < finishedFrame {
-			delete(loader.lookup, r.tag)
+
+		progressFn := func(p float32) {
+			atomic.StoreInt64(&r.atomicProgress, int64(math.Float32bits(p)))
+			loader.update()
+		}
+
+		value := r.load(r.ctx, progressFn)
+
+		if r.ctx.Err() != nil {
+			// Load was cancelled during execution; discard result.
+			continue
+		}
+
+		var bytes int64
+		if sv, ok := value.(SizedValue); ok {
+			value = sv.Value
+			bytes = sv.Bytes
+		}
+
+		r.value = value
+		r.bytes = bytes
+		atomic.StoreInt64(&r.atomicState, int64(Loaded))
+
+		loader.mu.Lock()
+		loader.lruAddHead(r)
+		loader.evictExcess(16)
+		loader.mu.Unlock()
+
+		loader.notify()
+		loader.update()
+	}
+}
+
+// LRU list operations (must hold loader.mu).
+
+func (loader *Loader) lruRemove(r *resource) {
+	if !r.inLRU {
+		return
+	}
+	if r.lruPrev != nil {
+		r.lruPrev.lruNext = r.lruNext
+	} else {
+		loader.lruHead = r.lruNext
+	}
+	if r.lruNext != nil {
+		r.lruNext.lruPrev = r.lruPrev
+	} else {
+		loader.lruTail = r.lruPrev
+	}
+	r.lruPrev = nil
+	r.lruNext = nil
+	r.inLRU = false
+	loader.lruLen--
+	loader.totalBytes -= r.bytes
+}
+
+func (loader *Loader) lruAddHead(r *resource) {
+	loader.lruRemove(r) // remove first if already present
+	r.lruNext = loader.lruHead
+	r.lruPrev = nil
+	if loader.lruHead != nil {
+		loader.lruHead.lruPrev = r
+	}
+	loader.lruHead = r
+	if loader.lruTail == nil {
+		loader.lruTail = r
+	}
+	r.inLRU = true
+	loader.lruLen++
+	loader.totalBytes += r.bytes
+}
+
+func (loader *Loader) lruPromote(r *resource) {
+	if loader.lruHead == r {
+		return
+	}
+	loader.lruRemove(r)
+	loader.lruAddHead(r)
+}
+
+func (loader *Loader) evictExcess(maxIter int) {
+	finishedFrame := atomic.LoadInt64(&loader.atomicFinishedFrame)
+
+	for i := 0; i < maxIter && loader.lruTail != nil; i++ {
+		overCount := loader.config.MaxCount > 0 && loader.lruLen > loader.config.MaxCount
+		overBytes := loader.config.MaxBytes > 0 && loader.totalBytes > loader.config.MaxBytes
+		if !overCount && !overBytes {
+			return
+		}
+
+		victim := loader.lruTail
+		// Don't evict resources seen in the current frame.
+		if atomic.LoadInt64(&victim.atomicFrame) >= finishedFrame {
+			return
+		}
+
+		loader.lruRemove(victim)
+		delete(loader.lookup, victim.tag)
+		if victim.cancel != nil {
+			victim.cancel()
 		}
 	}
 }
 
 type Tag any
 
-type Load func(ctx context.Context) any
+type Load func(ctx context.Context, progress func(float32)) any
+
+type SizedValue struct {
+	Value any
+	Bytes int64
+}
 
 type Resource struct {
-	State State
-	Value any
+	State    State
+	Value    any
+	Progress float32
 }
 
 type resource struct {
-	atomicFrame int64
-	atomicState int64
-	tag         Tag
-	load        Load
-	value       any
+	atomicFrame    int64
+	atomicState    int64
+	atomicProgress int64
+
+	tag    Tag
+	load   Load
+	value  any
+	bytes  int64
+
+	ctx    context.Context
+	cancel context.CancelFunc
+
+	// LRU doubly-linked list pointers.
+	lruPrev *resource
+	lruNext *resource
+	inLRU   bool
 }
 
 type State byte
