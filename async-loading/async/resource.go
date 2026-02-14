@@ -161,13 +161,13 @@ func (loader *Loader) purgeOld() {
 	}
 }
 
-type Tag interface{}
+type Tag any
 
-type Load func(ctx context.Context) interface{}
+type Load func(ctx context.Context) any
 
 type Resource struct {
 	State State
-	Value interface{}
+	Value any
 }
 
 type resource struct {
@@ -175,7 +175,7 @@ type resource struct {
 	atomicState int64
 	tag         Tag
 	load        Load
-	value       interface{}
+	value       any
 }
 
 type State byte

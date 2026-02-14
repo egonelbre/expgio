@@ -60,10 +60,7 @@ func run(w *app.Window) error {
 
 func drawLine(gtx layout.Context, t float32) {
 	center := gtx.Constraints.Max.Div(2)
-	radius := center.X
-	if radius > center.Y {
-		radius = center.Y
-	}
+	radius := min(center.X, center.Y)
 	r := float32(radius * 3 / 4)
 	w := r * 0.2
 	a := layout.FPt(center)

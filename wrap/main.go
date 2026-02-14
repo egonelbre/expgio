@@ -126,7 +126,7 @@ func (wrap Wrap) Layout(gtx layout.Context, itemCount int, w layout.ListElement)
 	cgtx := gtx
 	cgtx.Constraints.Min = image.Point{}
 
-	for i := 0; i < itemCount; i++ {
+	for i := range itemCount {
 		// record the drawing of the item at position i
 		macro := op.Record(gtx.Ops)
 		dims := w(cgtx, i)

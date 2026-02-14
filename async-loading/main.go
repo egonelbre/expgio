@@ -92,7 +92,7 @@ type Reels struct {
 func NewReels() *Reels {
 	reels := &Reels{}
 	reels.list.Axis = layout.Vertical
-	for index := 0; index < 100; index++ {
+	for index := range 100 {
 		reels.items = append(reels.items, &Reel{
 			index: index,
 			count: 1000,
@@ -154,7 +154,7 @@ type Data struct {
 	Item int
 }
 
-func (data *Data) Load(ctx context.Context) interface{} {
+func (data *Data) Load(ctx context.Context) any {
 	time.Sleep(5 * time.Millisecond)
 	return *data
 }

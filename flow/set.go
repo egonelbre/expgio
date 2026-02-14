@@ -1,18 +1,18 @@
 package main
 
-type Set map[interface{}]struct{}
+type Set map[any]struct{}
 
 func NewSet() Set { return make(Set) }
 
 func (s Set) Len() int    { return len(s) }
 func (s Set) Empty() bool { return s.Len() == 0 }
 
-func (s Set) Contains(v interface{}) bool {
+func (s Set) Contains(v any) bool {
 	_, ok := s[v]
 	return ok
 }
 
-func (s Set) Toggle(v interface{}) {
+func (s Set) Toggle(v any) {
 	if s.Contains(v) {
 		s.Exclude(v)
 	} else {
@@ -20,7 +20,7 @@ func (s Set) Toggle(v interface{}) {
 	}
 }
 
-func (s Set) Include(v interface{}) bool {
+func (s Set) Include(v any) bool {
 	if s.Contains(v) {
 		return false
 	}
@@ -28,7 +28,7 @@ func (s Set) Include(v interface{}) bool {
 	return true
 }
 
-func (s Set) Exclude(v interface{}) bool {
+func (s Set) Exclude(v any) bool {
 	if s.Contains(v) {
 		delete(s, v)
 		return true
@@ -36,7 +36,7 @@ func (s Set) Exclude(v interface{}) bool {
 	return false
 }
 
-func (s Set) Set(v interface{}) {
+func (s Set) Set(v any) {
 	s.Clear()
 	s.Include(v)
 }

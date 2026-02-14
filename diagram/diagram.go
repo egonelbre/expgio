@@ -86,21 +86,21 @@ func (sel *Selection) Clear() {
 	sel.Selected = Set{}
 }
 
-func (sel *Selection) Contains(v interface{}) bool {
+func (sel *Selection) Contains(v any) bool {
 	_, ok := sel.Selected[v]
 	return ok
 }
 
-func (sel *Selection) Toggle(v interface{}) {
+func (sel *Selection) Toggle(v any) {
 	sel.Selected.Toggle(v)
 }
 
-func (sel *Selection) Set(v interface{}) {
+func (sel *Selection) Set(v any) {
 	sel.Clear()
 	sel.Selected.Include(v)
 }
 
-func (sel *Selection) Select(v interface{}) {
+func (sel *Selection) Select(v any) {
 	if !sel.Selected.Contains(v) {
 		sel.Set(v)
 	}

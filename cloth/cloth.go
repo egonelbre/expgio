@@ -45,8 +45,8 @@ func NewCloth(n int) *Cloth {
 	fndiag := fninv * sqrt(2)
 	_ = fndiag
 
-	for y := 0; y < n; y++ {
-		for x := 0; x < n; x++ {
+	for y := range n {
+		for x := range n {
 			v := &cloth.Vertices[y*n+x]
 			fx, fy := float32(x), float32(y)
 			v.Position = Vector{fx / fn, fy / fn}

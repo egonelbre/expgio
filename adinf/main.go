@@ -70,7 +70,7 @@ func render(gtx layout.Context, t float32) {
 	radius := Min(screenSize.X, screenSize.Y) * 0.7 / 3
 
 	const n = 256
-	for i := 0; i < n; i++ {
+	for i := range n {
 		r := float32(i) / n
 		p := curve(t+r*1.2+Sin(t+r)*3, radius+Sin(r*1.1)*30)
 		q := radius * 0.3 * pcurve(float32(i)/(n-1), 1.5, 0.6)

@@ -77,8 +77,8 @@ func (ui *UI) Layout(gtx layout.Context) layout.Dimensions {
 	square := image.Point{X: squareSize, Y: squareSize}
 
 	i := pointer.Cursor(0)
-	for row := 0; row < rows; row++ {
-		for col := 0; col < cols; col++ {
+	for row := range rows {
+		for col := range cols {
 			if i >= cursorCount {
 				break
 			}

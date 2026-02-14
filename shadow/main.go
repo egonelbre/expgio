@@ -42,7 +42,7 @@ func loop(w *app.Window) error {
 
 			gtx.Execute(op.InvalidateCmd{})
 
-			for dp := 0; dp < 24; dp++ {
+			for dp := range 24 {
 				ix := dp % 6
 				iy := dp / 6
 				offset := f32.Pt(float32(50+150*ix), float32(50+150*iy))

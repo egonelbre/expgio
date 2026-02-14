@@ -28,8 +28,8 @@ func main() {
 			if ev, ok := e.(app.FrameEvent); ok {
 				gtx := app.NewContext(&ops, ev)
 
-				for x := 0; x < 70; x++ {
-					for y := 0; y < 70; y++ {
+				for x := range 70 {
+					for y := range 70 {
 						stack := clip.Rect{
 							Min: image.Point{X: x * 10, Y: y * 10},
 							Max: image.Point{X: x*10 + 10, Y: y*10 + 10},

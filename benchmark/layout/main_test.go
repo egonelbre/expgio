@@ -21,7 +21,7 @@ func BenchmarkLayout(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		gtx := app.NewContext(ops, app.FrameEvent{})
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			material.Label(t, 10, "abcdefghijklmnopqrstuvwxyz").Layout(gtx)
 			material.Label(t, 10, "oifajmorfj983 4mroaermfnkli").Layout(gtx)
 			material.Label(t, 10, "1234 1234 5434 1234 41234").Layout(gtx)

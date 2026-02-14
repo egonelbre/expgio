@@ -36,10 +36,7 @@ type ZoomHud struct {
 
 func (hud *ZoomHud) Layout(gtx *Context) {
 	layout.NW.Layout(gtx.Context, func(lgtx layout.Context) layout.Dimensions {
-		lgtx.Constraints.Min.X = lgtx.Dp(100)
-		if lgtx.Constraints.Min.X > lgtx.Constraints.Max.X {
-			lgtx.Constraints.Min.X = lgtx.Constraints.Max.X
-		}
+		lgtx.Constraints.Min.X = min(lgtx.Dp(100), lgtx.Constraints.Max.X)
 
 		hud.slider.Value = float32(hud.Zoom.Level) / float32(len(ZoomLevels)-1)
 		size := material.Slider(gtx.Theme.Theme, &hud.slider).Layout(lgtx)
